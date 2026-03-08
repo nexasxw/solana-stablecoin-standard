@@ -1,0 +1,10 @@
+.anchor
+.DS_Store
+target/
+node_modules/
+dist/
+.env
+test-ledger/
+**/*.rs.bk
+yarn-error.log
+*.log

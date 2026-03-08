@@ -1,0 +1,15 @@
+[package]
+name = "fuzz_0"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[[bin]]
+name = "fuzz_0"
+path = "src/bin/fuzz_0.rs"
+doc = false
+
+[dependencies]
+trident-fuzz = "0.8"
+anchor-lang = "0.31.1"
+sss-1 = { path = "../../programs/sss-1" }

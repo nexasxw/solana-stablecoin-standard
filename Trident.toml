@@ -1,0 +1,12 @@
+[fuzz]
+fuzzing_with_stats = false
+allow_duplicate_txs = false
+
+[[programs_fuzz]]
+id = "SSS1111111111111111111111111111111111111111"
+
+[[programs_fuzz]]
+id = "SSS2222222222222222222222222222222222222222"
+
+[[programs_fuzz]]
+id = "SSSHook111111111111111111111111111111111111"

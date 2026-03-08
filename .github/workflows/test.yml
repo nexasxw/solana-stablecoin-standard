@@ -1,0 +1,72 @@
+name: Test
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: "yarn"
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Lint
+        run: yarn lint
+
+      - name: Format check
+        run: yarn format:check
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20.x, 22.x]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "yarn"
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: "1.82"
+
+      - name: Install Solana
+        run: |
+          sh -c "$(curl -sSfL https://release.solana.com/v1.18.0/install)"
+          echo "$HOME/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
+
+      - name: Install Anchor
+        run: cargo install --git https://github.com/coral-xyz/anchor avm --locked
+          && avm install 0.31.1 && avm use 0.31.1
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Build SDK
+        run: cd sdk/core && yarn build
+
+      - name: Type check
+        run: cd sdk/core && npx tsc --noEmit
+
+      - name: Build programs
+        run: anchor build
+
+      - name: Run SDK tests
+        run: yarn test:sdk
+
+      - name: Run integration tests
+        run: anchor test

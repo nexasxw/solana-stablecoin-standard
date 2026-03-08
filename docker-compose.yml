@@ -1,0 +1,99 @@
+services:
+  mint-burn:
+    build: ./services/mint-burn
+    ports:
+      - "3001:3001"
+    environment:
+      - RPC_URL=${RPC_URL:-http://localhost:8899}
+      - AUTHORITY_KEYPAIR=${AUTHORITY_KEYPAIR}
+      - SSS1_PROGRAM_ID=${SSS1_PROGRAM_ID}
+      - SSS2_PROGRAM_ID=${SSS2_PROGRAM_ID}
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/sss
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  indexer:
+    build: ./services/indexer
+    environment:
+      - RPC_URL=${RPC_URL:-http://localhost:8899}
+      - WS_URL=${WS_URL:-ws://localhost:8900}
+      - SSS1_PROGRAM_ID=${SSS1_PROGRAM_ID}
+      - SSS2_PROGRAM_ID=${SSS2_PROGRAM_ID}
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/sss
+      - WEBHOOK_URL=http://webhook:3003
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3002/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  compliance:
+    build: ./services/compliance
+    profiles: ["sss2"]
+    ports:
+      - "3004:3004"
+    environment:
+      - RPC_URL=${RPC_URL:-http://localhost:8899}
+      - SSS2_PROGRAM_ID=${SSS2_PROGRAM_ID}
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/sss
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3004/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  webhook:
+    build: ./services/webhook
+    ports:
+      - "3003:3003"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/sss
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
+      - postgres
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3003/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: sss
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  postgres_data:
+  redis_data:
