@@ -21,7 +21,8 @@ pub struct StablecoinConfig {
 }
 
 /// Primary stablecoin state account for the shared lifecycle surface.
-/// Seeds: `[STABLECOIN_SEED, mint]`
+/// Seeds: `[STABLECOIN_SEED, mint]` to keep the address stable after authority
+/// transfer and across every lifecycle instruction.
 #[account]
 pub struct Stablecoin {
     /// Current master authority. Mutable, so it is never part of PDA derivation.
@@ -60,7 +61,8 @@ impl Stablecoin {
 }
 
 /// Per-minter quota account.
-/// Seeds: `[MINTER_SEED, stablecoin, minter_pubkey]`
+/// Seeds: `[MINTER_SEED, stablecoin, minter_pubkey]` so quotas follow the
+/// stablecoin PDA rather than any mutable operator key.
 #[account]
 pub struct MinterConfig {
     /// Associated stablecoin
