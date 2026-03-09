@@ -70,6 +70,20 @@ pub struct MinterRemoved {
 }
 
 #[event]
+pub struct RolesUpdated {
+    pub stablecoin: Pubkey,
+    pub authority: Pubkey,
+    pub previous_pauser: Pubkey,
+    pub new_pauser: Pubkey,
+    pub previous_burner: Pubkey,
+    pub new_burner: Pubkey,
+    pub previous_blacklister: Pubkey,
+    pub new_blacklister: Pubkey,
+    pub previous_seizer: Pubkey,
+    pub new_seizer: Pubkey,
+}
+
+#[event]
 pub struct AddedToBlacklist {
     pub stablecoin: Pubkey,
     pub address: Pubkey,

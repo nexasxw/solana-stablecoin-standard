@@ -68,3 +68,13 @@ pub struct MinterRemoved {
     pub stablecoin: Pubkey,
     pub minter: Pubkey,
 }
+
+#[event]
+pub struct RolesUpdated {
+    pub stablecoin: Pubkey,
+    pub authority: Pubkey,
+    pub previous_pauser: Pubkey,
+    pub new_pauser: Pubkey,
+    pub previous_burner: Pubkey,
+    pub new_burner: Pubkey,
+}

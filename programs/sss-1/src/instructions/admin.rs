@@ -111,14 +111,34 @@ pub fn unpause(ctx: Context<Admin>) -> Result<()> {
 
 pub fn update_minter(ctx: Context<UpdateMinter>, quota: u64) -> Result<()> {
     let minter_config = &mut ctx.accounts.minter_config;
-    minter_config.stablecoin = ctx.accounts.stablecoin.key();
-    minter_config.minter = ctx.accounts.minter.key();
+    let stablecoin_key = ctx.accounts.stablecoin.key();
+    let minter_key = ctx.accounts.minter.key();
+    let is_new_config = minter_config.stablecoin == Pubkey::default()
+        && minter_config.minter == Pubkey::default()
+        && minter_config.minted == 0
+        && minter_config.quota == 0;
+
+    if !is_new_config {
+        require_keys_eq!(
+            minter_config.stablecoin,
+            stablecoin_key,
+            StablecoinError::Unauthorized
+        );
+        require_keys_eq!(
+            minter_config.minter,
+            minter_key,
+            StablecoinError::Unauthorized
+        );
+    }
+
+    minter_config.stablecoin = stablecoin_key;
+    minter_config.minter = minter_key;
     minter_config.quota = quota;
     minter_config.bump = ctx.bumps.minter_config;
 
     emit!(MinterUpdated {
         stablecoin: ctx.accounts.stablecoin.key(),
-        minter: ctx.accounts.minter.key(),
+        minter: minter_key,
         quota,
     });
     Ok(())
@@ -138,17 +158,39 @@ pub fn update_roles(
     new_burner: Option<Pubkey>,
 ) -> Result<()> {
     let stablecoin = &mut ctx.accounts.stablecoin;
+    let previous_pauser = stablecoin.pauser;
+    let previous_burner = stablecoin.burner;
+
     if let Some(pauser) = new_pauser {
         stablecoin.pauser = pauser;
     }
     if let Some(burner) = new_burner {
         stablecoin.burner = burner;
     }
+
+    require!(
+        stablecoin.pauser != previous_pauser || stablecoin.burner != previous_burner,
+        StablecoinError::NoRoleChanges
+    );
+
+    emit!(RolesUpdated {
+        stablecoin: stablecoin.key(),
+        authority: ctx.accounts.authority.key(),
+        previous_pauser,
+        new_pauser: stablecoin.pauser,
+        previous_burner,
+        new_burner: stablecoin.burner,
+    });
+
     Ok(())
 }
 
 pub fn transfer_authority(ctx: Context<Admin>, new_authority: Pubkey) -> Result<()> {
     let previous = ctx.accounts.stablecoin.authority;
+    require!(
+        new_authority != Pubkey::default() && new_authority != previous,
+        StablecoinError::InvalidAuthorityTransfer
+    );
     ctx.accounts.stablecoin.authority = new_authority;
     emit!(AuthorityTransferred {
         stablecoin: ctx.accounts.stablecoin.key(),
