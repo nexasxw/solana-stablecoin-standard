@@ -3,9 +3,9 @@
 use anchor_lang::{
     prelude::*,
     solana_program::program::{invoke, invoke_signed},
-    system_program::{self, CreateAccount},
+    system_program::CreateAccount,
 };
-use anchor_spl::{associated_token::AssociatedToken, token_interface::TokenInterface};
+use anchor_spl::token_interface::TokenInterface;
 use spl_token_2022::{
     extension::{
         metadata_pointer::instruction::initialize as initialize_metadata_pointer, ExtensionType,
@@ -43,7 +43,6 @@ pub struct Initialize<'info> {
     pub mint: Signer<'info>,
 
     pub token_program: Interface<'info, TokenInterface>,
-    pub associated_token_program: Program<'info, AssociatedToken>,
     pub system_program: Program<'info, System>,
     pub rent: Sysvar<'info, Rent>,
 }
@@ -63,8 +62,8 @@ pub fn handler(ctx: Context<Initialize>, config: StablecoinConfig) -> Result<()>
     stablecoin.pauser = authority_key;
     stablecoin.burner = authority_key;
     stablecoin.paused = false;
-    stablecoin.permanent_delegate_enabled = false;
-    stablecoin.transfer_hook_enabled = false;
+    stablecoin.permanent_delegate_enabled = config.enable_permanent_delegate;
+    stablecoin.transfer_hook_enabled = config.enable_transfer_hook;
     stablecoin.bump = ctx.bumps.stablecoin;
     stablecoin._reserved = [0u8; 64];
 
@@ -75,8 +74,8 @@ pub fn handler(ctx: Context<Initialize>, config: StablecoinConfig) -> Result<()>
         name: config.name,
         symbol: config.symbol,
         decimals: config.decimals,
-        permanent_delegate_enabled: false,
-        transfer_hook_enabled: false,
+        permanent_delegate_enabled: stablecoin.permanent_delegate_enabled,
+        transfer_hook_enabled: stablecoin.transfer_hook_enabled,
     });
 
     Ok(())
@@ -108,7 +107,7 @@ fn create_mint_account(ctx: &Context<Initialize>, config: &StablecoinConfig) -> 
     let mint_space = mint_account_space(config)?;
     let lamports = ctx.accounts.rent.minimum_balance(mint_space);
 
-    system_program::create_account(
+    anchor_lang::system_program::create_account(
         CpiContext::new(
             ctx.accounts.system_program.to_account_info(),
             CreateAccount {
@@ -129,7 +128,9 @@ fn initialize_mint(ctx: &Context<Initialize>, config: &StablecoinConfig) -> Resu
     let mint_key = ctx.accounts.mint.key();
     let token_program_key = ctx.accounts.token_program.key();
     let stablecoin_bump = [ctx.bumps.stablecoin];
-    let signer_seeds = &[&[STABLECOIN_SEED, mint_key.as_ref(), &stablecoin_bump][..]];
+    let signer_seeds: &[&[u8]] = &[STABLECOIN_SEED, mint_key.as_ref(), &stablecoin_bump];
+    let mint_info = ctx.accounts.mint.to_account_info();
+    let stablecoin_info = ctx.accounts.stablecoin.to_account_info();
 
     invoke(
         &initialize_metadata_pointer(
@@ -138,18 +139,12 @@ fn initialize_mint(ctx: &Context<Initialize>, config: &StablecoinConfig) -> Resu
             Some(stablecoin_key),
             Some(mint_key),
         )?,
-        &[
-            ctx.accounts.token_program.to_account_info(),
-            ctx.accounts.mint.to_account_info(),
-        ],
+        std::slice::from_ref(&mint_info),
     )?;
 
     invoke(
         &initialize_mint_close_authority(&token_program_key, &mint_key, Some(&stablecoin_key))?,
-        &[
-            ctx.accounts.token_program.to_account_info(),
-            ctx.accounts.mint.to_account_info(),
-        ],
+        std::slice::from_ref(&mint_info),
     )?;
 
     invoke(
@@ -160,10 +155,7 @@ fn initialize_mint(ctx: &Context<Initialize>, config: &StablecoinConfig) -> Resu
             Some(&stablecoin_key),
             config.decimals,
         )?,
-        &[
-            ctx.accounts.token_program.to_account_info(),
-            ctx.accounts.mint.to_account_info(),
-        ],
+        std::slice::from_ref(&mint_info),
     )?;
 
     invoke_signed(
@@ -178,13 +170,12 @@ fn initialize_mint(ctx: &Context<Initialize>, config: &StablecoinConfig) -> Resu
             config.uri.clone(),
         ),
         &[
-            ctx.accounts.token_program.to_account_info(),
-            ctx.accounts.mint.to_account_info(),
-            ctx.accounts.stablecoin.to_account_info(),
-            ctx.accounts.mint.to_account_info(),
-            ctx.accounts.stablecoin.to_account_info(),
+            mint_info.clone(),
+            stablecoin_info.clone(),
+            mint_info,
+            stablecoin_info,
         ],
-        signer_seeds,
+        &[signer_seeds],
     )?;
 
     Ok(())
