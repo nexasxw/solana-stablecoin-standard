@@ -13,7 +13,7 @@ This roadmap imports the existing Linear project plan into the local GSD workflo
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Monorepo Foundation** - Establish the Anchor and TypeScript workspace baseline described by NEX-5
-- [ ] **Phase 2: Layer 1 Core Program** - Build the shared stablecoin contract that all later layers depend on
+- [x] **Phase 2: Layer 1 Core Program** - Build the shared stablecoin contract that all later layers depend on
 - [ ] **Phase 3: Compliance Module** - Add the transfer-hook and blacklist enforcement needed for SSS-2
 - [ ] **Phase 4: Preset Configurations** - Ship the SSS-1 and SSS-2 presets plus custom config validation
 - [ ] **Phase 5: TypeScript SDK** - Expose developer-facing APIs for initialization and operations
@@ -55,7 +55,7 @@ Plans:
 - [x] 02-01: Lock the shared account model and PDA strategy
 - [x] 02-02: Implement real Token-2022 initialization for the Layer 1 baseline
 - [x] 02-03: Harden lifecycle and admin behavior around explicit errors and safe authority updates
-- [ ] 02-04: Build the authoritative Phase 2 integration test suite
+- [x] 02-04: Build the authoritative Phase 2 integration test suite
 
 ### Phase 3: Compliance Module
 **Goal**: Deliver the SSS-2 compliance layer using a transfer-hook program, blacklist PDAs, and seizure support.
@@ -195,7 +195,7 @@ Phases execute in numeric order: 2 → 2.1 → 2.2 → 3 → 3.1 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Monorepo Foundation | 1/1 | Complete | 2026-03-09 |
-| 2. Layer 1 Core Program | 3/4 | In Progress | - |
+| 2. Layer 1 Core Program | 4/4 | Complete | 2026-03-09 |
 | 3. Compliance Module | 0/1 | Not started | - |
 | 4. Preset Configurations | 0/1 | Not started | - |
 | 5. TypeScript SDK | 0/1 | Not started | - |
