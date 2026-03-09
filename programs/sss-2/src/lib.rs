@@ -89,6 +89,11 @@ pub mod sss_2 {
         instructions::admin::transfer_authority(ctx, new_authority)
     }
 
+    /// Set or rotate the designated treasury token account used for seizure.
+    pub fn set_treasury(ctx: Context<SetTreasury>) -> Result<()> {
+        instructions::admin::set_treasury(ctx)
+    }
+
     // ============ SSS-2 Compliance Instructions ============
 
     /// Add an address to the blacklist (blacklister role required)

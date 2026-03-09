@@ -63,4 +63,19 @@ pub enum StablecoinError {
 
     #[msg("Permanent delegate not enabled — initialize with enable_permanent_delegate = true")]
     PermanentDelegateNotEnabled,
+
+    #[msg("Blacklist reason must be non-empty and within the allowed length")]
+    InvalidBlacklistReason,
+
+    #[msg("Treasury token account is not configured")]
+    TreasuryNotConfigured,
+
+    #[msg("Treasury token account does not match the configured treasury")]
+    InvalidTreasuryAccount,
+
+    #[msg("Seize target owner is not blacklisted")]
+    SeizeTargetNotBlacklisted,
+
+    #[msg("Seize target token account must be frozen")]
+    SeizeTargetNotFrozen,
 }

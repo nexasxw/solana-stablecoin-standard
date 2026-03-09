@@ -2,9 +2,14 @@
 
 use anchor_lang::{
     prelude::*,
-    solana_program::program::invoke,
+    solana_program::{
+        hash::hash,
+        instruction::{AccountMeta, Instruction},
+        program::invoke,
+    },
     system_program::CreateAccount,
 };
+use anchor_spl::associated_token::AssociatedToken;
 use anchor_spl::token_interface::TokenInterface;
 use spl_token_2022::{
     extension::{
@@ -41,8 +46,22 @@ pub struct Initialize<'info> {
     #[account(mut)]
     pub mint: Signer<'info>,
 
+    /// CHECK: PDA owned by the transfer-hook program, initialized via CPI
+    #[account(
+        mut,
+        seeds = [b"extra-account-metas", mint.key().as_ref()],
+        seeds::program = transfer_hook_program.key(),
+        bump,
+    )]
+    pub extra_account_meta_list: UncheckedAccount<'info>,
+
+    /// CHECK: transfer-hook program address locked to the configured SSS hook
+    #[account(address = SSS_TRANSFER_HOOK_PROGRAM_ID)]
+    pub transfer_hook_program: UncheckedAccount<'info>,
+
     pub token_program: Interface<'info, TokenInterface>,
     pub system_program: Program<'info, System>,
+    pub associated_token_program: Program<'info, AssociatedToken>,
     pub rent: Sysvar<'info, Rent>,
 }
 
@@ -64,8 +83,9 @@ pub fn handler(ctx: Context<Initialize>, config: StablecoinConfig) -> Result<()>
     stablecoin.paused = false;
     stablecoin.permanent_delegate_enabled = config.enable_permanent_delegate;
     stablecoin.transfer_hook_enabled = config.enable_transfer_hook;
+    stablecoin.treasury_token_account = Pubkey::default();
     stablecoin.bump = ctx.bumps.stablecoin;
-    stablecoin._reserved = [0u8; 64];
+    stablecoin._reserved = [0u8; 32];
 
     emit!(StablecoinInitialized {
         stablecoin: stablecoin_key,
@@ -160,7 +180,39 @@ fn initialize_mint(ctx: &Context<Initialize>, config: &StablecoinConfig) -> Resu
         std::slice::from_ref(&mint_info),
     )?;
 
+    initialize_hook_extra_account_metas(ctx)?;
+
     Ok(())
+}
+
+fn initialize_hook_extra_account_metas(ctx: &Context<Initialize>) -> Result<()> {
+    let instruction = Instruction {
+        program_id: ctx.accounts.transfer_hook_program.key(),
+        accounts: vec![
+            AccountMeta::new(ctx.accounts.extra_account_meta_list.key(), false),
+            AccountMeta::new_readonly(ctx.accounts.mint.key(), false),
+            AccountMeta::new(ctx.accounts.authority.key(), true),
+            AccountMeta::new_readonly(ctx.accounts.system_program.key(), false),
+        ],
+        data: anchor_discriminator("initialize_extra_account_meta_list"),
+    };
+
+    invoke(
+        &instruction,
+        &[
+            ctx.accounts.extra_account_meta_list.to_account_info(),
+            ctx.accounts.mint.to_account_info(),
+            ctx.accounts.authority.to_account_info(),
+            ctx.accounts.system_program.to_account_info(),
+            ctx.accounts.transfer_hook_program.to_account_info(),
+        ],
+    )?;
+
+    Ok(())
+}
+
+fn anchor_discriminator(name: &str) -> Vec<u8> {
+    hash(format!("global:{name}").as_bytes()).to_bytes()[..8].to_vec()
 }
 
 fn mint_account_space(_config: &StablecoinConfig) -> Result<usize> {

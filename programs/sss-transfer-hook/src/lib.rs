@@ -7,8 +7,6 @@
 //! Rejects any transfer where the sender or recipient is on the blacklist.
 
 use anchor_lang::prelude::*;
-use spl_transfer_hook_interface::instruction::ExecuteInstruction;
-
 pub mod constants;
 pub mod error;
 pub mod instructions;
@@ -24,6 +22,7 @@ pub mod sss_transfer_hook {
 
     /// Called by Token-2022 on every transfer. Checks blacklist for sender and recipient.
     /// Accounts include extra_account_metas PDA resolved at transfer time.
+    #[instruction(discriminator = [105, 37, 101, 197, 75, 251, 102, 26])]
     pub fn transfer_hook(ctx: Context<TransferHook>, amount: u64) -> Result<()> {
         instructions::transfer_hook::handler(ctx, amount)
     }

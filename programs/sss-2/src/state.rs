@@ -45,8 +45,11 @@ pub struct Stablecoin {
     /// Immutable record of whether the mint was initialized with a transfer
     /// hook extension. Valid SSS-2 mints set this to `true`.
     pub transfer_hook_enabled: bool,
+    /// Designated treasury token account for seized funds.
+    /// `Pubkey::default()` means no treasury configured yet.
+    pub treasury_token_account: Pubkey,
     pub bump: u8,
-    pub _reserved: [u8; 64],
+    pub _reserved: [u8; 32],
 }
 
 impl Stablecoin {
@@ -60,8 +63,9 @@ impl Stablecoin {
         + 1   // paused
         + 1   // permanent_delegate_enabled
         + 1   // transfer_hook_enabled
+        + 32  // treasury_token_account
         + 1   // bump
-        + 64; // _reserved
+        + 32; // _reserved
 
     pub const SEED_PREFIX: &'static [u8] = STABLECOIN_SEED;
 }
@@ -103,6 +107,6 @@ pub struct BlacklistEntry {
 
 impl BlacklistEntry {
     // reason max 128 bytes
-    pub const LEN: usize = 8 + 32 + 32 + 32 + 8 + (4 + 128) + 1;
+    pub const LEN: usize = 8 + 32 + 32 + 32 + 8 + (4 + MAX_BLACKLIST_REASON_LEN) + 1;
     pub const SEED_PREFIX: &'static [u8] = BLACKLIST_SEED;
 }

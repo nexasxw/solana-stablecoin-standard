@@ -3,7 +3,10 @@
 use anchor_lang::prelude::*;
 use anchor_spl::token_interface::{Mint, TokenAccount};
 
-use crate::{constants::BLACKLIST_SEED, error::HookError, state::BlacklistEntry};
+use crate::{
+    constants::{BLACKLIST_SEED, EXTRA_ACCOUNT_METAS_SEED, SSS_2_PROGRAM_ID, STABLECOIN_SEED},
+    error::HookError,
+};
 
 #[derive(Accounts)]
 pub struct TransferHook<'info> {
@@ -20,40 +23,52 @@ pub struct TransferHook<'info> {
 
     /// CHECK: extra account metas PDA (required by Token-2022 hook interface)
     #[account(
-        seeds = [b"extra-account-metas", mint.key().as_ref()],
+        seeds = [EXTRA_ACCOUNT_METAS_SEED, mint.key().as_ref()],
         bump,
     )]
     pub extra_account_meta_list: UncheckedAccount<'info>,
 
+    /// CHECK: fixed account used to resolve the SSS-2 stablecoin PDA
+    #[account(address = SSS_2_PROGRAM_ID)]
+    pub sss_2_program: UncheckedAccount<'info>,
+
     /// CHECK: stablecoin state PDA (passed as extra account meta)
+    #[account(
+        seeds = [STABLECOIN_SEED, mint.key().as_ref()],
+        seeds::program = sss_2_program.key(),
+        bump,
+    )]
     pub stablecoin: UncheckedAccount<'info>,
 
-    /// Blacklist entry for source owner — if it exists, transfer is rejected
+    /// CHECK: blacklist PDA derived in the SSS-2 program; may be uninitialized.
     #[account(
         seeds = [BLACKLIST_SEED, stablecoin.key().as_ref(), owner.key().as_ref()],
+        seeds::program = sss_2_program.key(),
         bump,
     )]
-    pub sender_blacklist_entry: Option<Account<'info, BlacklistEntry>>,
+    pub sender_blacklist_entry: UncheckedAccount<'info>,
 
-    /// Blacklist entry for destination owner — if it exists, transfer is rejected
-    /// CHECK: destination token account owner
-    pub destination_owner: UncheckedAccount<'info>,
-
+    /// CHECK: blacklist PDA derived in the SSS-2 program; may be uninitialized.
     #[account(
-        seeds = [BLACKLIST_SEED, stablecoin.key().as_ref(), destination_owner.key().as_ref()],
+        seeds = [BLACKLIST_SEED, stablecoin.key().as_ref(), destination_token.owner.as_ref()],
+        seeds::program = sss_2_program.key(),
         bump,
     )]
-    pub recipient_blacklist_entry: Option<Account<'info, BlacklistEntry>>,
+    pub recipient_blacklist_entry: UncheckedAccount<'info>,
 }
 
 pub fn handler(ctx: Context<TransferHook>, _amount: u64) -> Result<()> {
     require!(
-        ctx.accounts.sender_blacklist_entry.is_none(),
+        !is_initialized_blacklist_entry(&ctx.accounts.sender_blacklist_entry),
         HookError::SenderBlacklisted
     );
     require!(
-        ctx.accounts.recipient_blacklist_entry.is_none(),
+        !is_initialized_blacklist_entry(&ctx.accounts.recipient_blacklist_entry),
         HookError::RecipientBlacklisted
     );
     Ok(())
+}
+
+fn is_initialized_blacklist_entry(account: &UncheckedAccount) -> bool {
+    account.owner == &SSS_2_PROGRAM_ID && !account.data_is_empty()
 }

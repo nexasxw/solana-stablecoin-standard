@@ -84,6 +84,14 @@ pub struct RolesUpdated {
 }
 
 #[event]
+pub struct TreasuryUpdated {
+    pub stablecoin: Pubkey,
+    pub authority: Pubkey,
+    pub previous_treasury: Pubkey,
+    pub new_treasury: Pubkey,
+}
+
+#[event]
 pub struct AddedToBlacklist {
     pub stablecoin: Pubkey,
     pub address: Pubkey,
@@ -103,6 +111,7 @@ pub struct TokensSeized {
     pub stablecoin: Pubkey,
     pub from: Pubkey,
     pub to: Pubkey,
+    pub owner: Pubkey,
     pub amount: u64,
     pub seized_by: Pubkey,
 }

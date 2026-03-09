@@ -1,6 +1,7 @@
 //! SSS-2 admin instruction handlers (extends SSS-1 with blacklister/seizer roles).
 
 use anchor_lang::prelude::*;
+use anchor_spl::token_interface::{Mint, TokenAccount};
 
 use crate::{
     constants::{MINTER_SEED, STABLECOIN_SEED},
@@ -83,6 +84,25 @@ pub struct UpdateRoles<'info> {
         has_one = authority @ StablecoinError::Unauthorized,
     )]
     pub stablecoin: Account<'info, Stablecoin>,
+}
+
+#[derive(Accounts)]
+pub struct SetTreasury<'info> {
+    pub authority: Signer<'info>,
+
+    #[account(
+        mut,
+        seeds = [STABLECOIN_SEED, stablecoin.mint.as_ref()],
+        bump = stablecoin.bump,
+        has_one = authority @ StablecoinError::Unauthorized,
+    )]
+    pub stablecoin: Account<'info, Stablecoin>,
+
+    #[account(address = stablecoin.mint)]
+    pub mint: InterfaceAccount<'info, Mint>,
+
+    #[account(token::mint = mint)]
+    pub treasury_token_account: InterfaceAccount<'info, TokenAccount>,
 }
 
 pub fn pause(ctx: Context<Admin>) -> Result<()> {
@@ -209,5 +229,27 @@ pub fn transfer_authority(ctx: Context<Admin>, new_authority: Pubkey) -> Result<
         previous_authority: previous,
         new_authority,
     });
+    Ok(())
+}
+
+pub fn set_treasury(ctx: Context<SetTreasury>) -> Result<()> {
+    let stablecoin = &mut ctx.accounts.stablecoin;
+    let previous_treasury = stablecoin.treasury_token_account;
+    let new_treasury = ctx.accounts.treasury_token_account.key();
+
+    require!(
+        new_treasury != Pubkey::default() && new_treasury != previous_treasury,
+        StablecoinError::InvalidTreasuryAccount
+    );
+
+    stablecoin.treasury_token_account = new_treasury;
+
+    emit!(TreasuryUpdated {
+        stablecoin: stablecoin.key(),
+        authority: ctx.accounts.authority.key(),
+        previous_treasury,
+        new_treasury,
+    });
+
     Ok(())
 }

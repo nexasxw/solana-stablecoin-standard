@@ -6,9 +6,11 @@ import * as anchor from "@coral-xyz/anchor";
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   TOKEN_2022_PROGRAM_ID,
+  createTransferCheckedWithTransferHookInstruction,
   createAssociatedTokenAccountInstruction,
   getAccount,
   getAssociatedTokenAddressSync,
+  getExtraAccountMetaAddress,
   getMint,
 } from "@solana/spl-token";
 import {
@@ -24,6 +26,7 @@ import { expect } from "chai";
 
 export const STABLECOIN_SEED = Buffer.from("stablecoin");
 export const MINTER_SEED = Buffer.from("minter");
+export const BLACKLIST_SEED = Buffer.from("blacklist");
 export const TOKEN_2022_PROGRAM = TOKEN_2022_PROGRAM_ID;
 export const ASSOCIATED_TOKEN_PROGRAM = ASSOCIATED_TOKEN_PROGRAM_ID;
 export const RENT_SYSVAR = SYSVAR_RENT_PUBKEY;
@@ -75,6 +78,24 @@ export function findMinterPda(
   );
 }
 
+export function findBlacklistPda(
+  stablecoin: PublicKey,
+  owner: PublicKey,
+  programId: PublicKey
+): [PublicKey, number] {
+  return PublicKey.findProgramAddressSync(
+    [BLACKLIST_SEED, stablecoin.toBuffer(), owner.toBuffer()],
+    programId
+  );
+}
+
+export function findExtraAccountMetasPda(
+  mint: PublicKey,
+  hookProgramId: PublicKey
+): PublicKey {
+  return getExtraAccountMetaAddress(mint, hookProgramId);
+}
+
 export async function createToken2022Ata(
   connection: Connection,
   payer: Keypair,
@@ -114,6 +135,32 @@ export async function fetchToken2022Mint(
   mint: PublicKey
 ) {
   return getMint(connection, mint, "confirmed", TOKEN_2022_PROGRAM_ID);
+}
+
+export async function transferWithHook(
+  connection: Connection,
+  payer: Keypair,
+  source: PublicKey,
+  mint: PublicKey,
+  destination: PublicKey,
+  owner: Keypair,
+  amount: bigint,
+  decimals: number
+): Promise<string> {
+  const ix = await createTransferCheckedWithTransferHookInstruction(
+    connection,
+    source,
+    mint,
+    destination,
+    owner.publicKey,
+    amount,
+    decimals,
+    [],
+    "confirmed",
+    TOKEN_2022_PROGRAM_ID
+  );
+  const tx = new Transaction().add(ix);
+  return anchor.web3.sendAndConfirmTransaction(connection, tx, [payer, owner]);
 }
 
 export async function expectAnchorError(
