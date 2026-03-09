@@ -10,6 +10,8 @@ pub struct StablecoinInitialized {
     pub name: String,
     pub symbol: String,
     pub decimals: u8,
+    pub permanent_delegate_enabled: bool,
+    pub transfer_hook_enabled: bool,
 }
 
 #[event]

@@ -8,3 +8,16 @@ test-ledger/
 **/*.rs.bk
 yarn-error.log
 *.log
+.claude/
+.codex/
+vendor/**/Cargo.lock
+vendor/**/Cargo.toml.orig
+vendor/**/README
+vendor/**/LICENSE*
+vendor/**/benches/
+vendor/**/tests/
+vendor/**/build/
+vendor/**/media/
+vendor/**/tools/
+vendor/**/c/
+trident-tests/fuzz_0/

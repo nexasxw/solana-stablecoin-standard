@@ -17,7 +17,7 @@ pub struct Admin<'info> {
 
     #[account(
         mut,
-        seeds = [STABLECOIN_SEED, authority.key().as_ref()],
+        seeds = [STABLECOIN_SEED, stablecoin.mint.as_ref()],
         bump = stablecoin.bump,
         has_one = authority @ StablecoinError::Unauthorized,
     )]
@@ -26,10 +26,11 @@ pub struct Admin<'info> {
 
 #[derive(Accounts)]
 pub struct UpdateMinter<'info> {
+    #[account(mut)]
     pub authority: Signer<'info>,
 
     #[account(
-        seeds = [STABLECOIN_SEED, authority.key().as_ref()],
+        seeds = [STABLECOIN_SEED, stablecoin.mint.as_ref()],
         bump = stablecoin.bump,
         has_one = authority @ StablecoinError::Unauthorized,
     )]
@@ -39,7 +40,7 @@ pub struct UpdateMinter<'info> {
     pub minter: UncheckedAccount<'info>,
 
     #[account(
-        init_or_reuse,
+        init_if_needed,
         payer = authority,
         space = MinterConfig::LEN,
         seeds = [MINTER_SEED, stablecoin.key().as_ref(), minter.key().as_ref()],
@@ -55,7 +56,7 @@ pub struct RemoveMinter<'info> {
     pub authority: Signer<'info>,
 
     #[account(
-        seeds = [STABLECOIN_SEED, authority.key().as_ref()],
+        seeds = [STABLECOIN_SEED, stablecoin.mint.as_ref()],
         bump = stablecoin.bump,
         has_one = authority @ StablecoinError::Unauthorized,
     )]
@@ -79,7 +80,7 @@ pub struct UpdateRoles<'info> {
 
     #[account(
         mut,
-        seeds = [STABLECOIN_SEED, authority.key().as_ref()],
+        seeds = [STABLECOIN_SEED, stablecoin.mint.as_ref()],
         bump = stablecoin.bump,
         has_one = authority @ StablecoinError::Unauthorized,
     )]
@@ -91,14 +92,20 @@ pub struct UpdateRoles<'info> {
 pub fn pause(ctx: Context<Admin>) -> Result<()> {
     require!(!ctx.accounts.stablecoin.paused, StablecoinError::Paused);
     ctx.accounts.stablecoin.paused = true;
-    emit!(StatusChanged { stablecoin: ctx.accounts.stablecoin.key(), paused: true });
+    emit!(StatusChanged {
+        stablecoin: ctx.accounts.stablecoin.key(),
+        paused: true
+    });
     Ok(())
 }
 
 pub fn unpause(ctx: Context<Admin>) -> Result<()> {
     require!(ctx.accounts.stablecoin.paused, StablecoinError::NotPaused);
     ctx.accounts.stablecoin.paused = false;
-    emit!(StatusChanged { stablecoin: ctx.accounts.stablecoin.key(), paused: false });
+    emit!(StatusChanged {
+        stablecoin: ctx.accounts.stablecoin.key(),
+        paused: false
+    });
     Ok(())
 }
 
@@ -125,7 +132,11 @@ pub fn remove_minter(ctx: Context<RemoveMinter>) -> Result<()> {
     Ok(())
 }
 
-pub fn update_roles(ctx: Context<UpdateRoles>, new_pauser: Option<Pubkey>, new_burner: Option<Pubkey>) -> Result<()> {
+pub fn update_roles(
+    ctx: Context<UpdateRoles>,
+    new_pauser: Option<Pubkey>,
+    new_burner: Option<Pubkey>,
+) -> Result<()> {
     let stablecoin = &mut ctx.accounts.stablecoin;
     if let Some(pauser) = new_pauser {
         stablecoin.pauser = pauser;

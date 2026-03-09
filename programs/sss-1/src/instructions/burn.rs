@@ -4,10 +4,7 @@ use anchor_lang::prelude::*;
 use anchor_spl::token_interface::{Mint, TokenAccount, TokenInterface};
 
 use crate::{
-    constants::STABLECOIN_SEED,
-    error::StablecoinError,
-    events::TokensBurned,
-    state::Stablecoin,
+    constants::STABLECOIN_SEED, error::StablecoinError, events::TokensBurned, state::Stablecoin,
 };
 
 #[derive(Accounts)]
@@ -15,10 +12,10 @@ pub struct Burn<'info> {
     pub burner: Signer<'info>,
 
     #[account(
-        seeds = [STABLECOIN_SEED, stablecoin.authority.as_ref()],
+        seeds = [STABLECOIN_SEED, stablecoin.mint.as_ref()],
         bump = stablecoin.bump,
-        constraint = ctx.accounts.burner.key() == stablecoin.burner
-            || ctx.accounts.burner.key() == stablecoin.authority
+        constraint = burner.key() == stablecoin.burner
+            || burner.key() == stablecoin.authority
             @ StablecoinError::Unauthorized,
     )]
     pub stablecoin: Account<'info, Stablecoin>,

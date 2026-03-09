@@ -4,10 +4,7 @@ use anchor_lang::prelude::*;
 use anchor_spl::token_interface::{Mint, TokenAccount, TokenInterface};
 
 use crate::{
-    constants::STABLECOIN_SEED,
-    error::StablecoinError,
-    events::AccountFrozen,
-    state::Stablecoin,
+    constants::STABLECOIN_SEED, error::StablecoinError, events::AccountFrozen, state::Stablecoin,
 };
 
 #[derive(Accounts)]
@@ -15,7 +12,7 @@ pub struct FreezeAccount<'info> {
     pub pauser: Signer<'info>,
 
     #[account(
-        seeds = [STABLECOIN_SEED, stablecoin.authority.as_ref()],
+        seeds = [STABLECOIN_SEED, stablecoin.mint.as_ref()],
         bump = stablecoin.bump,
         constraint = pauser.key() == stablecoin.pauser
             || pauser.key() == stablecoin.authority
@@ -34,21 +31,22 @@ pub struct FreezeAccount<'info> {
 
 pub fn handler(ctx: Context<FreezeAccount>) -> Result<()> {
     let stablecoin = &ctx.accounts.stablecoin;
-    let authority_key = stablecoin.authority;
-    let seeds = &[STABLECOIN_SEED, authority_key.as_ref(), &[stablecoin.bump]];
+    let seeds = &[
+        STABLECOIN_SEED,
+        stablecoin.mint.as_ref(),
+        &[stablecoin.bump],
+    ];
     let signer_seeds = &[&seeds[..]];
 
-    anchor_spl::token_interface::freeze_account(
-        CpiContext::new_with_signer(
-            ctx.accounts.token_program.to_account_info(),
-            anchor_spl::token_interface::FreezeAccount {
-                account: ctx.accounts.target_account.to_account_info(),
-                mint: ctx.accounts.mint.to_account_info(),
-                authority: ctx.accounts.stablecoin.to_account_info(),
-            },
-            signer_seeds,
-        ),
-    )?;
+    anchor_spl::token_interface::freeze_account(CpiContext::new_with_signer(
+        ctx.accounts.token_program.to_account_info(),
+        anchor_spl::token_interface::FreezeAccount {
+            account: ctx.accounts.target_account.to_account_info(),
+            mint: ctx.accounts.mint.to_account_info(),
+            authority: ctx.accounts.stablecoin.to_account_info(),
+        },
+        signer_seeds,
+    ))?;
 
     emit!(AccountFrozen {
         stablecoin: ctx.accounts.stablecoin.key(),

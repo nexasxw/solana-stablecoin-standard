@@ -4,37 +4,39 @@ use anchor_lang::prelude::*;
 
 use crate::constants::*;
 
-/// Initialization config passed to `initialize`.
-/// Determines which Token-2022 extensions are enabled.
+/// Initialization config shared by the Phase 2 lifecycle baseline.
+/// Carries mint metadata plus immutable extension requests only.
+/// Default-account-state is deferred until a later phase instead of living here
+/// as an unsupported flag.
 #[derive(AnchorSerialize, AnchorDeserialize, Clone)]
 pub struct StablecoinConfig {
     pub name: String,
     pub symbol: String,
     pub uri: String,
     pub decimals: u8,
-    // SSS-1 always false — extensions live in SSS-2
+    /// Requested permanent delegate extension. SSS-1 leaves this disabled.
     pub enable_permanent_delegate: bool,
+    /// Requested transfer hook extension. SSS-1 leaves this disabled.
     pub enable_transfer_hook: bool,
-    pub default_account_frozen: bool,
 }
 
-/// Primary stablecoin state account.
-/// Seeds: [STABLECOIN_SEED, authority]
+/// Primary stablecoin state account for the shared lifecycle surface.
+/// Seeds: `[STABLECOIN_SEED, mint]`
 #[account]
 pub struct Stablecoin {
-    /// Master authority — can pause, transfer authority, update roles
+    /// Current master authority. Mutable, so it is never part of PDA derivation.
     pub authority: Pubkey,
-    /// Token-2022 mint
+    /// Immutable Token-2022 mint and canonical stablecoin PDA identity.
     pub mint: Pubkey,
     /// Optional pauser (can freeze/thaw accounts and pause globally)
     pub pauser: Pubkey,
     /// Optional burner role
     pub burner: Pubkey,
-    /// Global pause flag — blocks mint and burn
+    /// Global pause flag for Phase 2 lifecycle operations.
     pub paused: bool,
-    /// Whether permanent delegate extension was enabled at init
+    /// Whether the mint was initialized with a permanent delegate.
     pub permanent_delegate_enabled: bool,
-    /// Whether transfer hook extension was enabled at init
+    /// Whether the mint was initialized with a transfer hook.
     pub transfer_hook_enabled: bool,
     /// PDA bump seed
     pub bump: u8,
@@ -58,7 +60,7 @@ impl Stablecoin {
 }
 
 /// Per-minter quota account.
-/// Seeds: [MINTER_SEED, stablecoin, minter_pubkey]
+/// Seeds: `[MINTER_SEED, stablecoin, minter_pubkey]`
 #[account]
 pub struct MinterConfig {
     /// Associated stablecoin
@@ -67,7 +69,7 @@ pub struct MinterConfig {
     pub minter: Pubkey,
     /// Max tokens this minter can mint (0 = unlimited)
     pub quota: u64,
-    /// Tokens minted so far against quota
+    /// Lifetime tokens minted against this quota. Burning does not restore it.
     pub minted: u64,
     /// PDA bump seed
     pub bump: u8,

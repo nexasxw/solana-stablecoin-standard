@@ -7,6 +7,15 @@ pub enum StablecoinError {
     #[msg("Amount must be greater than zero")]
     ZeroAmount,
 
+    #[msg("Initialize requires the Token-2022 program")]
+    InvalidTokenProgram,
+
+    #[msg("SSS-2 initialize requires both permanent delegate and transfer hook enabled")]
+    InvalidExtensionConfig,
+
+    #[msg("Token name, symbol, and URI must all be non-empty")]
+    InvalidMetadata,
+
     #[msg("Stablecoin is paused")]
     Paused,
 

@@ -18,13 +18,18 @@ pub mod state;
 use instructions::*;
 
 declare_id!("SSS2222222222222222222222222222222222222222");
+pub const SSS_TRANSFER_HOOK_PROGRAM_ID: Pubkey =
+    anchor_lang::pubkey!("SSSHook111111111111111111111111111111111111");
 
 #[program]
 pub mod sss_2 {
     use super::*;
 
     /// Initialize a new SSS-2 stablecoin with compliance extensions enabled
-    pub fn initialize(ctx: Context<Initialize>, config: crate::state::StablecoinConfig) -> Result<()> {
+    pub fn initialize(
+        ctx: Context<Initialize>,
+        config: crate::state::StablecoinConfig,
+    ) -> Result<()> {
         instructions::initialize::handler(ctx, config)
     }
 

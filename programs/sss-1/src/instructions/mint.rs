@@ -1,7 +1,7 @@
 //! Mint tokens to a recipient.
 
 use anchor_lang::prelude::*;
-use anchor_spl::token_interface::{Mint, TokenAccount, TokenInterface};
+use anchor_spl::token_interface::{Mint as TokenMint, TokenAccount, TokenInterface};
 
 use crate::{
     constants::{MINTER_SEED, STABLECOIN_SEED},
@@ -15,7 +15,7 @@ pub struct Mint<'info> {
     pub minter: Signer<'info>,
 
     #[account(
-        seeds = [STABLECOIN_SEED, stablecoin.authority.as_ref()],
+        seeds = [STABLECOIN_SEED, stablecoin.mint.as_ref()],
         bump = stablecoin.bump,
     )]
     pub stablecoin: Account<'info, Stablecoin>,
@@ -31,7 +31,7 @@ pub struct Mint<'info> {
         mut,
         address = stablecoin.mint,
     )]
-    pub mint: InterfaceAccount<'info, Mint>,
+    pub mint: InterfaceAccount<'info, TokenMint>,
 
     #[account(mut)]
     pub recipient_token_account: InterfaceAccount<'info, TokenAccount>,
@@ -50,16 +50,18 @@ pub fn handler(ctx: Context<Mint>, amount: u64) -> Result<()> {
             .minted
             .checked_add(amount)
             .ok_or(StablecoinError::MathOverflow)?;
-        require!(new_minted <= minter_config.quota, StablecoinError::QuotaExceeded);
+        require!(
+            new_minted <= minter_config.quota,
+            StablecoinError::QuotaExceeded
+        );
         minter_config.minted = new_minted;
     }
 
     // CPI: mint_to via stablecoin PDA signer
     let stablecoin = &ctx.accounts.stablecoin;
-    let authority_key = stablecoin.authority;
     let seeds = &[
         STABLECOIN_SEED,
-        authority_key.as_ref(),
+        stablecoin.mint.as_ref(),
         &[stablecoin.bump],
     ];
     let signer_seeds = &[&seeds[..]];

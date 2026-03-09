@@ -14,10 +14,11 @@ use crate::{
 
 #[derive(Accounts)]
 pub struct AddToBlacklist<'info> {
+    #[account(mut)]
     pub blacklister: Signer<'info>,
 
     #[account(
-        seeds = [STABLECOIN_SEED, stablecoin.authority.as_ref()],
+        seeds = [STABLECOIN_SEED, stablecoin.mint.as_ref()],
         bump = stablecoin.bump,
         constraint = blacklister.key() == stablecoin.blacklister
             || blacklister.key() == stablecoin.authority
@@ -46,7 +47,7 @@ pub struct RemoveFromBlacklist<'info> {
     pub blacklister: Signer<'info>,
 
     #[account(
-        seeds = [STABLECOIN_SEED, stablecoin.authority.as_ref()],
+        seeds = [STABLECOIN_SEED, stablecoin.mint.as_ref()],
         bump = stablecoin.bump,
         constraint = blacklister.key() == stablecoin.blacklister
             || blacklister.key() == stablecoin.authority
@@ -71,7 +72,7 @@ pub struct Seize<'info> {
     pub seizer: Signer<'info>,
 
     #[account(
-        seeds = [STABLECOIN_SEED, stablecoin.authority.as_ref()],
+        seeds = [STABLECOIN_SEED, stablecoin.mint.as_ref()],
         bump = stablecoin.bump,
         constraint = seizer.key() == stablecoin.seizer
             || seizer.key() == stablecoin.authority
@@ -129,8 +130,11 @@ pub fn seize(ctx: Context<Seize>) -> Result<()> {
     require!(amount > 0, StablecoinError::ZeroAmount);
 
     let stablecoin = &ctx.accounts.stablecoin;
-    let authority_key = stablecoin.authority;
-    let seeds = &[STABLECOIN_SEED, authority_key.as_ref(), &[stablecoin.bump]];
+    let seeds = &[
+        STABLECOIN_SEED,
+        stablecoin.mint.as_ref(),
+        &[stablecoin.bump],
+    ];
     let signer_seeds = &[&seeds[..]];
 
     // Transfer via permanent delegate (stablecoin PDA is the permanent delegate)

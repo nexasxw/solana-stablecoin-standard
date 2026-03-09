@@ -4,36 +4,39 @@ use anchor_lang::prelude::*;
 
 use crate::constants::*;
 
-/// Re-export for use in lib.rs instruction macros.
-pub use StablecoinConfig;
-
-/// Initialization config for SSS-2.
-/// enable_permanent_delegate and enable_transfer_hook should both be true for SSS-2.
+/// Initialization config shared by the Phase 2 lifecycle layer.
+/// Default-account-state is intentionally deferred until a later phase.
 #[derive(AnchorSerialize, AnchorDeserialize, Clone)]
 pub struct StablecoinConfig {
     pub name: String,
     pub symbol: String,
     pub uri: String,
     pub decimals: u8,
+    /// Requested permanent delegate extension. SSS-2 requires this.
     pub enable_permanent_delegate: bool,
+    /// Requested transfer hook extension. SSS-2 requires this.
     pub enable_transfer_hook: bool,
-    pub default_account_frozen: bool,
 }
 
-/// Primary stablecoin state account (SSS-2 extends SSS-1 with compliance roles).
-/// Seeds: [STABLECOIN_SEED, authority]
+/// Primary stablecoin state account.
+/// Extends the shared lifecycle baseline with compliance operator roles.
+/// Seeds: `[STABLECOIN_SEED, mint]`
 #[account]
 pub struct Stablecoin {
+    /// Current master authority. Mutable, so it is never part of PDA derivation.
     pub authority: Pubkey,
+    /// Immutable Token-2022 mint and canonical stablecoin PDA identity.
     pub mint: Pubkey,
     pub pauser: Pubkey,
     pub burner: Pubkey,
-    /// SSS-2: can add/remove blacklist entries
+    /// SSS-2 operator that can add or remove blacklist entries.
     pub blacklister: Pubkey,
-    /// SSS-2: can execute seize operations
+    /// SSS-2 operator that can execute seize operations.
     pub seizer: Pubkey,
     pub paused: bool,
+    /// Whether the mint was initialized with a permanent delegate.
     pub permanent_delegate_enabled: bool,
+    /// Whether the mint was initialized with a transfer hook.
     pub transfer_hook_enabled: bool,
     pub bump: u8,
     pub _reserved: [u8; 64],
@@ -57,12 +60,13 @@ impl Stablecoin {
 }
 
 /// Per-minter quota account.
-/// Seeds: [MINTER_SEED, stablecoin, minter]
+/// Seeds: `[MINTER_SEED, stablecoin, minter]`
 #[account]
 pub struct MinterConfig {
     pub stablecoin: Pubkey,
     pub minter: Pubkey,
     pub quota: u64,
+    /// Lifetime tokens minted against this quota. Burning does not restore it.
     pub minted: u64,
     pub bump: u8,
 }
@@ -73,7 +77,7 @@ impl MinterConfig {
 }
 
 /// Blacklist entry PDA.
-/// Seeds: [BLACKLIST_SEED, stablecoin, address]
+/// Seeds: `[BLACKLIST_SEED, stablecoin, address]`
 #[account]
 pub struct BlacklistEntry {
     pub stablecoin: Pubkey,
