@@ -2,18 +2,13 @@
 
 use anchor_lang::{
     prelude::*,
-    solana_program::program::{invoke, invoke_signed},
+    solana_program::program::invoke,
     system_program::CreateAccount,
 };
 use anchor_spl::token_interface::TokenInterface;
 use spl_token_2022::{
-    extension::{
-        metadata_pointer::instruction::initialize as initialize_metadata_pointer, ExtensionType,
-    },
+    extension::ExtensionType,
     instruction::{initialize_mint2, initialize_mint_close_authority},
-};
-use spl_token_metadata_interface::{
-    instruction::initialize as initialize_token_metadata, state::TokenMetadata,
 };
 
 use crate::{
@@ -104,8 +99,8 @@ fn validate_config(
 }
 
 fn create_mint_account(ctx: &Context<Initialize>, config: &StablecoinConfig) -> Result<()> {
-    let mint_space = mint_account_space(config)?;
-    let lamports = ctx.accounts.rent.minimum_balance(mint_space);
+    let mint_space = mint_base_account_space()?;
+    let lamports = ctx.accounts.rent.minimum_balance(mint_account_space(config)?);
 
     anchor_lang::system_program::create_account(
         CpiContext::new(
@@ -127,20 +122,7 @@ fn initialize_mint(ctx: &Context<Initialize>, config: &StablecoinConfig) -> Resu
     let stablecoin_key = ctx.accounts.stablecoin.key();
     let mint_key = ctx.accounts.mint.key();
     let token_program_key = ctx.accounts.token_program.key();
-    let stablecoin_bump = [ctx.bumps.stablecoin];
-    let signer_seeds: &[&[u8]] = &[STABLECOIN_SEED, mint_key.as_ref(), &stablecoin_bump];
     let mint_info = ctx.accounts.mint.to_account_info();
-    let stablecoin_info = ctx.accounts.stablecoin.to_account_info();
-
-    invoke(
-        &initialize_metadata_pointer(
-            &token_program_key,
-            &mint_key,
-            Some(stablecoin_key),
-            Some(mint_key),
-        )?,
-        std::slice::from_ref(&mint_info),
-    )?;
 
     invoke(
         &initialize_mint_close_authority(&token_program_key, &mint_key, Some(&stablecoin_key))?,
@@ -158,43 +140,16 @@ fn initialize_mint(ctx: &Context<Initialize>, config: &StablecoinConfig) -> Resu
         std::slice::from_ref(&mint_info),
     )?;
 
-    invoke_signed(
-        &initialize_token_metadata(
-            &token_program_key,
-            &mint_key,
-            &stablecoin_key,
-            &mint_key,
-            &stablecoin_key,
-            config.name.clone(),
-            config.symbol.clone(),
-            config.uri.clone(),
-        ),
-        &[
-            mint_info.clone(),
-            stablecoin_info.clone(),
-            mint_info,
-            stablecoin_info,
-        ],
-        &[signer_seeds],
-    )?;
-
     Ok(())
 }
 
-fn mint_account_space(config: &StablecoinConfig) -> Result<usize> {
-    let metadata = TokenMetadata {
-        name: config.name.clone(),
-        symbol: config.symbol.clone(),
-        uri: config.uri.clone(),
-        ..Default::default()
-    };
-    let metadata_space = metadata.tlv_size_of()?;
-    let base_space = ExtensionType::try_calculate_account_len::<spl_token_2022::state::Mint>(&[
-        ExtensionType::MetadataPointer,
-        ExtensionType::MintCloseAuthority,
-    ])?;
+fn mint_account_space(_config: &StablecoinConfig) -> Result<usize> {
+    mint_base_account_space()
+}
 
-    base_space
-        .checked_add(metadata_space)
-        .ok_or_else(|| StablecoinError::MathOverflow.into())
+fn mint_base_account_space() -> Result<usize> {
+    ExtensionType::try_calculate_account_len::<spl_token_2022::state::Mint>(&[
+        ExtensionType::MintCloseAuthority,
+    ])
+    .map_err(Into::into)
 }
