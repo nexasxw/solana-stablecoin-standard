@@ -49,10 +49,13 @@ Plans:
   2. Core instructions succeed on the happy path and reject unauthorized or invalid calls.
   3. Role checks, per-minter quotas, and pause state are enforced on-chain.
   4. Later preset, SDK, service, test, and deployment work can build on a stable shared contract.
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 02-01: Generate executable plans via `$gsd-plan-phase 2`
+- [ ] 02-01: Lock the shared account model and PDA strategy
+- [ ] 02-02: Implement real Token-2022 initialization for the Layer 1 baseline
+- [ ] 02-03: Harden lifecycle and admin behavior around explicit errors and safe authority updates
+- [ ] 02-04: Build the authoritative Phase 2 integration test suite
 
 ### Phase 3: Compliance Module
 **Goal**: Deliver the SSS-2 compliance layer using a transfer-hook program, blacklist PDAs, and seizure support.
@@ -192,7 +195,7 @@ Phases execute in numeric order: 2 → 2.1 → 2.2 → 3 → 3.1 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Monorepo Foundation | 1/1 | Complete | 2026-03-09 |
-| 2. Layer 1 Core Program | 0/1 | Not started | - |
+| 2. Layer 1 Core Program | 0/4 | Not started | - |
 | 3. Compliance Module | 0/1 | Not started | - |
 | 4. Preset Configurations | 0/1 | Not started | - |
 | 5. TypeScript SDK | 0/1 | Not started | - |
