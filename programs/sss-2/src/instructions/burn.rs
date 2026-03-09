@@ -36,6 +36,24 @@ pub struct Burn<'info> {
 pub fn handler(ctx: Context<Burn>, amount: u64) -> Result<()> {
     require!(!ctx.accounts.stablecoin.paused, StablecoinError::Paused);
     require!(amount > 0, StablecoinError::ZeroAmount);
+    require_keys_eq!(
+        ctx.accounts.burner_token_account.mint,
+        ctx.accounts.mint.key(),
+        StablecoinError::InvalidTokenAccount
+    );
+    require_keys_eq!(
+        ctx.accounts.burner_token_account.owner,
+        ctx.accounts.burner.key(),
+        StablecoinError::InvalidTokenAccountOwner
+    );
+    require!(
+        !ctx.accounts.burner_token_account.is_frozen(),
+        StablecoinError::AccountFrozen
+    );
+    require!(
+        ctx.accounts.burner_token_account.amount >= amount,
+        StablecoinError::InsufficientFunds
+    );
 
     anchor_spl::token_interface::burn(
         CpiContext::new(

@@ -1,6 +1,7 @@
 //! Mint tokens to a recipient.
 
 use anchor_lang::prelude::*;
+use anchor_spl::token_2022::spl_token_2022::state::AccountState;
 use anchor_spl::token_interface::{Mint as TokenMint, TokenAccount, TokenInterface};
 
 use crate::{
@@ -24,6 +25,8 @@ pub struct Mint<'info> {
         mut,
         seeds = [MINTER_SEED, stablecoin.key().as_ref(), minter.key().as_ref()],
         bump = minter_config.bump,
+        constraint = minter_config.stablecoin == stablecoin.key() @ StablecoinError::Unauthorized,
+        constraint = minter_config.minter == minter.key() @ StablecoinError::Unauthorized,
     )]
     pub minter_config: Account<'info, MinterConfig>,
 
@@ -42,6 +45,19 @@ pub struct Mint<'info> {
 pub fn handler(ctx: Context<Mint>, amount: u64) -> Result<()> {
     require!(!ctx.accounts.stablecoin.paused, StablecoinError::Paused);
     require!(amount > 0, StablecoinError::ZeroAmount);
+    require_keys_eq!(
+        ctx.accounts.recipient_token_account.mint,
+        ctx.accounts.mint.key(),
+        StablecoinError::InvalidTokenAccount
+    );
+    require!(
+        ctx.accounts.recipient_token_account.state == AccountState::Initialized,
+        if ctx.accounts.recipient_token_account.state == AccountState::Frozen {
+            StablecoinError::AccountFrozen
+        } else {
+            StablecoinError::InvalidTokenAccount
+        }
+    );
 
     let minter_config = &mut ctx.accounts.minter_config;
 
@@ -55,6 +71,11 @@ pub fn handler(ctx: Context<Mint>, amount: u64) -> Result<()> {
             StablecoinError::QuotaExceeded
         );
         minter_config.minted = new_minted;
+    } else {
+        minter_config.minted = minter_config
+            .minted
+            .checked_add(amount)
+            .ok_or(StablecoinError::MathOverflow)?;
     }
 
     // CPI: mint_to via stablecoin PDA signer

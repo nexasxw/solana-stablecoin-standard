@@ -30,6 +30,16 @@ pub struct ThawAccount<'info> {
 }
 
 pub fn handler(ctx: Context<ThawAccount>) -> Result<()> {
+    require_keys_eq!(
+        ctx.accounts.target_account.mint,
+        ctx.accounts.mint.key(),
+        StablecoinError::InvalidTokenAccount
+    );
+    require!(
+        ctx.accounts.target_account.is_frozen(),
+        StablecoinError::AccountNotFrozen
+    );
+
     let stablecoin = &ctx.accounts.stablecoin;
     let seeds = &[
         STABLECOIN_SEED,

@@ -34,6 +34,27 @@ pub enum StablecoinError {
     #[msg("Account is frozen")]
     AccountFrozen,
 
+    #[msg("Token account is not initialized for this mint")]
+    InvalidTokenAccount,
+
+    #[msg("Token account owner does not match the expected authority")]
+    InvalidTokenAccountOwner,
+
+    #[msg("Account is already frozen")]
+    AccountAlreadyFrozen,
+
+    #[msg("Account is not frozen")]
+    AccountNotFrozen,
+
+    #[msg("Token account has insufficient balance")]
+    InsufficientFunds,
+
+    #[msg("Authority transfer requires a new, non-default authority")]
+    InvalidAuthorityTransfer,
+
+    #[msg("Role update must change at least one role")]
+    NoRoleChanges,
+
     #[msg("Compliance module not enabled — initialize with enable_transfer_hook = true")]
     ComplianceNotEnabled,
 
