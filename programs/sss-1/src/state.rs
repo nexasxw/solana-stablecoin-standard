@@ -5,7 +5,8 @@ use anchor_lang::prelude::*;
 use crate::constants::*;
 
 /// Initialization config shared by the Phase 2 lifecycle baseline.
-/// Carries mint metadata plus immutable extension requests only.
+/// Carries mint metadata plus immutable extension requests only so later plans
+/// can extend behavior without changing the core account shape again.
 /// Default-account-state is deferred until a later phase instead of living here
 /// as an unsupported flag.
 #[derive(AnchorSerialize, AnchorDeserialize, Clone)]
@@ -14,9 +15,12 @@ pub struct StablecoinConfig {
     pub symbol: String,
     pub uri: String,
     pub decimals: u8,
-    /// Requested permanent delegate extension. SSS-1 leaves this disabled.
+    /// Requested permanent delegate extension.
+    /// SSS-1 rejects `true` so the baseline stays free of compliance-only
+    /// delegate behavior.
     pub enable_permanent_delegate: bool,
-    /// Requested transfer hook extension. SSS-1 leaves this disabled.
+    /// Requested transfer hook extension.
+    /// SSS-1 rejects `true` so transfer-hook enforcement remains a later phase.
     pub enable_transfer_hook: bool,
 }
 
@@ -35,9 +39,11 @@ pub struct Stablecoin {
     pub burner: Pubkey,
     /// Global pause flag for Phase 2 lifecycle operations.
     pub paused: bool,
-    /// Whether the mint was initialized with a permanent delegate.
+    /// Immutable record of whether the mint was initialized with a permanent
+    /// delegate extension. This remains `false` for valid Phase 2 SSS-1 mints.
     pub permanent_delegate_enabled: bool,
-    /// Whether the mint was initialized with a transfer hook.
+    /// Immutable record of whether the mint was initialized with a transfer
+    /// hook extension. This remains `false` for valid Phase 2 SSS-1 mints.
     pub transfer_hook_enabled: bool,
     /// PDA bump seed
     pub bump: u8,
@@ -69,7 +75,7 @@ pub struct MinterConfig {
     pub stablecoin: Pubkey,
     /// Minter address
     pub minter: Pubkey,
-    /// Max tokens this minter can mint (0 = unlimited)
+    /// Max tokens this minter can mint over its lifetime (0 = unlimited).
     pub quota: u64,
     /// Lifetime tokens minted against this quota. Burning does not restore it.
     pub minted: u64,

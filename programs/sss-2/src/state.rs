@@ -5,6 +5,8 @@ use anchor_lang::prelude::*;
 use crate::constants::*;
 
 /// Initialization config shared by the Phase 2 lifecycle layer.
+/// Carries mint metadata plus immutable extension requests only so SSS-2 can
+/// extend the shared baseline without changing the core account shape again.
 /// Default-account-state is intentionally deferred until a later phase.
 #[derive(AnchorSerialize, AnchorDeserialize, Clone)]
 pub struct StablecoinConfig {
@@ -12,9 +14,11 @@ pub struct StablecoinConfig {
     pub symbol: String,
     pub uri: String,
     pub decimals: u8,
-    /// Requested permanent delegate extension. SSS-2 requires this.
+    /// Requested permanent delegate extension.
+    /// SSS-2 requires this so seizure flows can layer on top in Phase 3.
     pub enable_permanent_delegate: bool,
-    /// Requested transfer hook extension. SSS-2 requires this.
+    /// Requested transfer hook extension.
+    /// SSS-2 requires this so blacklist enforcement can layer on top in Phase 3.
     pub enable_transfer_hook: bool,
 }
 
@@ -35,9 +39,11 @@ pub struct Stablecoin {
     /// SSS-2 operator that can execute seize operations.
     pub seizer: Pubkey,
     pub paused: bool,
-    /// Whether the mint was initialized with a permanent delegate.
+    /// Immutable record of whether the mint was initialized with a permanent
+    /// delegate extension. Valid SSS-2 mints set this to `true`.
     pub permanent_delegate_enabled: bool,
-    /// Whether the mint was initialized with a transfer hook.
+    /// Immutable record of whether the mint was initialized with a transfer
+    /// hook extension. Valid SSS-2 mints set this to `true`.
     pub transfer_hook_enabled: bool,
     pub bump: u8,
     pub _reserved: [u8; 64],
@@ -67,6 +73,7 @@ impl Stablecoin {
 pub struct MinterConfig {
     pub stablecoin: Pubkey,
     pub minter: Pubkey,
+    /// Max tokens this minter can mint over its lifetime (0 = unlimited).
     pub quota: u64,
     /// Lifetime tokens minted against this quota. Burning does not restore it.
     pub minted: u64,
