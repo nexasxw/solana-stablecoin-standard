@@ -15,7 +15,7 @@
 
 - [x] **CORE-01**: The shared Layer 1 contract defines `StablecoinConfig` and stablecoin state PDAs
 - [x] **CORE-02**: The shared Layer 1 contract implements initialize, mint, burn, freeze, thaw, pause, unpause, role update, and authority transfer flows
-- [ ] **CORE-03**: Layer 1 enforces authority roles, minter quotas, and global pause behavior with explicit Anchor errors
+- [x] **CORE-03**: Layer 1 enforces authority roles, minter quotas, and global pause behavior with explicit Anchor errors
 
 ### Compliance
 
@@ -104,7 +104,7 @@
 | FND-03 | Phase 1 | Complete |
 | CORE-01 | Phase 2 | Complete |
 | CORE-02 | Phase 2 | Complete |
-| CORE-03 | Phase 2 | Pending |
+| CORE-03 | Phase 2 | Complete |
 | COMP-01 | Phase 3 | Pending |
 | COMP-02 | Phase 3 | Pending |
 | COMP-03 | Phase 3 | Pending |
