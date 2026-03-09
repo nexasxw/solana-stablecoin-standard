@@ -1,3 +1,22 @@
+---
+gsd_state_version: 1.0
+milestone: v1.0
+milestone_name: milestone
+current_phase: 2
+current_phase_name: Layer 1 Core Program
+current_plan: 3
+status: executing
+stopped_at: Completed 02-02-PLAN.md
+last_updated: "2026-03-09T06:40:00.722Z"
+last_activity: 2026-03-09
+progress:
+  total_phases: 12
+  completed_phases: 0
+  total_plans: 4
+  completed_plans: 2
+  percent: 50
+---
+
 # Project State
 
 ## Project Reference
@@ -9,12 +28,16 @@ See: .planning/PROJECT.md (updated 2026-03-09)
 
 ## Current Position
 
-Phase: 2 of 12 (Layer 1 Core Program)
-Plan: 1 of 4 in current phase
-Status: In progress
-Last activity: 2026-03-09 - Completed plan 02-01 to lock the shared account model and PDA strategy
+**Current Phase:** 2
+**Current Phase Name:** Layer 1 Core Program
+**Total Phases:** 12
+**Current Plan:** 3
+**Total Plans in Phase:** 4
+**Status:** Ready to execute
+**Last Activity:** 2026-03-09
+Last activity description: Completed plan 02-02 to implement real Token-2022 initialization for the shared Layer 1 baseline
 
-Progress: [=.........] 13%
+**Progress:** [█████░░░░░] 50%
 
 ## Performance Metrics
 
@@ -47,6 +70,8 @@ Recent decisions affecting current work:
 - [Phase 2]: Derive stablecoin PDAs from the immutable mint so authority transfer never changes account identity.
 - [Phase 2]: Keep `default_account_frozen` out of the shared Phase 2 config until real Token-2022 default-account-state support exists.
 - [Phase 2]: Treat extension booleans as immutable initialization facts, with SSS-1 rejecting compliance-only flags and SSS-2 requiring them.
+- [Phase 2]: Token-2022 extension and metadata initialization must use the mint-derived stablecoin PDA as the signer with only the exact SPL accounts each CPI expects.
+- [Phase 2]: Initialize handlers now bootstrap real Token-2022 mint accounts directly instead of only persisting a mint pubkey placeholder.
 
 ### Pending Todos
 
@@ -58,6 +83,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-09 10:00
-Stopped at: Completed 02-01-PLAN.md
+Last session: 2026-03-09T06:39:24.528Z
+Stopped at: Completed 02-02-PLAN.md
 Resume file: None
