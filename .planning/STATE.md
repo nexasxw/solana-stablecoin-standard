@@ -4,17 +4,17 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 5
 current_phase_name: typescript sdk
-current_plan: 2
+current_plan: 3
 status: executing
-stopped_at: Completed 05-01-PLAN.md
-last_updated: "2026-03-10T13:24:32.994Z"
+stopped_at: Completed 05-02-PLAN.md
+last_updated: "2026-03-10T13:34:50.229Z"
 last_activity: 2026-03-10
 progress:
   total_phases: 12
   completed_phases: 3
   total_plans: 12
-  completed_plans: 10
-  percent: 83
+  completed_plans: 11
+  percent: 92
 ---
 
 # Project State
@@ -31,13 +31,13 @@ See: .planning/PROJECT.md (updated 2026-03-09)
 **Current Phase:** 5
 **Current Phase Name:** typescript sdk
 **Total Phases:** 12
-**Current Plan:** 2
+**Current Plan:** 3
 **Total Plans in Phase:** 3
-**Status:** In progress
+**Status:** Ready to execute
 **Last Activity:** 2026-03-10
 Last activity description: Completed plan 05-01 to establish typed SDK create/load contracts and regression coverage
 
-**Progress:** [████████░░] 83%
+**Progress:** [█████████░] 92%
 
 ## Performance Metrics
 
@@ -59,6 +59,7 @@ Last activity description: Completed plan 05-01 to establish typed SDK create/lo
 | Phase 04 P01 | 10 min | 3 tasks | 8 files |
 | Phase 04 P02 | 2 min | 2 tasks | 4 files |
 | Phase 05 P01 | 7 min | 3 tasks | 6 files |
+| Phase 05-typescript-sdk P02 | 4 min | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -85,6 +86,8 @@ Recent decisions affecting current work:
 - [Phase 04]: Record strict schema guarantees in docs, including snake_case-only file keys, unknown-field rejection, non-object root rejection, and runtime unsupported preset rejection.
 - [Phase 05]: Expose initialization transaction metadata via SolanaStablecoin.initialization while preserving create() call ergonomics.
 - [Phase 05]: Resolve load() variant deterministically with precedence: variant > isSSS2 > paired extension hints.
+- [Phase 05]: Keep role/admin APIs explicit-per-call by requiring signer arguments on every privileged mutation.
+- [Phase 05]: Use local preflight error variants (INVALID_ARGUMENT, INVALID_AMOUNT, MISSING_SIGNER) so callers can branch before RPC.
 
 ### Pending Todos
 
@@ -96,6 +99,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-10T13:24:32.992Z
-Stopped at: Completed 05-01-PLAN.md
+Last session: 2026-03-10T13:34:50.226Z
+Stopped at: Completed 05-02-PLAN.md
 Resume file: None
