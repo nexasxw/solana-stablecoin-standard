@@ -7,7 +7,7 @@ export enum SdkErrorCode {
 export class StablecoinSdkError extends Error {
   readonly code: SdkErrorCode;
   readonly details?: Record<string, unknown>;
-  override readonly cause?: unknown;
+  readonly cause?: unknown;
 
   constructor(
     code: SdkErrorCode,
