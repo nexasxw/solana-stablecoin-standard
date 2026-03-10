@@ -30,6 +30,9 @@ import {
 import { loadStablecoinConfigFile, resolveStablecoinConfig } from "./config";
 import { createProgramClient, LoadVariantOptions, resolveLoadVariant, resolveVariantFromExtensions } from "./client";
 import {
+  InvalidAmountError,
+  InvalidArgumentError,
+  MissingSignerError,
   RpcRequestError,
   StablecoinSdkError,
   UnsupportedOperationError,
@@ -80,6 +83,47 @@ function toValidationError(error: unknown, fallback: string): ValidationError {
   }
 
   return new ValidationError(fallback, { cause: String(error) });
+}
+
+const U64_MAX = (1n << 64n) - 1n;
+
+function ensurePublicKey(input: unknown, field: string): PublicKey {
+  if (!(input instanceof PublicKey)) {
+    throw new InvalidArgumentError(`Expected ${field} to be a PublicKey.`, { field });
+  }
+
+  return input;
+}
+
+function ensureSigner(input: unknown, field: string): Keypair {
+  if (!(input instanceof Keypair)) {
+    throw new MissingSignerError(`Expected ${field} to be a Keypair signer.`, { field });
+  }
+
+  return input;
+}
+
+function ensureU64Amount(input: unknown, field: string): BN {
+  if (typeof input !== "bigint") {
+    throw new InvalidAmountError(`Expected ${field} to be a bigint.`, {
+      field,
+      receivedType: typeof input,
+    });
+  }
+
+  if (input < 0n) {
+    throw new InvalidAmountError(`${field} must be non-negative.`, { field, amount: input.toString() });
+  }
+
+  if (input > U64_MAX) {
+    throw new InvalidAmountError(`${field} exceeds max u64 range.`, {
+      field,
+      amount: input.toString(),
+      max: U64_MAX.toString(),
+    });
+  }
+
+  return new BN(input.toString());
 }
 
 export class SolanaStablecoin {
@@ -258,14 +302,16 @@ export class SolanaStablecoin {
 
   /** Mint tokens to a recipient. Minter role required. */
   async mint(options: MintOptions): Promise<SdkTxResult> {
-    const { minter, recipientTokenAccount, amount } = options;
+    const minter = ensureSigner(options.minter, "minter");
+    const recipientTokenAccount = ensurePublicKey(options.recipientTokenAccount, "recipientTokenAccount");
+    const amount = ensureU64Amount(options.amount, "amount");
     const [minterConfig] = findMinterPda(
       this.stablecoin,
       minter.publicKey,
       this.program.programId
     );
     return this.executeMutation("mint", async () => this.program.methods
-      .mint(new BN(amount.toString()))
+      .mint(amount)
       .accounts({
         minter: minter.publicKey,
         stablecoin: this.stablecoin,
@@ -280,9 +326,11 @@ export class SolanaStablecoin {
 
   /** Burn tokens from caller's account. */
   async burn(options: BurnOptions): Promise<SdkTxResult> {
-    const { burner, burnerTokenAccount, amount } = options;
+    const burner = ensureSigner(options.burner, "burner");
+    const burnerTokenAccount = ensurePublicKey(options.burnerTokenAccount, "burnerTokenAccount");
+    const amount = ensureU64Amount(options.amount, "amount");
     return this.executeMutation("burn", async () => this.program.methods
-      .burn(new BN(amount.toString()))
+      .burn(amount)
       .accounts({
         burner: burner.publicKey,
         stablecoin: this.stablecoin,
@@ -296,7 +344,8 @@ export class SolanaStablecoin {
 
   /** Freeze a token account. Pauser role required. */
   async freeze(options: FreezeOptions): Promise<SdkTxResult> {
-    const { tokenAccount, pauser } = options;
+    const tokenAccount = ensurePublicKey(options.tokenAccount, "tokenAccount");
+    const pauser = ensureSigner(options.pauser, "pauser");
     return this.executeMutation("freezeAccount", async () => this.program.methods
       .freezeAccount()
       .accounts({
@@ -312,7 +361,8 @@ export class SolanaStablecoin {
 
   /** Thaw a frozen token account. Pauser role required. */
   async thaw(options: ThawOptions): Promise<SdkTxResult> {
-    const { tokenAccount, pauser } = options;
+    const tokenAccount = ensurePublicKey(options.tokenAccount, "tokenAccount");
+    const pauser = ensureSigner(options.pauser, "pauser");
     return this.executeMutation("thawAccount", async () => this.program.methods
       .thawAccount()
       .accounts({
@@ -328,7 +378,7 @@ export class SolanaStablecoin {
 
   /** Pause all mint/burn operations. Authority required. */
   async pause(options: PauseOptions): Promise<SdkTxResult> {
-    const { authority } = options;
+    const authority = ensureSigner(options.authority, "authority");
     return this.executeMutation("pause", async () => this.program.methods
       .pause()
       .accounts({
@@ -341,7 +391,7 @@ export class SolanaStablecoin {
 
   /** Unpause operations. Authority required. */
   async unpause(options: UnpauseOptions): Promise<SdkTxResult> {
-    const { authority } = options;
+    const authority = ensureSigner(options.authority, "authority");
     return this.executeMutation("unpause", async () => this.program.methods
       .unpause()
       .accounts({
@@ -354,10 +404,12 @@ export class SolanaStablecoin {
 
   /** Set or rotate minter quota. Authority required. */
   async updateMinter(options: UpdateMinterOptions): Promise<SdkTxResult> {
-    const { authority, minter, quota } = options;
+    const authority = ensureSigner(options.authority, "authority");
+    const minter = ensurePublicKey(options.minter, "minter");
+    const quota = ensureU64Amount(options.quota, "quota");
     const [minterConfig] = findMinterPda(this.stablecoin, minter, this.program.programId);
     return this.executeMutation("updateMinter", async () => this.program.methods
-      .updateMinter(new BN(quota.toString()))
+      .updateMinter(quota)
       .accounts({
         authority: authority.publicKey,
         stablecoin: this.stablecoin,
@@ -371,7 +423,8 @@ export class SolanaStablecoin {
 
   /** Remove minter quota configuration. Authority required. */
   async removeMinter(options: RemoveMinterOptions): Promise<SdkTxResult> {
-    const { authority, minter } = options;
+    const authority = ensureSigner(options.authority, "authority");
+    const minter = ensurePublicKey(options.minter, "minter");
     const [minterConfig] = findMinterPda(this.stablecoin, minter, this.program.programId);
     return this.executeMutation("removeMinter", async () => this.program.methods
       .removeMinter()
@@ -387,7 +440,8 @@ export class SolanaStablecoin {
 
   /** Transfer stablecoin authority. Current authority signer required. */
   async transferAuthority(options: TransferAuthorityOptions): Promise<SdkTxResult> {
-    const { authority, newAuthority } = options;
+    const authority = ensureSigner(options.authority, "authority");
+    const newAuthority = ensurePublicKey(options.newAuthority, "newAuthority");
     return this.executeMutation("transferAuthority", async () => this.program.methods
       .transferAuthority(newAuthority)
       .accounts({
@@ -400,7 +454,23 @@ export class SolanaStablecoin {
 
   /** Update role authorities. Current authority signer required. */
   async updateRoles(options: UpdateRolesOptions): Promise<SdkTxResult> {
-    const { authority, pauser, burner, blacklister, seizer } = options;
+    const authority = ensureSigner(options.authority, "authority");
+    const pauser = options.pauser == null ? null : ensurePublicKey(options.pauser, "pauser");
+    const burner = options.burner == null ? null : ensurePublicKey(options.burner, "burner");
+    const blacklister = options.blacklister == null ? null : ensurePublicKey(options.blacklister, "blacklister");
+    const seizer = options.seizer == null ? null : ensurePublicKey(options.seizer, "seizer");
+
+    if (this.variant !== "SSS_2" && (blacklister !== null || seizer !== null)) {
+      throw new UnsupportedOperationError(
+        "blacklister/seizer role updates are only available for SSS_2."
+      );
+    }
+
+    const hasRoleChange = [pauser, burner, blacklister, seizer].some((role) => role !== null);
+    if (!hasRoleChange) {
+      throw new InvalidArgumentError("updateRoles requires at least one role update.");
+    }
+
     return this.executeMutation("updateRoles", async () => {
       const methodBuilder = this.variant === "SSS_2"
         ? this.program.methods.updateRoles(
@@ -423,6 +493,8 @@ export class SolanaStablecoin {
 
   /** Set treasury account (SSS-2 only). Authority required. */
   async setTreasury(treasuryTokenAccount: PublicKey, authority: Keypair): Promise<SdkTxResult> {
+    const validatedAuthority = ensureSigner(authority, "authority");
+    const validatedTreasury = ensurePublicKey(treasuryTokenAccount, "treasuryTokenAccount");
     if (this.variant !== "SSS_2") {
       throw new UnsupportedOperationError("setTreasury() is only available for SSS_2.");
     }
@@ -430,12 +502,12 @@ export class SolanaStablecoin {
     return this.executeMutation("setTreasury", async () => this.program.methods
       .setTreasury()
       .accounts({
-        authority: authority.publicKey,
+        authority: validatedAuthority.publicKey,
         stablecoin: this.stablecoin,
         mint: this.mintAddress,
-        treasuryTokenAccount,
+        treasuryTokenAccount: validatedTreasury,
       })
-      .signers([authority])
+      .signers([validatedAuthority])
       .rpc());
   }
 
@@ -469,7 +541,8 @@ export class SolanaStablecoin {
 
   /** Fetch minter quota state if configured. */
   async getMinterState(minter: PublicKey): Promise<MinterState | null> {
-    const [minterConfig] = findMinterPda(this.stablecoin, minter, this.program.programId);
+    const validatedMinter = ensurePublicKey(minter, "minter");
+    const [minterConfig] = findMinterPda(this.stablecoin, validatedMinter, this.program.programId);
     try {
       const accountNamespace = this.program.account as Record<string, { fetchNullable: (address: PublicKey) => Promise<unknown> }>;
       const state = await accountNamespace.minterConfig.fetchNullable(minterConfig) as Record<string, unknown> | null;
