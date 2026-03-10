@@ -78,10 +78,11 @@ Plans:
   1. The project exposes a minimal preset and a compliant preset with clear extension and role expectations.
   2. Custom TOML and JSON configuration files are parsed and validated.
   3. Preset behavior is aligned with the Layer 1 and compliance contract surfaces.
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 04-01: Generate executable plans via `$gsd-plan-phase 4`
+- [x] 04-01: Deliver the executable SDK contract for presets and custom config resolution
+- [ ] 04-02: Documentation and closeout for preset/config contract
 
 ### Phase 5: TypeScript SDK
 **Goal**: Deliver the public TypeScript SDK for initialization, lifecycle operations, and compliance helpers.
@@ -197,7 +198,7 @@ Phases execute in numeric order: 2 → 2.1 → 2.2 → 3 → 3.1 → 4
 | 1. Monorepo Foundation | 1/1 | Complete | 2026-03-09 |
 | 2. Layer 1 Core Program | 4/4 | Complete | 2026-03-09 |
 | 3. Compliance Module | 3/3 | Complete   | 2026-03-10 |
-| 4. Preset Configurations | 0/1 | Not started | - |
+| 4. Preset Configurations | 1/2 | In Progress | - |
 | 5. TypeScript SDK | 0/1 | Not started | - |
 | 6. Admin CLI | 0/1 | Not started | - |
 | 7. Backend Services | 0/1 | Not started | - |
