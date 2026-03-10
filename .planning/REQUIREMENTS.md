@@ -19,15 +19,15 @@
 
 ### Compliance
 
-- [ ] **COMP-01**: The SSS-2 compliance layer enforces blacklist checks through a transfer-hook program
-- [ ] **COMP-02**: The compliance layer supports blacklist PDA management and seizure via Token-2022 permanent delegate behavior
-- [ ] **COMP-03**: Compliance-only actions are gated so they only activate when SSS-2 compliance is enabled
+- [x] **COMP-01**: The SSS-2 compliance layer enforces blacklist checks through a transfer-hook program
+- [x] **COMP-02**: The compliance layer supports blacklist PDA management and seizure via Token-2022 permanent delegate behavior
+- [x] **COMP-03**: Compliance-only actions are gated so they only activate when SSS-2 compliance is enabled
 
 ### Presets
 
-- [ ] **PRE-01**: The project ships a minimal SSS-1 preset definition
-- [ ] **PRE-02**: The project ships a compliant SSS-2 preset definition
-- [ ] **PRE-03**: Teams can supply validated custom TOML or JSON configurations
+- [x] **PRE-01**: The project ships a minimal SSS-1 preset definition
+- [x] **PRE-02**: The project ships a compliant SSS-2 preset definition
+- [x] **PRE-03**: Teams can supply validated custom TOML or JSON configurations
 
 ### SDK
 
@@ -105,12 +105,12 @@
 | CORE-01 | Phase 2 | Complete |
 | CORE-02 | Phase 2 | Complete |
 | CORE-03 | Phase 2 | Complete |
-| COMP-01 | Phase 3 | Pending |
-| COMP-02 | Phase 3 | Pending |
-| COMP-03 | Phase 3 | Pending |
-| PRE-01 | Phase 4 | Pending |
-| PRE-02 | Phase 4 | Pending |
-| PRE-03 | Phase 4 | Pending |
+| COMP-01 | Phase 3 | Complete |
+| COMP-02 | Phase 3 | Complete |
+| COMP-03 | Phase 3 | Complete |
+| PRE-01 | Phase 4 | Complete |
+| PRE-02 | Phase 4 | Complete |
+| PRE-03 | Phase 4 | Complete |
 | SDK-01 | Phase 5 | Pending |
 | SDK-02 | Phase 5 | Pending |
 | SDK-03 | Phase 5 | Pending |

@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 3
-current_phase_name: Compliance Module
-current_plan: 0
-status: ready_to_plan
-stopped_at: Completed 02-04-PLAN.md
-last_updated: "2026-03-09T08:48:44Z"
-last_activity: 2026-03-09
+current_phase: 4
+current_phase_name: preset configurations
+current_plan: 2
+status: executing
+stopped_at: Completed 04-01-PLAN.md
+last_updated: "2026-03-10T02:38:22.635Z"
+last_activity: 2026-03-10
 progress:
   total_phases: 12
-  completed_phases: 1
-  total_plans: 4
-  completed_plans: 4
-  percent: 100
+  completed_phases: 2
+  total_plans: 9
+  completed_plans: 8
+  percent: 89
 ---
 
 # Project State
@@ -24,20 +24,20 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-09)
 
 **Core value:** Ship a modular stablecoin standard on Solana that gives issuers one clear path from core contract logic to presets, tooling, operations, and reviewer proof.
-**Current focus:** Phase 3 - Compliance Module
+**Current focus:** Phase 4 - Preset Configurations
 
 ## Current Position
 
-**Current Phase:** 3
-**Current Phase Name:** Compliance Module
+**Current Phase:** 4
+**Current Phase Name:** preset configurations
 **Total Phases:** 12
-**Current Plan:** 0
-**Total Plans in Phase:** 1
-**Status:** Ready to plan
-**Last Activity:** 2026-03-09
+**Current Plan:** 2
+**Total Plans in Phase:** 2
+**Status:** Ready to execute
+**Last Activity:** 2026-03-10
 Last activity description: Completed plan 02-04 to validate the Phase 2 Layer 1 contract with targeted Anchor integration tests
 
-**Progress:** [██████████] 100%
+**Progress:** [█████████░] 89%
 
 ## Performance Metrics
 
@@ -56,6 +56,7 @@ Last activity description: Completed plan 02-04 to validate the Phase 2 Layer 1 
 **Recent Trend:**
 - Last 5 plans: 2 min, 7 min, 9 min, 2h
 - Trend: Stable
+| Phase 04 P01 | 10 min | 3 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -76,6 +77,8 @@ Recent decisions affecting current work:
 - [Phase 2]: Admin flows remain safe after authority transfer because stablecoin identity is mint-derived and role/minter changes emit explicit audit events.
 - [Phase 2]: Targeted Layer 1 validation should run through `anchor test`, and test reads must confirm transaction signatures before asserting state.
 - [Phase 2]: Phase 2 defers token-metadata bootstrap so the shared Layer 1 initializer stays stable around mint creation, authorities, quotas, pause behavior, and validation.
+- [Phase 04]: Reject unknown preset strings at runtime inside getPresetConfig to prevent silent fallback behavior.
+- [Phase 04]: Treat non-object JSON/TOML roots as invalid config input before schema parsing.
 
 ### Pending Todos
 
@@ -87,6 +90,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-09T08:48:44Z
-Stopped at: Completed 02-04-PLAN.md
+Last session: 2026-03-10T02:38:22.633Z
+Stopped at: Completed 04-01-PLAN.md
 Resume file: None
