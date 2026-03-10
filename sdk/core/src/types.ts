@@ -103,6 +103,12 @@ export interface SdkTxResult {
   confirmation: TxConfirmationMetadata;
 }
 
+export type ComplianceMutationKind = "blacklistAdd" | "blacklistRemove" | "seize";
+
+export interface ComplianceTxResult extends SdkTxResult {
+  operation: ComplianceMutationKind;
+}
+
 export interface CreateStablecoinResult {
   stablecoin: SolanaStablecoin;
   initialization: SdkTxResult;

@@ -5,17 +5,45 @@
  * (enableTransferHook = true, enablePermanentDelegate = true).
  */
 
-import { Connection, Keypair, PublicKey, Transaction } from "@solana/web3.js";
+import { Connection, Keypair, PublicKey } from "@solana/web3.js";
 import { Program } from "@coral-xyz/anchor";
 import { findBlacklistEntryPda } from "./pda";
+import { UnsupportedOperationError } from "./errors";
+import { ComplianceTxResult } from "./types";
 
 export class ComplianceModule {
   constructor(
     private readonly connection: Connection,
     private readonly program: Program,
     private readonly stablecoin: PublicKey,
-    private readonly mint: PublicKey
+    private readonly mint: PublicKey,
+    private readonly options: { enabled?: boolean } = {}
   ) {}
+
+  private assertSupported(operation: ComplianceTxResult["operation"]): void {
+    if (this.options.enabled === false) {
+      throw new UnsupportedOperationError(
+        "Compliance helpers are only available for SSS-2 deployments.",
+        { operation }
+      );
+    }
+  }
+
+  private buildTxResult(
+    operation: ComplianceTxResult["operation"],
+    signature: string
+  ): ComplianceTxResult {
+    return {
+      operation,
+      signature,
+      confirmation: {
+        commitment: this.connection.commitment ?? "processed",
+        confirmationStatus: null,
+        slot: null,
+        confirmations: null,
+      },
+    };
+  }
 
   /**
    * Add an address to the blacklist.
@@ -25,14 +53,16 @@ export class ComplianceModule {
     address: PublicKey,
     reason: string,
     blacklister: Keypair
-  ): Promise<string> {
+  ): Promise<ComplianceTxResult> {
+    this.assertSupported("blacklistAdd");
+
     const [blacklistEntry] = findBlacklistEntryPda(
       this.stablecoin,
       address,
       this.program.programId
     );
 
-    return this.program.methods
+    const signature = await this.program.methods
       .addToBlacklist(reason)
       .accounts({
         blacklister: blacklister.publicKey,
@@ -42,6 +72,8 @@ export class ComplianceModule {
       })
       .signers([blacklister])
       .rpc();
+
+    return this.buildTxResult("blacklistAdd", signature);
   }
 
   /**
@@ -51,14 +83,16 @@ export class ComplianceModule {
   async blacklistRemove(
     address: PublicKey,
     blacklister: Keypair
-  ): Promise<string> {
+  ): Promise<ComplianceTxResult> {
+    this.assertSupported("blacklistRemove");
+
     const [blacklistEntry] = findBlacklistEntryPda(
       this.stablecoin,
       address,
       this.program.programId
     );
 
-    return this.program.methods
+    const signature = await this.program.methods
       .removeFromBlacklist()
       .accounts({
         blacklister: blacklister.publicKey,
@@ -68,6 +102,8 @@ export class ComplianceModule {
       })
       .signers([blacklister])
       .rpc();
+
+    return this.buildTxResult("blacklistRemove", signature);
   }
 
   /**
@@ -89,19 +125,32 @@ export class ComplianceModule {
    */
   async seize(
     fromTokenAccount: PublicKey,
+    targetOwner: PublicKey,
     treasuryTokenAccount: PublicKey,
     seizer: Keypair
-  ): Promise<string> {
-    return this.program.methods
+  ): Promise<ComplianceTxResult> {
+    this.assertSupported("seize");
+
+    const [blacklistEntry] = findBlacklistEntryPda(
+      this.stablecoin,
+      targetOwner,
+      this.program.programId
+    );
+
+    const signature = await this.program.methods
       .seize()
       .accounts({
         seizer: seizer.publicKey,
         stablecoin: this.stablecoin,
         mint: this.mint,
         fromTokenAccount,
+        targetOwner,
         treasuryTokenAccount,
+        blacklistEntry,
       })
       .signers([seizer])
       .rpc();
+
+    return this.buildTxResult("seize", signature);
   }
 }
