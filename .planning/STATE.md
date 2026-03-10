@@ -4,17 +4,17 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 5
 current_phase_name: typescript sdk
-current_plan: Not started
-status: planning
-stopped_at: Phase 5 context gathered
-last_updated: "2026-03-10T03:18:16.606Z"
+current_plan: 2
+status: executing
+stopped_at: Completed 05-01-PLAN.md
+last_updated: "2026-03-10T13:24:32.994Z"
 last_activity: 2026-03-10
 progress:
   total_phases: 12
   completed_phases: 3
-  total_plans: 9
-  completed_plans: 9
-  percent: 100
+  total_plans: 12
+  completed_plans: 10
+  percent: 83
 ---
 
 # Project State
@@ -24,20 +24,20 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-09)
 
 **Core value:** Ship a modular stablecoin standard on Solana that gives issuers one clear path from core contract logic to presets, tooling, operations, and reviewer proof.
-**Current focus:** Phase 4 - Preset Configurations
+**Current focus:** Phase 5 - TypeScript SDK
 
 ## Current Position
 
 **Current Phase:** 5
 **Current Phase Name:** typescript sdk
 **Total Phases:** 12
-**Current Plan:** Not started
-**Total Plans in Phase:** 2
-**Status:** Ready to plan
+**Current Plan:** 2
+**Total Plans in Phase:** 3
+**Status:** In progress
 **Last Activity:** 2026-03-10
-Last activity description: Completed plan 02-04 to validate the Phase 2 Layer 1 contract with targeted Anchor integration tests
+Last activity description: Completed plan 05-01 to establish typed SDK create/load contracts and regression coverage
 
-**Progress:** [██████████] 100%
+**Progress:** [████████░░] 83%
 
 ## Performance Metrics
 
@@ -58,6 +58,7 @@ Last activity description: Completed plan 02-04 to validate the Phase 2 Layer 1 
 - Trend: Stable
 | Phase 04 P01 | 10 min | 3 tasks | 8 files |
 | Phase 04 P02 | 2 min | 2 tasks | 4 files |
+| Phase 05 P01 | 7 min | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -82,6 +83,8 @@ Recent decisions affecting current work:
 - [Phase 04]: Treat non-object JSON/TOML roots as invalid config input before schema parsing.
 - [Phase 04]: Document preset/config precedence in canonical order: explicit runtime options > config file > preset defaults.
 - [Phase 04]: Record strict schema guarantees in docs, including snake_case-only file keys, unknown-field rejection, non-object root rejection, and runtime unsupported preset rejection.
+- [Phase 05]: Expose initialization transaction metadata via SolanaStablecoin.initialization while preserving create() call ergonomics.
+- [Phase 05]: Resolve load() variant deterministically with precedence: variant > isSSS2 > paired extension hints.
 
 ### Pending Todos
 
@@ -93,6 +96,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-10T03:18:16.604Z
-Stopped at: Phase 5 context gathered
-Resume file: .planning/phases/05-typescript-sdk/05-CONTEXT.md
+Last session: 2026-03-10T13:24:32.992Z
+Stopped at: Completed 05-01-PLAN.md
+Resume file: None

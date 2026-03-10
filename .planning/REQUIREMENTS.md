@@ -31,9 +31,9 @@
 
 ### SDK
 
-- [ ] **SDK-01**: `@stbr/sss-token` exposes typed initialization flows for shipped presets and custom configs
-- [ ] **SDK-02**: The SDK exposes stablecoin lifecycle operations consistent with the on-chain programs
-- [ ] **SDK-03**: The SDK exposes SSS-2 compliance helpers for blacklist and seizure workflows
+- [x] **SDK-01**: `@stbr/sss-token` exposes typed initialization flows for shipped presets and custom configs
+- [x] **SDK-02**: The SDK exposes stablecoin lifecycle operations consistent with the on-chain programs
+- [x] **SDK-03**: The SDK exposes SSS-2 compliance helpers for blacklist and seizure workflows
 
 ### CLI
 
@@ -111,9 +111,9 @@
 | PRE-01 | Phase 4 | Complete |
 | PRE-02 | Phase 4 | Complete |
 | PRE-03 | Phase 4 | Complete |
-| SDK-01 | Phase 5 | Pending |
-| SDK-02 | Phase 5 | Pending |
-| SDK-03 | Phase 5 | Pending |
+| SDK-01 | Phase 5 | Complete |
+| SDK-02 | Phase 5 | Complete |
+| SDK-03 | Phase 5 | Complete |
 | CLI-01 | Phase 6 | Pending |
 | CLI-02 | Phase 6 | Pending |
 | CLI-03 | Phase 6 | Pending |

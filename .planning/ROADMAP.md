@@ -92,10 +92,12 @@ Plans:
   1. Developers can initialize SSS-1, SSS-2, and custom deployments through the SDK.
   2. Lifecycle operations are exposed through typed APIs consistent with the on-chain programs.
   3. Compliance helper APIs cover the SSS-2 operator workflows.
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 05-01: Generate executable plans via `$gsd-plan-phase 5`
+- [x] 05-01: Establish typed create/load contracts, shared tx result envelope, and SDK error taxonomy
+- [ ] 05-02: Implement lifecycle mutation parity with bigint/u64 preflight and typed error normalization
+- [ ] 05-03: Harden compliance helper contracts and regression coverage
 
 ### Phase 6: Admin CLI
 **Goal**: Deliver the `sss-token` CLI for operators using the SDK internally.
@@ -199,7 +201,7 @@ Phases execute in numeric order: 2 → 2.1 → 2.2 → 3 → 3.1 → 4
 | 2. Layer 1 Core Program | 4/4 | Complete | 2026-03-09 |
 | 3. Compliance Module | 3/3 | Complete   | 2026-03-10 |
 | 4. Preset Configurations | 2/2 | Complete   | 2026-03-10 |
-| 5. TypeScript SDK | 0/1 | Not started | - |
+| 5. TypeScript SDK | 1/3 | In Progress | - |
 | 6. Admin CLI | 0/1 | Not started | - |
 | 7. Backend Services | 0/1 | Not started | - |
 | 8. Testing And Fuzzing | 0/1 | Not started | - |
