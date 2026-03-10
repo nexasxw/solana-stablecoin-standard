@@ -36,14 +36,57 @@ export interface CreateOptions {
 }
 
 export interface MintOptions {
-  recipient: PublicKey;
-  amount: number | bigint;
+  recipientTokenAccount: PublicKey;
+  amount: bigint;
   minter: Keypair;
 }
 
 export interface BurnOptions {
-  amount: number | bigint;
+  burnerTokenAccount: PublicKey;
+  amount: bigint;
   burner: Keypair;
+}
+
+export interface FreezeOptions {
+  tokenAccount: PublicKey;
+  pauser: Keypair;
+}
+
+export interface ThawOptions {
+  tokenAccount: PublicKey;
+  pauser: Keypair;
+}
+
+export interface PauseOptions {
+  authority: Keypair;
+}
+
+export interface UnpauseOptions {
+  authority: Keypair;
+}
+
+export interface UpdateMinterOptions {
+  authority: Keypair;
+  minter: PublicKey;
+  quota: bigint;
+}
+
+export interface RemoveMinterOptions {
+  authority: Keypair;
+  minter: PublicKey;
+}
+
+export interface TransferAuthorityOptions {
+  authority: Keypair;
+  newAuthority: PublicKey;
+}
+
+export interface UpdateRolesOptions {
+  authority: Keypair;
+  pauser?: PublicKey | null;
+  burner?: PublicKey | null;
+  blacklister?: PublicKey | null;
+  seizer?: PublicKey | null;
 }
 
 export type StablecoinVariant = "SSS_1" | "SSS_2";
@@ -70,7 +113,18 @@ export interface StablecoinState {
   mint: PublicKey;
   pauser: PublicKey;
   burner: PublicKey;
+  blacklister?: PublicKey;
+  seizer?: PublicKey;
+  treasuryTokenAccount?: PublicKey;
   paused: boolean;
   permanentDelegateEnabled: boolean;
   transferHookEnabled: boolean;
+}
+
+export interface MinterState {
+  stablecoin: PublicKey;
+  minter: PublicKey;
+  quota: bigint;
+  minted: bigint;
+  bump: number;
 }
