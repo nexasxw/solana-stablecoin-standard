@@ -1,6 +1,7 @@
 export enum SdkErrorCode {
   VALIDATION_FAILED = "VALIDATION_FAILED",
   INVALID_ARGUMENT = "INVALID_ARGUMENT",
+  INVALID_REASON = "INVALID_REASON",
   INVALID_AMOUNT = "INVALID_AMOUNT",
   MISSING_SIGNER = "MISSING_SIGNER",
   UNSUPPORTED_OPERATION = "UNSUPPORTED_OPERATION",
@@ -36,6 +37,13 @@ export class InvalidArgumentError extends StablecoinSdkError {
   constructor(message: string, details?: Record<string, unknown>) {
     super(SdkErrorCode.INVALID_ARGUMENT, message, { details });
     this.name = "InvalidArgumentError";
+  }
+}
+
+export class InvalidReasonError extends StablecoinSdkError {
+  constructor(message: string, details?: Record<string, unknown>) {
+    super(SdkErrorCode.INVALID_REASON, message, { details });
+    this.name = "InvalidReasonError";
   }
 }
 

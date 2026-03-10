@@ -8,7 +8,14 @@
 import { Connection, Keypair, PublicKey } from "@solana/web3.js";
 import { Program } from "@coral-xyz/anchor";
 import { findBlacklistEntryPda } from "./pda";
-import { UnsupportedOperationError } from "./errors";
+import {
+  InvalidArgumentError,
+  InvalidReasonError,
+  MissingSignerError,
+  RpcRequestError,
+  StablecoinSdkError,
+  UnsupportedOperationError,
+} from "./errors";
 import { ComplianceTxResult } from "./types";
 
 export class ComplianceModule {
@@ -45,6 +52,61 @@ export class ComplianceModule {
     };
   }
 
+  private ensurePublicKey(input: unknown, field: string): PublicKey {
+    if (!(input instanceof PublicKey)) {
+      throw new InvalidArgumentError(`Expected ${field} to be a PublicKey.`, { field });
+    }
+
+    return input;
+  }
+
+  private ensureSigner(input: unknown, field: string): Keypair {
+    if (!(input instanceof Keypair)) {
+      throw new MissingSignerError(`Expected ${field} to be a Keypair signer.`, { field });
+    }
+
+    return input;
+  }
+
+  private ensureReason(reason: unknown): string {
+    if (typeof reason !== "string") {
+      throw new InvalidReasonError("Expected reason to be a string.", {
+        field: "reason",
+        receivedType: typeof reason,
+      });
+    }
+
+    const trimmedReason = reason.trim();
+    if (!trimmedReason) {
+      throw new InvalidReasonError(
+        "blacklistAdd requires a non-empty trimmed reason.",
+        { field: "reason" }
+      );
+    }
+
+    return trimmedReason;
+  }
+
+  private async executeMutation(
+    operation: ComplianceTxResult["operation"],
+    executeRpc: () => Promise<string>
+  ): Promise<ComplianceTxResult> {
+    try {
+      const signature = await executeRpc();
+      return this.buildTxResult(operation, signature);
+    } catch (error) {
+      if (error instanceof StablecoinSdkError) {
+        throw error;
+      }
+
+      throw new RpcRequestError(
+        `Compliance RPC request failed for ${operation}.`,
+        error,
+        { operation }
+      );
+    }
+  }
+
   /**
    * Add an address to the blacklist.
    * Requires blacklister role (or authority).
@@ -55,25 +117,26 @@ export class ComplianceModule {
     blacklister: Keypair
   ): Promise<ComplianceTxResult> {
     this.assertSupported("blacklistAdd");
+    const validatedAddress = this.ensurePublicKey(address, "address");
+    const validatedBlacklister = this.ensureSigner(blacklister, "blacklister");
+    const validatedReason = this.ensureReason(reason);
 
     const [blacklistEntry] = findBlacklistEntryPda(
       this.stablecoin,
-      address,
+      validatedAddress,
       this.program.programId
     );
 
-    const signature = await this.program.methods
-      .addToBlacklist(reason)
+    return this.executeMutation("blacklistAdd", async () => this.program.methods
+      .addToBlacklist(validatedReason)
       .accounts({
-        blacklister: blacklister.publicKey,
+        blacklister: validatedBlacklister.publicKey,
         stablecoin: this.stablecoin,
-        address,
+        address: validatedAddress,
         blacklistEntry,
       })
-      .signers([blacklister])
-      .rpc();
-
-    return this.buildTxResult("blacklistAdd", signature);
+      .signers([validatedBlacklister])
+      .rpc());
   }
 
   /**
@@ -85,25 +148,25 @@ export class ComplianceModule {
     blacklister: Keypair
   ): Promise<ComplianceTxResult> {
     this.assertSupported("blacklistRemove");
+    const validatedAddress = this.ensurePublicKey(address, "address");
+    const validatedBlacklister = this.ensureSigner(blacklister, "blacklister");
 
     const [blacklistEntry] = findBlacklistEntryPda(
       this.stablecoin,
-      address,
+      validatedAddress,
       this.program.programId
     );
 
-    const signature = await this.program.methods
+    return this.executeMutation("blacklistRemove", async () => this.program.methods
       .removeFromBlacklist()
       .accounts({
-        blacklister: blacklister.publicKey,
+        blacklister: validatedBlacklister.publicKey,
         stablecoin: this.stablecoin,
-        address,
+        address: validatedAddress,
         blacklistEntry,
       })
-      .signers([blacklister])
-      .rpc();
-
-    return this.buildTxResult("blacklistRemove", signature);
+      .signers([validatedBlacklister])
+      .rpc());
   }
 
   /**
@@ -130,27 +193,29 @@ export class ComplianceModule {
     seizer: Keypair
   ): Promise<ComplianceTxResult> {
     this.assertSupported("seize");
+    const validatedFromTokenAccount = this.ensurePublicKey(fromTokenAccount, "fromTokenAccount");
+    const validatedTargetOwner = this.ensurePublicKey(targetOwner, "targetOwner");
+    const validatedTreasuryTokenAccount = this.ensurePublicKey(treasuryTokenAccount, "treasuryTokenAccount");
+    const validatedSeizer = this.ensureSigner(seizer, "seizer");
 
     const [blacklistEntry] = findBlacklistEntryPda(
       this.stablecoin,
-      targetOwner,
+      validatedTargetOwner,
       this.program.programId
     );
 
-    const signature = await this.program.methods
+    return this.executeMutation("seize", async () => this.program.methods
       .seize()
       .accounts({
-        seizer: seizer.publicKey,
+        seizer: validatedSeizer.publicKey,
         stablecoin: this.stablecoin,
         mint: this.mint,
-        fromTokenAccount,
-        targetOwner,
-        treasuryTokenAccount,
+        fromTokenAccount: validatedFromTokenAccount,
+        targetOwner: validatedTargetOwner,
+        treasuryTokenAccount: validatedTreasuryTokenAccount,
         blacklistEntry,
       })
-      .signers([seizer])
-      .rpc();
-
-    return this.buildTxResult("seize", signature);
+      .signers([validatedSeizer])
+      .rpc());
   }
 }
