@@ -21,9 +21,9 @@
  *   authority: adminKeypair,
  * });
  *
- * await stable.mint({ recipient, amount: 1_000_000, minter });
+ * await stable.mint({ recipientTokenAccount, amount: 1_000_000n, minter });
  * await stable.compliance.blacklistAdd(address, "OFAC match");
- * await stable.compliance.seize(frozenAccount, treasury);
+ * await stable.compliance.seize(frozenAccount, targetOwner, treasuryTokenAccount, seizer);
  * ```
  *
  * @packageDocumentation
