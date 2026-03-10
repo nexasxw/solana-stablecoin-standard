@@ -49,6 +49,14 @@ No single key controls everything.
 
 ## Configuration
 
+SDK preset selector: `Presets.SSS_1`.
+
+Canonical preset defaults:
+- `decimals = 6`
+- `enable_permanent_delegate = false`
+- `enable_transfer_hook = false`
+- `default_account_frozen = false`
+
 ```toml
 # config.toml (SSS-1 preset equivalent)
 name = "My Stablecoin"
@@ -59,6 +67,29 @@ enable_permanent_delegate = false
 enable_transfer_hook = false
 default_account_frozen = false
 ```
+
+```json
+{
+  "name": "My Stablecoin",
+  "symbol": "MYUSD",
+  "uri": "https://example.com/metadata.json",
+  "decimals": 6,
+  "enable_permanent_delegate": false,
+  "enable_transfer_hook": false,
+  "default_account_frozen": false
+}
+```
+
+Config files are validated strictly in the SDK:
+- Required: `name`, `symbol`
+- Defaults: `uri = ""`, `decimals = 6`, `default_account_frozen = false`, extension flags = `false`
+- Merge precedence is deterministic: `explicit options > config file > preset defaults`
+- Unknown fields are rejected
+- CamelCase file keys are rejected (file schema is snake_case only)
+- Non-object roots (for example `[]` in JSON) are rejected
+- Compliance flags must remain paired (`enable_permanent_delegate` and `enable_transfer_hook` both `false` for SSS-1)
+- Unknown preset values are rejected at runtime (`Unsupported preset: ...`)
+- If either compliance flag resolves to `true` while using `SSS_1`, create fails with: `SSS_1 preset is incompatible with compliance extensions.`
 
 ## Program ID
 

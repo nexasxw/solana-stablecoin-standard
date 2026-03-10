@@ -39,16 +39,17 @@ All SSS-1 instructions plus:
 |-------------|--------------|-------------|
 | `add_to_blacklist` | blacklister | Add address to blacklist with reason |
 | `remove_from_blacklist` | blacklister | Remove address from blacklist |
-| `seize` | seizer | Transfer all tokens from account to treasury via permanent delegate |
+| `seize` | seizer | Seize full balance from frozen+blacklisted account to treasury via stablecoin PDA signer |
 
 ## Transfer Hook Behavior
 
 The `sss-transfer-hook` program is invoked by Token-2022 on every transfer:
 
 1. Resolves sender owner and recipient owner from token accounts
-2. Checks sender owner against blacklist PDA — rejects if found
-3. Checks recipient owner against blacklist PDA — rejects if found
-4. If both checks pass, transfer proceeds
+2. Confirms the SSS-2 stablecoin PDA for the mint is initialized
+3. Checks sender owner against blacklist PDA — rejects if found
+4. Checks recipient owner against blacklist PDA — rejects if found
+5. If both checks pass, transfer proceeds
 
 This check cannot be bypassed — it runs at the Token-2022 level.
 
@@ -69,6 +70,14 @@ Seeds: `["blacklist", stablecoin_pubkey, address]`
 
 ## Configuration
 
+SDK preset selector: `Presets.SSS_2`.
+
+Canonical preset defaults:
+- `decimals = 6`
+- `enable_permanent_delegate = true`
+- `enable_transfer_hook = true`
+- `default_account_frozen = false`
+
 ```toml
 # config.toml (SSS-2 preset equivalent)
 name = "My Compliant Stablecoin"
@@ -79,6 +88,29 @@ enable_permanent_delegate = true
 enable_transfer_hook = true
 default_account_frozen = false
 ```
+
+```json
+{
+  "name": "My Compliant Stablecoin",
+  "symbol": "MYUSD",
+  "uri": "https://example.com/metadata.json",
+  "decimals": 6,
+  "enable_permanent_delegate": true,
+  "enable_transfer_hook": true,
+  "default_account_frozen": false
+}
+```
+
+SDK config validation is strict:
+- Required: `name`, `symbol`
+- Defaults: `uri = ""`, `decimals = 6`, `default_account_frozen = false`
+- Merge precedence is deterministic: `explicit options > config file > preset defaults`
+- Unknown fields are rejected
+- CamelCase file keys are rejected (file schema is snake_case only)
+- Non-object roots (for example `[]` in JSON) are rejected
+- Compliance flags must be paired (`enable_permanent_delegate` and `enable_transfer_hook` must both be `true` for SSS-2)
+- Unknown preset values are rejected at runtime (`Unsupported preset: ...`)
+- If either compliance flag resolves to `false` while using `SSS_2`, create fails with: `SSS_2 preset requires both enablePermanentDelegate and enableTransferHook.`
 
 ## Feature Gating
 
