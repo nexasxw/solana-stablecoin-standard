@@ -2,8 +2,7 @@
  * Shared types for the SSS SDK.
  */
 
-import { PublicKey, Keypair, Connection } from "@solana/web3.js";
-import { BN } from "@coral-xyz/anchor";
+import { PublicKey, Keypair } from "@solana/web3.js";
 
 export interface StablecoinConfig {
   name: string;
@@ -16,11 +15,15 @@ export interface StablecoinConfig {
 }
 
 export interface CreateOptions {
-  /** Use a preset (SSS_1 or SSS_2) or provide a custom config */
+  /** Use a preset (SSS_1 or SSS_2) or provide a custom config. Runtime validation rejects unknown values. */
   preset?: "SSS_1" | "SSS_2";
-  /** Custom config — merged with preset defaults if preset is also set */
-  name: string;
-  symbol: string;
+  /** Optional config file path (.toml or .json) */
+  configFile?: string;
+  /** Optional config file format override */
+  configFormat?: "toml" | "json";
+  /** Custom config — merged with preset/file defaults; required unless provided by config file */
+  name?: string;
+  symbol?: string;
   uri?: string;
   decimals?: number;
   extensions?: {

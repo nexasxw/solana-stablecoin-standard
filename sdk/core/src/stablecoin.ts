@@ -10,6 +10,7 @@ import { ComplianceModule } from "./compliance";
 import { Presets, getPresetConfig } from "./presets";
 import { findStablecoinPda, findMinterPda } from "./pda";
 import { CreateOptions, MintOptions, BurnOptions, StablecoinState } from "./types";
+import { loadStablecoinConfigFile, resolveStablecoinConfig } from "./config";
 
 // TODO: import generated IDLs
 // import SSS1_IDL from "../../target/idl/sss_1.json";
@@ -20,7 +21,7 @@ const SSS2_PROGRAM_ID = new PublicKey("SSS22222222222222222222222222222222222222
 
 export class SolanaStablecoin {
   readonly stablecoin: PublicKey;
-  readonly mint: PublicKey;
+  readonly mintAddress: PublicKey;
   readonly compliance: ComplianceModule | null;
 
   private constructor(
@@ -32,7 +33,7 @@ export class SolanaStablecoin {
     isCompliant: boolean
   ) {
     this.stablecoin = stablecoin;
-    this.mint = mint;
+    this.mintAddress = mint;
     this.compliance = isCompliant
       ? new ComplianceModule(connection, program, stablecoin, mint)
       : null;
@@ -68,12 +69,44 @@ export class SolanaStablecoin {
     const { authority, preset } = options;
 
     const presetConfig = preset ? getPresetConfig(preset) : null;
-    const isSSS2 =
-      preset === Presets.SSS_2 ||
-      (options.extensions?.permanentDelegate && options.extensions?.transferHook);
+    const fileConfig = options.configFile
+      ? await loadStablecoinConfigFile(options.configFile, options.configFormat)
+      : null;
+
+    const config = resolveStablecoinConfig({
+      presetConfig,
+      fileConfig,
+      explicitOptions: {
+        name: options.name,
+        symbol: options.symbol,
+        uri: options.uri,
+        decimals: options.decimals,
+        extensions: options.extensions,
+      },
+    });
+
+    if (
+      preset === Presets.SSS_1 &&
+      (config.enablePermanentDelegate || config.enableTransferHook)
+    ) {
+      throw new Error(
+        "SSS_1 preset is incompatible with compliance extensions. Use SSS_2 or disable both flags."
+      );
+    }
+
+    if (
+      preset === Presets.SSS_2 &&
+      (!config.enablePermanentDelegate || !config.enableTransferHook)
+    ) {
+      throw new Error(
+        "SSS_2 preset requires both enablePermanentDelegate and enableTransferHook."
+      );
+    }
+
+    const isSSS2 = config.enablePermanentDelegate && config.enableTransferHook;
 
     const programId = isSSS2 ? SSS2_PROGRAM_ID : SSS1_PROGRAM_ID;
-    const provider = new AnchorProvider(
+    new AnchorProvider(
       connection,
       new Wallet(authority),
       AnchorProvider.defaultOptions()
@@ -84,26 +117,7 @@ export class SolanaStablecoin {
     const program = {} as Program;
 
     const mintKeypair = Keypair.generate();
-    const [stablecoinPda] = findStablecoinPda(authority.publicKey, programId);
-
-    const config = {
-      name: options.name,
-      symbol: options.symbol,
-      uri: options.uri ?? "",
-      decimals: options.decimals ?? presetConfig?.decimals ?? 6,
-      enablePermanentDelegate:
-        options.extensions?.permanentDelegate ??
-        presetConfig?.enablePermanentDelegate ??
-        false,
-      enableTransferHook:
-        options.extensions?.transferHook ??
-        presetConfig?.enableTransferHook ??
-        false,
-      defaultAccountFrozen:
-        options.extensions?.defaultAccountFrozen ??
-        presetConfig?.defaultAccountFrozen ??
-        false,
-    };
+    const [stablecoinPda] = findStablecoinPda(mintKeypair.publicKey, programId);
 
     // TODO: call program.methods.initialize(config).accounts({...}).signers([authority, mintKeypair]).rpc()
 
@@ -118,23 +132,23 @@ export class SolanaStablecoin {
   }
 
   /**
-   * Load an existing stablecoin by authority address.
+   * Load an existing stablecoin by mint address.
    */
   static async load(
     connection: Connection,
-    authority: PublicKey,
+    mint: PublicKey,
     isSSS2 = false
   ): Promise<SolanaStablecoin> {
     const programId = isSSS2 ? SSS2_PROGRAM_ID : SSS1_PROGRAM_ID;
-    const [stablecoinPda] = findStablecoinPda(authority, programId);
+    findStablecoinPda(mint, programId);
     // TODO: fetch stablecoin account and load mint
     throw new Error("Not yet implemented — awaiting IDL generation");
   }
 
   /** Mint tokens to a recipient. Minter role required. */
   async mint(options: MintOptions): Promise<string> {
-    const { recipient, amount, minter } = options;
-    const [minterConfig] = findMinterPda(
+    const { minter } = options;
+    findMinterPda(
       this.stablecoin,
       minter.publicKey,
       this.program.programId
@@ -144,17 +158,17 @@ export class SolanaStablecoin {
   }
 
   /** Burn tokens from caller's account. */
-  async burn(options: BurnOptions): Promise<string> {
+  async burn(_options: BurnOptions): Promise<string> {
     throw new Error("Not yet implemented — awaiting IDL generation");
   }
 
   /** Freeze a token account. Pauser role required. */
-  async freeze(tokenAccount: PublicKey, pauser: Keypair): Promise<string> {
+  async freeze(_tokenAccount: PublicKey, _pauser: Keypair): Promise<string> {
     throw new Error("Not yet implemented — awaiting IDL generation");
   }
 
   /** Thaw a frozen token account. Pauser role required. */
-  async thaw(tokenAccount: PublicKey, pauser: Keypair): Promise<string> {
+  async thaw(_tokenAccount: PublicKey, _pauser: Keypair): Promise<string> {
     throw new Error("Not yet implemented — awaiting IDL generation");
   }
 
@@ -170,7 +184,7 @@ export class SolanaStablecoin {
 
   /** Get total token supply. */
   async getTotalSupply(): Promise<bigint> {
-    const mintInfo = await this.connection.getTokenSupply(this.mint);
+    const mintInfo = await this.connection.getTokenSupply(this.mintAddress);
     return BigInt(mintInfo.value.amount);
   }
 
