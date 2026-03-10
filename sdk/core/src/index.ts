@@ -33,7 +33,9 @@ export * from "./stablecoin";
 export * from "./compliance";
 export * from "./pda";
 export * from "./presets";
+export * from "./config";
 export * from "./types";
+export * from "./errors";
 
 // Re-export common types
 export { BN } from "@coral-xyz/anchor";
