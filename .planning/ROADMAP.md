@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Monorepo Foundation** - Establish the Anchor and TypeScript workspace baseline described by NEX-5
 - [x] **Phase 2: Layer 1 Core Program** - Build the shared stablecoin contract that all later layers depend on
 - [x] **Phase 3: Compliance Module** - Add the transfer-hook and blacklist enforcement needed for SSS-2 (completed 2026-03-10)
-- [ ] **Phase 4: Preset Configurations** - Ship the SSS-1 and SSS-2 presets plus custom config validation
+- [x] **Phase 4: Preset Configurations** - Ship the SSS-1 and SSS-2 presets plus custom config validation (completed 2026-03-10)
 - [ ] **Phase 5: TypeScript SDK** - Expose developer-facing APIs for initialization and operations
 - [ ] **Phase 6: Admin CLI** - Build the operator CLI on top of the SDK
 - [ ] **Phase 7: Backend Services** - Build issuance, indexing, compliance, and webhook services
@@ -82,7 +82,7 @@ Plans:
 
 Plans:
 - [x] 04-01: Deliver the executable SDK contract for presets and custom config resolution
-- [ ] 04-02: Documentation and closeout for preset/config contract
+- [x] 04-02: Documentation and closeout for preset/config contract
 
 ### Phase 5: TypeScript SDK
 **Goal**: Deliver the public TypeScript SDK for initialization, lifecycle operations, and compliance helpers.
@@ -198,7 +198,7 @@ Phases execute in numeric order: 2 → 2.1 → 2.2 → 3 → 3.1 → 4
 | 1. Monorepo Foundation | 1/1 | Complete | 2026-03-09 |
 | 2. Layer 1 Core Program | 4/4 | Complete | 2026-03-09 |
 | 3. Compliance Module | 3/3 | Complete   | 2026-03-10 |
-| 4. Preset Configurations | 1/2 | In Progress | - |
+| 4. Preset Configurations | 2/2 | Complete   | 2026-03-10 |
 | 5. TypeScript SDK | 0/1 | Not started | - |
 | 6. Admin CLI | 0/1 | Not started | - |
 | 7. Backend Services | 0/1 | Not started | - |
