@@ -67,6 +67,8 @@ describe("SolanaStablecoin.create preset/config integration", () => {
 
     expect(stablecoin.initialization).to.not.equal(null);
     expect(stablecoin.initialization?.signature).to.match(/^simulated-init-/);
+    expect(stablecoin.initialization?.confirmation.commitment).to.equal("processed");
+    expect(stablecoin.initialization?.confirmation.confirmationStatus).to.equal(null);
     expect(stablecoin.variant).to.equal("SSS_1");
     expect(stablecoin.compliance).to.equal(null);
   });
