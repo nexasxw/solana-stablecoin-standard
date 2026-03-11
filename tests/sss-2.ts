@@ -394,18 +394,8 @@ describe("SSS-2: Compliant Stablecoin", () => {
       noTreasuryMint.publicKey,
       anchor.workspace.SssTransferHook.programId
     );
-    const noTreasuryUserAta: PublicKey = await createToken2022Ata(
-      provider.connection,
-      authority,
-      noTreasuryMint.publicKey,
-      user.publicKey
-    );
-    const noTreasuryTreasuryAta: PublicKey = await createToken2022Ata(
-      provider.connection,
-      authority,
-      noTreasuryMint.publicKey,
-      treasuryOwner.publicKey
-    );
+    let noTreasuryUserAta: PublicKey;
+    let noTreasuryTreasuryAta: PublicKey;
 
     let signature = await sss2.methods
       .initialize(config)
@@ -423,6 +413,19 @@ describe("SSS-2: Compliant Stablecoin", () => {
       .signers(toSignerArray(authority, noTreasuryMint as Keypair))
       .rpc();
     await confirmSignature(provider.connection, signature);
+
+    noTreasuryUserAta = await createToken2022Ata(
+      provider.connection,
+      authority,
+      noTreasuryMint.publicKey,
+      user.publicKey
+    );
+    noTreasuryTreasuryAta = await createToken2022Ata(
+      provider.connection,
+      authority,
+      noTreasuryMint.publicKey,
+      treasuryOwner.publicKey
+    );
 
     signature = await sss2.methods
       .updateMinter(new anchor.BN(100))
