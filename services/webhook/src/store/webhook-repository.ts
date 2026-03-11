@@ -144,16 +144,6 @@ const ensurePositiveInt = (value: number, field: string): number => {
   return value;
 };
 
-const sortByCreatedAt = <T extends { created_at: string }>(items: T[]): T[] => {
-  return [...items].sort((left, right) => {
-    const timeDelta = Date.parse(left.created_at) - Date.parse(right.created_at);
-    if (timeDelta !== 0) {
-      return timeDelta;
-    }
-    return 0;
-  });
-};
-
 const calculateRetryDelaySeconds = (attemptNumber: number): number => {
   const delay = RETRY_BASE_DELAY_SECONDS * 2 ** Math.max(0, attemptNumber - 1);
   return Math.min(delay, RETRY_MAX_DELAY_SECONDS);
@@ -421,11 +411,8 @@ export class WebhookRepository {
       .filter((entry): entry is WebhookDeadLetterRecord => Boolean(entry))
       .filter((entry) => (query.subscription_id ? entry.subscription_id === query.subscription_id : true));
 
-    return sortByCreatedAt(rows.map((entry) => ({ ...entry, created_at: entry.failed_at })))
-      .map((entry) => {
-        const { created_at: _ignored, ...rest } = entry;
-        return rest;
-      })
+    return [...rows]
+      .sort((left, right) => Date.parse(left.failed_at) - Date.parse(right.failed_at))
       .slice(0, limit)
       .map((entry) => clone(entry));
   }

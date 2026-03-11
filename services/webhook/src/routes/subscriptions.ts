@@ -84,13 +84,15 @@ const secretPreview = (value: string): string => {
 };
 
 const generateSecret = (): string => {
-  return randomUUID().replaceAll("-", "");
+  return randomUUID().split("-").join("");
 };
 
 const toReadModel = (
   record: WebhookSubscriptionRecord
 ): Omit<WebhookSubscriptionRecord, "primary_secret" | "secondary_secret"> => {
-  const { primary_secret: _primary, secondary_secret: _secondary, ...safe } = record;
+  const safe = { ...record };
+  delete (safe as Partial<WebhookSubscriptionRecord>).primary_secret;
+  delete (safe as Partial<WebhookSubscriptionRecord>).secondary_secret;
   return safe;
 };
 
