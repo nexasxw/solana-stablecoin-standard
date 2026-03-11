@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 import { Command } from "commander";
 import { loadCommandContext } from "./cli/context";
+import { resolveCliFailure } from "./cli/errors";
+import { renderFailure } from "./cli/output";
 
 function registerInitGroup(program: Command): void {
   const init = program.command("init").description("Initialize SSS-1, SSS-2, or custom stablecoin deployments");
@@ -83,6 +85,7 @@ export function createCliProgram(): Command {
     .name("sss-token")
     .description("Operator CLI for the Solana Stablecoin Standard")
     .showHelpAfterError("(use --help for usage)")
+    .exitOverride()
     .allowExcessArguments(false);
 
   program.option("-c, --config <path>", "Path to CLI runtime config file");
@@ -101,16 +104,29 @@ export function createCliProgram(): Command {
   return program;
 }
 
+function isJsonMode(argv: string[]): boolean {
+  return argv.includes("--json");
+}
+
+function commandLabel(argv: string[]): string {
+  const commandParts = argv.slice(2).filter((token) => !token.startsWith("-"));
+  return commandParts.join(" ") || "sss-token";
+}
+
 export async function runCli(argv: string[] = process.argv): Promise<number> {
   const program = createCliProgram();
-  await program.parseAsync(argv);
-  return 0;
+  try {
+    await program.parseAsync(argv);
+    return 0;
+  } catch (error) {
+    const cliError = resolveCliFailure(error);
+    process.stderr.write(renderFailure(commandLabel(argv), cliError, isJsonMode(argv)));
+    return cliError.exitCode;
+  }
 }
 
 if (require.main === module) {
-  runCli().catch((error) => {
-    const message = error instanceof Error ? error.message : String(error);
-    process.stderr.write(`${message}\n`);
-    process.exit(1);
+  runCli().then((exitCode) => {
+    process.exit(exitCode);
   });
 }
