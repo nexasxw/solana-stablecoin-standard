@@ -6,14 +6,14 @@ current_phase: 6
 current_phase_name: admin cli
 current_plan: 3
 status: verifying
-stopped_at: Completed 06-admin-cli-03-PLAN.md
-last_updated: "2026-03-11T02:26:08.006Z"
+stopped_at: Completed 06-admin-cli-05-PLAN.md
+last_updated: "2026-03-11T04:12:18.937Z"
 last_activity: 2026-03-11
 progress:
   total_phases: 12
   completed_phases: 5
-  total_plans: 15
-  completed_plans: 15
+  total_plans: 17
+  completed_plans: 17
   percent: 100
 ---
 
@@ -64,6 +64,7 @@ Last activity description: Completed plan 06-01 for CLI foundation, runtime conf
 | Phase 06-admin-cli P01 | 7min | 4 tasks | 13 files |
 | Phase 06-admin-cli P02 | 11min | 4 tasks | 10 files |
 | Phase 06-admin-cli P03 | 9min | 3 tasks | 10 files |
+| Phase 06-admin-cli P05 | 4min | 4 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -103,6 +104,8 @@ Recent decisions affecting current work:
 - [Phase 06-admin-cli]: Moved compliance command surface to blacklist {add|remove|check} plus root seize.
 - [Phase 06-admin-cli]: Marked holders and audit-log as deterministic deferred operations until Phase 7 services.
 - [Phase 06-admin-cli]: Kept JSON failure envelope stable while exposing SDK subcode in human output.
+- [Phase 06-admin-cli]: Use anchor test command path for verification because direct ts-mocha lacks Anchor env variables.
+- [Phase 06-admin-cli]: Fix seizure precondition by initializing mint before ATA creation while preserving existing program-level assertions.
 
 ### Pending Todos
 
@@ -114,6 +117,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-11T02:26:08.002Z
-Stopped at: Completed 06-admin-cli-03-PLAN.md
+Last session: 2026-03-11T04:12:18.934Z
+Stopped at: Completed 06-admin-cli-05-PLAN.md
 Resume file: None

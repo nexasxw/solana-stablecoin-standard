@@ -107,12 +107,13 @@ Plans:
   1. Operators can initialize and manage tokens from the CLI for shipped presets and custom configs.
   2. The CLI supports the expected stablecoin lifecycle and compliance command set.
   3. Runtime configuration works cleanly through config files or environment variables.
-**Plans**: 3 plans
+**Plans**: 4 plans
 
 Plans:
 - [x] 06-01: CLI foundation, runtime config contract, and SDK init realism gate
-- [ ] 06-02: Init/lifecycle/admin command implementation with explicit minter command ownership
-- [ ] 06-03: Compliance + non-minter management hardening and end-of-phase E2E gate
+- [x] 06-02: Init/lifecycle/admin command implementation with explicit minter command ownership
+- [x] 06-03: Compliance + non-minter management hardening and end-of-phase E2E gate
+- [x] 06-04: Verification-gap closure for SSS-2 test regressions and final Phase 6 verification evidence refresh
 
 ### Phase 7: Backend Services
 **Goal**: Deliver the mint/burn, indexer, compliance, and webhook services that support off-chain workflows.
@@ -204,7 +205,7 @@ Phases execute in numeric order: 2 → 2.1 → 2.2 → 3 → 3.1 → 4
 | 3. Compliance Module | 3/3 | Complete   | 2026-03-10 |
 | 4. Preset Configurations | 2/2 | Complete   | 2026-03-10 |
 | 5. TypeScript SDK | 3/3 | Complete | 2026-03-10 |
-| 6. Admin CLI | 3/3 | Complete   | 2026-03-11 |
+| 6. Admin CLI | 4/4 | Complete   | 2026-03-11 |
 | 7. Backend Services | 0/1 | Not started | - |
 | 8. Testing And Fuzzing | 0/1 | Not started | - |
 | 9. Documentation | 0/1 | Not started | - |
