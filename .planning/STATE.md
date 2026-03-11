@@ -4,17 +4,17 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 7
 current_phase_name: backend services
-current_plan: 07-05
+current_plan: 07-06
 status: executing
-stopped_at: Completed 07-03-SUMMARY.md
-last_updated: "2026-03-11T08:58:25Z"
+stopped_at: Completed 07-05-SUMMARY.md
+last_updated: "2026-03-11T09:12:11Z"
 last_activity: 2026-03-11
 progress:
   total_phases: 12
   completed_phases: 6
   total_plans: 29
-  completed_plans: 22
-  percent: 76
+  completed_plans: 23
+  percent: 79
 ---
 
 # Project State
@@ -31,18 +31,18 @@ See: .planning/PROJECT.md (updated 2026-03-09)
 **Current Phase:** 7
 **Current Phase Name:** backend services
 **Total Phases:** 12
-**Current Plan:** 07-05
+**Current Plan:** 07-06
 **Total Plans in Phase:** 6
 **Status:** Ready to execute next plan
 **Last Activity:** 2026-03-11
-Last activity description: Completed plan 07-03 for compliance screening, review-gated mutation orchestration, and audit export lifecycle
+Last activity description: Completed plan 07-05 for webhook subscriptions, ordered retries/DLQ delivery contracts, and signature rotation verification
 
-**Progress:** [███████░░░] 76%
+**Progress:** [████████░░] 79%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 7
+- Total plans completed: 8
 - Average duration: 35 min
 - Total execution time: 2h 18min
 
@@ -52,7 +52,7 @@ Last activity description: Completed plan 07-03 for compliance screening, review
 |-------|-------|-------|----------|
 | 1 | 1 | N/A | N/A |
 | 2 | 4 | 2h 18min | 35 min |
-| 7 | 3 | 18 min | 6 min |
+| 7 | 5 | 43 min | 9 min |
 
 **Recent Trend:**
 - Last 5 plans: 2 min, 6 min, 4 min, 9 min, 11 min
@@ -119,6 +119,8 @@ Recent decisions affecting current work:
 - [Phase 07-backend-services]: Locked compliance screening outcomes to deterministic `allow|deny|review_required` reason-code contracts.
 - [Phase 07-backend-services]: Mutation jobs are now blocked on unresolved review outcomes until explicit operator override is persisted.
 - [Phase 07-backend-services]: Compliance audit exports now follow shared async lifecycle states with deterministic 30-day retention and purge semantics.
+- [Phase 07-backend-services]: Webhook delivery guarantees are enforced as per-entity ordered at-least-once retries with bounded exponential backoff and terminal DLQ.
+- [Phase 07-backend-services]: Webhook signature authenticity now uses timestamped HMAC with bounded dual-key grace verification during secret rotation.
 
 ### Pending Todos
 
@@ -130,6 +132,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-11T08:26:54Z
-Stopped at: Completed 07-03-SUMMARY.md
-Resume file: .planning/phases/07-backend-services/07-03-SUMMARY.md
+Last session: 2026-03-11T09:12:11Z
+Stopped at: Completed 07-05-SUMMARY.md
+Resume file: .planning/phases/07-backend-services/07-05-SUMMARY.md
