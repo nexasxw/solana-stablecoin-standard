@@ -6,14 +6,14 @@ current_phase: 7
 current_phase_name: backend services
 current_plan: Not started
 status: planning
-stopped_at: Completed 06-admin-cli-05-PLAN.md
-last_updated: "2026-03-11T04:14:30.658Z"
+stopped_at: Completed 06-admin-cli-06-PLAN.md
+last_updated: "2026-03-11T05:44:48.209Z"
 last_activity: 2026-03-11
 progress:
   total_phases: 12
   completed_phases: 5
-  total_plans: 17
-  completed_plans: 17
+  total_plans: 18
+  completed_plans: 18
   percent: 100
 ---
 
@@ -65,6 +65,7 @@ Last activity description: Completed plan 06-01 for CLI foundation, runtime conf
 | Phase 06-admin-cli P02 | 11min | 4 tasks | 10 files |
 | Phase 06-admin-cli P03 | 9min | 3 tasks | 10 files |
 | Phase 06-admin-cli P05 | 4min | 4 tasks | 2 files |
+| Phase 06-admin-cli P06 | 6min | 3 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -106,6 +107,9 @@ Recent decisions affecting current work:
 - [Phase 06-admin-cli]: Kept JSON failure envelope stable while exposing SDK subcode in human output.
 - [Phase 06-admin-cli]: Use anchor test command path for verification because direct ts-mocha lacks Anchor env variables.
 - [Phase 06-admin-cli]: Fix seizure precondition by initializing mint before ATA creation while preserving existing program-level assertions.
+- [Phase 06-admin-cli]: Standardized operator invocation on ./scripts/sss-token to avoid shell PATH ambiguity.
+- [Phase 06-admin-cli]: Added an installer script as an optional convenience layer, not a hard prerequisite.
+- [Phase 06-admin-cli]: Handled explicit --help as exit 0 in runCli to support deterministic shell availability checks.
 
 ### Pending Todos
 
@@ -117,6 +121,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-11T04:12:18.934Z
-Stopped at: Completed 06-admin-cli-05-PLAN.md
+Last session: 2026-03-11T05:44:48.207Z
+Stopped at: Completed 06-admin-cli-06-PLAN.md
 Resume file: None
