@@ -6,6 +6,7 @@ import { Keypair } from "@solana/web3.js";
 import { Command } from "commander";
 import { registerInitCommand, runInitCommand } from "../src/cli/commands/init";
 import { CliUsageError } from "../src/cli/errors";
+import { runCli } from "../src/cli";
 import { SolanaStablecoin } from "../src/stablecoin";
 
 async function writeSignerFile(): Promise<string> {
@@ -143,5 +144,52 @@ describe("CLI init command", () => {
     expect(init).to.not.equal(undefined);
     expect(init?.options.some((option) => option.long === "--preset")).to.equal(true);
     expect(init?.options.some((option) => option.long === "--custom")).to.equal(true);
+  });
+
+  it("returns exit code 0 and json envelope for process-level init success", async () => {
+    const authoritySigner = await writeSignerFile();
+    const mint = Keypair.generate().publicKey;
+    const stablecoinAddress = Keypair.generate().publicKey;
+    const originalCreate = SolanaStablecoin.create;
+    const originalWrite = process.stdout.write.bind(process.stdout);
+    const output: string[] = [];
+
+    (SolanaStablecoin as any).create = async () => ({
+      variant: "SSS_1",
+      stablecoin: stablecoinAddress,
+      mintAddress: mint,
+      initialization: { signature: "sig-process-init" },
+    });
+    (process.stdout.write as unknown as (chunk: string) => boolean) = (chunk: string): boolean => {
+      output.push(chunk);
+      return true;
+    };
+
+    try {
+      const exitCode = await runCli([
+        "node",
+        "sss-token",
+        "--rpc-url",
+        "http://127.0.0.1:8899",
+        "--authority-signer",
+        authoritySigner,
+        "--json",
+        "init",
+        "--preset",
+        "sss-1",
+        "--name",
+        "Stable USD",
+        "--symbol",
+        "SUSD",
+      ]);
+
+      expect(exitCode).to.equal(0);
+    } finally {
+      (SolanaStablecoin as any).create = originalCreate;
+      (process.stdout.write as unknown as (chunk: string) => boolean) = originalWrite as unknown as (chunk: string) => boolean;
+    }
+
+    expect(output.join("")).to.contain("\"ok\":true");
+    expect(output.join("")).to.contain("\"command\":\"init\"");
   });
 });

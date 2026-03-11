@@ -5,6 +5,7 @@ import path from "node:path";
 import { Keypair, PublicKey } from "@solana/web3.js";
 import { Command } from "commander";
 import { registerLifecycleCommands } from "../src/cli/commands/lifecycle";
+import { runCli } from "../src/cli";
 import { SolanaStablecoin } from "../src/stablecoin";
 
 async function writeSignerFile(): Promise<string> {
@@ -176,5 +177,44 @@ describe("CLI lifecycle commands", () => {
     expect(merged).to.contain("\"command\":\"status\"");
     expect(merged).to.contain("\"command\":\"supply\"");
     expect(merged).to.contain("\"supply\":\"12345\"");
+  });
+
+  it("returns deterministic non-zero exit for invalid lifecycle input", async () => {
+    const minterSigner = await writeSignerFile();
+    const mint = Keypair.generate().publicKey;
+    const recipient = Keypair.generate().publicKey;
+    const originalWrite = process.stderr.write.bind(process.stderr);
+    const errors: string[] = [];
+
+    (process.stderr.write as unknown as (chunk: string) => boolean) = (chunk: string): boolean => {
+      errors.push(chunk);
+      return true;
+    };
+
+    try {
+      const exitCode = await runCli([
+        "node",
+        "sss-token",
+        "--rpc-url",
+        "http://127.0.0.1:8899",
+        "--mint",
+        mint.toBase58(),
+        "--variant",
+        "SSS_1",
+        "--minter-signer",
+        minterSigner,
+        "--yes",
+        "mint",
+        recipient.toBase58(),
+        "invalid-amount",
+      ]);
+
+      expect(exitCode).to.equal(2);
+    } finally {
+      (process.stderr.write as unknown as (chunk: string) => boolean) = originalWrite as unknown as (chunk: string) => boolean;
+    }
+
+    expect(errors.join("")).to.contain("CLI_USAGE");
+    expect(errors.join("")).to.contain("Invalid amount");
   });
 });

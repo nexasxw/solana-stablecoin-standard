@@ -6,6 +6,7 @@ import { Keypair, PublicKey } from "@solana/web3.js";
 import { Command } from "commander";
 import { registerAdminCommands } from "../src/cli/commands/admin";
 import { registerMinterCommands } from "../src/cli/commands/minters";
+import { runCli } from "../src/cli";
 import { SolanaStablecoin } from "../src/stablecoin";
 
 async function writeSignerFile(): Promise<string> {
@@ -222,5 +223,43 @@ describe("CLI admin and minter commands", () => {
     expect((calls.remove[0].minter as PublicKey).toBase58()).to.equal(minter.toBase58());
     expect(calls.get).to.have.length(1);
     expect((calls.get[0].minterAddress as PublicKey).toBase58()).to.equal(minter.toBase58());
+  });
+
+  it("supports process-level minters get and human output", async () => {
+    const mint = Keypair.generate().publicKey;
+    const minter = Keypair.generate().publicKey;
+    const originalLoad = SolanaStablecoin.load;
+    const originalWrite = process.stdout.write.bind(process.stdout);
+    const output: string[] = [];
+
+    (SolanaStablecoin as any).load = async () => ({
+      getMinterState: async () => null,
+    });
+    (process.stdout.write as unknown as (chunk: string) => boolean) = (chunk: string): boolean => {
+      output.push(chunk);
+      return true;
+    };
+
+    try {
+      const exitCode = await runCli([
+        "node",
+        "sss-token",
+        "--rpc-url",
+        "http://127.0.0.1:8899",
+        "--mint",
+        mint.toBase58(),
+        "--variant",
+        "SSS_2",
+        "minters",
+        "get",
+        minter.toBase58(),
+      ]);
+      expect(exitCode).to.equal(0);
+    } finally {
+      (SolanaStablecoin as any).load = originalLoad;
+      (process.stdout.write as unknown as (chunk: string) => boolean) = originalWrite as unknown as (chunk: string) => boolean;
+    }
+
+    expect(output.join("")).to.contain("minters get: ok");
   });
 });

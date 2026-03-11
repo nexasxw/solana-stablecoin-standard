@@ -1,54 +1,12 @@
 #!/usr/bin/env node
 import { Command } from "commander";
+import { registerAdminCommands } from "./cli/commands/admin";
+import { registerInitCommand } from "./cli/commands/init";
+import { registerLifecycleCommands } from "./cli/commands/lifecycle";
+import { registerMinterCommands } from "./cli/commands/minters";
 import { loadCommandContext } from "./cli/context";
 import { resolveCliFailure } from "./cli/errors";
 import { renderFailure } from "./cli/output";
-
-function registerInitGroup(program: Command): void {
-  const init = program.command("init").description("Initialize SSS-1, SSS-2, or custom stablecoin deployments");
-
-  init
-    .command("create")
-    .description("Initialize a new stablecoin deployment")
-    .action(() => {
-      loadCommandContext(init, { variant: true });
-    });
-}
-
-function registerLifecycleGroup(program: Command): void {
-  const lifecycle = program
-    .command("lifecycle")
-    .description("Run lifecycle operations (mint, burn, freeze, thaw, pause, unpause)");
-
-  const contextRequired = { mint: true, variant: true };
-
-  lifecycle.command("mint").description("Mint tokens").action(() => {
-    loadCommandContext(lifecycle, contextRequired);
-  });
-  lifecycle.command("burn").description("Burn tokens").action(() => {
-    loadCommandContext(lifecycle, contextRequired);
-  });
-  lifecycle.command("freeze").description("Freeze an account").action(() => {
-    loadCommandContext(lifecycle, contextRequired);
-  });
-  lifecycle.command("thaw").description("Thaw an account").action(() => {
-    loadCommandContext(lifecycle, contextRequired);
-  });
-}
-
-function registerAdminGroup(program: Command): void {
-  const admin = program
-    .command("admin")
-    .description("Manage roles, minters, authority, and stablecoin controls");
-
-  admin.command("pause").description("Pause mint/burn operations").action(() => {
-    loadCommandContext(admin, { mint: true, variant: true });
-  });
-
-  admin.command("unpause").description("Resume mint/burn operations").action(() => {
-    loadCommandContext(admin, { mint: true, variant: true });
-  });
-}
 
 function registerComplianceGroup(program: Command): void {
   const compliance = program
@@ -94,10 +52,18 @@ export function createCliProgram(): Command {
   program.option("--variant <variant>", "Stablecoin variant (SSS_1 or SSS_2)");
   program.option("--json", "Emit machine-readable JSON output");
   program.option("-y, --yes", "Bypass confirmation prompts");
+  program.option("--signer <path>", "Default signer keypair path");
+  program.option("--authority-signer <path>", "Authority signer keypair path");
+  program.option("--minter-signer <path>", "Minter signer keypair path");
+  program.option("--burner-signer <path>", "Burner signer keypair path");
+  program.option("--pauser-signer <path>", "Pauser signer keypair path");
+  program.option("--blacklister-signer <path>", "Blacklister signer keypair path");
+  program.option("--seizer-signer <path>", "Seizer signer keypair path");
 
-  registerInitGroup(program);
-  registerLifecycleGroup(program);
-  registerAdminGroup(program);
+  registerInitCommand(program);
+  registerLifecycleCommands(program);
+  registerAdminCommands(program);
+  registerMinterCommands(program);
   registerComplianceGroup(program);
   registerInfoGroup(program);
 
