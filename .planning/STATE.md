@@ -4,17 +4,17 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 6
 current_phase_name: admin cli
-current_plan: 2
+current_plan: 3
 status: executing
-stopped_at: Completed 06-admin-cli-01-PLAN.md
-last_updated: "2026-03-11T02:02:50.709Z"
+stopped_at: Completed 06-admin-cli-02-PLAN.md
+last_updated: "2026-03-11T02:15:48.766Z"
 last_activity: 2026-03-11
 progress:
   total_phases: 12
   completed_phases: 4
   total_plans: 15
-  completed_plans: 13
-  percent: 87
+  completed_plans: 14
+  percent: 93
 ---
 
 # Project State
@@ -31,13 +31,13 @@ See: .planning/PROJECT.md (updated 2026-03-09)
 **Current Phase:** 6
 **Current Phase Name:** admin cli
 **Total Phases:** 12
-**Current Plan:** 2
+**Current Plan:** 3
 **Total Plans in Phase:** 3
-**Status:** In progress
+**Status:** Ready to execute
 **Last Activity:** 2026-03-11
 Last activity description: Completed plan 06-01 for CLI foundation, runtime config contract, and SDK init realism gate
 
-**Progress:** [█████████░] 87%
+**Progress:** [█████████░] 93%
 
 ## Performance Metrics
 
@@ -62,6 +62,7 @@ Last activity description: Completed plan 06-01 for CLI foundation, runtime conf
 | Phase 05-typescript-sdk P02 | 4 min | 3 tasks | 5 files |
 | Phase 05-typescript-sdk P03 | 12min | 3 tasks | 5 files |
 | Phase 06-admin-cli P01 | 7min | 4 tasks | 13 files |
+| Phase 06-admin-cli P02 | 11min | 4 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -95,6 +96,9 @@ Recent decisions affecting current work:
 - [Phase 06-admin-cli]: Made SolanaStablecoin.create() execute initialize RPC by default and return confirmed tx metadata.
 - [Phase 06-admin-cli]: Standardized CLI runtime precedence as flags > env > file with canonical SSS_TOKEN_* env names.
 - [Phase 06-admin-cli]: Mapped CLI failures to deterministic exits and surfaced SDK error codes in JSON output envelopes.
+- [Phase 06-admin-cli]: Kept root operator verbs for lifecycle actions while grouping role workflows under roles/authority/treasury/minters.
+- [Phase 06-admin-cli]: Applied deterministic confirmation policy: mutating commands require --yes in non-interactive execution.
+- [Phase 06-admin-cli]: Centralized signer file loading through runtime precedence and parser helpers before SDK calls.
 
 ### Pending Todos
 
@@ -106,6 +110,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-11T02:02:50.707Z
-Stopped at: Completed 06-admin-cli-01-PLAN.md
+Last session: 2026-03-11T02:15:48.764Z
+Stopped at: Completed 06-admin-cli-02-PLAN.md
 Resume file: None

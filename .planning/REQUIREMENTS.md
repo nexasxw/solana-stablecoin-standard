@@ -38,7 +38,7 @@
 ### CLI
 
 - [x] **CLI-01**: The `sss-token` CLI can initialize and manage SSS-1, SSS-2, and custom stablecoins
-- [ ] **CLI-02**: The CLI exposes operator commands for mint, burn, freeze, thaw, pause, role management, and supply checks
+- [x] **CLI-02**: The CLI exposes operator commands for mint, burn, freeze, thaw, pause, role management, and supply checks
 - [x] **CLI-03**: The CLI exposes SSS-2 compliance commands and reads runtime configuration from environment or config files
 
 ### Services
@@ -115,7 +115,7 @@
 | SDK-02 | Phase 5 | Complete |
 | SDK-03 | Phase 5 | Complete |
 | CLI-01 | Phase 6 | Complete |
-| CLI-02 | Phase 6 | Pending |
+| CLI-02 | Phase 6 | Complete |
 | CLI-03 | Phase 6 | Complete |
 | SRV-01 | Phase 7 | Pending |
 | SRV-02 | Phase 7 | Pending |
