@@ -38,3 +38,63 @@ CREATE TABLE IF NOT EXISTS idempotency_keys (
 
 CREATE INDEX IF NOT EXISTS idx_idempotency_keys_tenant_created_at
   ON idempotency_keys (tenant_id, created_at DESC);
+
+-- Indexer persistence tables (SRV-02)
+CREATE TABLE IF NOT EXISTS indexer_checkpoints (
+  id UUID PRIMARY KEY,
+  tenant_id TEXT NOT NULL,
+  stream_id TEXT NOT NULL,
+  slot BIGINT NOT NULL,
+  tx_signature TEXT,
+  event_id TEXT,
+  processed_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE (tenant_id, stream_id)
+);
+
+CREATE TABLE IF NOT EXISTS indexer_events (
+  id UUID PRIMARY KEY,
+  tenant_id TEXT NOT NULL,
+  dedupe_key TEXT NOT NULL,
+  event_id TEXT NOT NULL,
+  event_type TEXT NOT NULL,
+  event_version TEXT NOT NULL,
+  request_id TEXT NOT NULL,
+  occurred_at TIMESTAMPTZ NOT NULL,
+  slot BIGINT NOT NULL,
+  tx_signature TEXT NOT NULL,
+  log_index INT NOT NULL,
+  body JSONB NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE (tenant_id, dedupe_key),
+  UNIQUE (tenant_id, event_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_indexer_events_tenant_slot
+  ON indexer_events (tenant_id, slot DESC, log_index DESC);
+
+CREATE INDEX IF NOT EXISTS idx_indexer_events_tenant_occurred_at
+  ON indexer_events (tenant_id, occurred_at DESC);
+
+CREATE TABLE IF NOT EXISTS stablecoin_projections (
+  id UUID PRIMARY KEY,
+  tenant_id TEXT NOT NULL,
+  stablecoin_id TEXT NOT NULL,
+  state JSONB NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE (tenant_id, stablecoin_id)
+);
+
+CREATE TABLE IF NOT EXISTS holder_balances (
+  id UUID PRIMARY KEY,
+  tenant_id TEXT NOT NULL,
+  stablecoin_id TEXT NOT NULL,
+  holder TEXT NOT NULL,
+  balance TEXT NOT NULL DEFAULT '0',
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE (tenant_id, stablecoin_id, holder)
+);
+
+CREATE INDEX IF NOT EXISTS idx_holder_balances_tenant_stablecoin
+  ON holder_balances (tenant_id, stablecoin_id, balance DESC);
