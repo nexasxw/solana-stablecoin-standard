@@ -17,7 +17,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 3: Compliance Module** - Add the transfer-hook and blacklist enforcement needed for SSS-2 (completed 2026-03-10)
 - [x] **Phase 4: Preset Configurations** - Ship the SSS-1 and SSS-2 presets plus custom config validation (completed 2026-03-10)
 - [x] **Phase 5: TypeScript SDK** - Expose developer-facing APIs for initialization and operations (completed 2026-03-10)
-- [ ] **Phase 6: Admin CLI** - Build the operator CLI on top of the SDK
+- [x] **Phase 6: Admin CLI** - Build the operator CLI on top of the SDK (completed 2026-03-11)
 - [ ] **Phase 7: Backend Services** - Build issuance, indexing, compliance, and webhook services
 - [ ] **Phase 8: Testing And Fuzzing** - Build the confidence layer for the shipped protocol and tooling
 - [ ] **Phase 9: Documentation** - Turn the implementation into reviewer-ready docs and examples
@@ -204,7 +204,7 @@ Phases execute in numeric order: 2 → 2.1 → 2.2 → 3 → 3.1 → 4
 | 3. Compliance Module | 3/3 | Complete   | 2026-03-10 |
 | 4. Preset Configurations | 2/2 | Complete   | 2026-03-10 |
 | 5. TypeScript SDK | 3/3 | Complete | 2026-03-10 |
-| 6. Admin CLI | 1/3 | In Progress|  |
+| 6. Admin CLI | 3/3 | Complete   | 2026-03-11 |
 | 7. Backend Services | 0/1 | Not started | - |
 | 8. Testing And Fuzzing | 0/1 | Not started | - |
 | 9. Documentation | 0/1 | Not started | - |
