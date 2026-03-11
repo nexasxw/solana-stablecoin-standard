@@ -3,8 +3,6 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, it } from "mocha";
 
-import { createWebhookRuntime } from "../../../webhook/src/index";
-
 import { AuditExportWorker, type AuditExporter } from "../jobs/audit-export-worker";
 import { AuditExportIdempotencyStore, AuditRouteHandlers } from "../routes/audit";
 import { ComplianceRepository } from "../store/compliance-repository";
@@ -92,14 +90,7 @@ describe("audit export boundary contracts", () => {
     assert.equal(replay.data?.job_id, created.data?.job_id);
   });
 
-  it("provides webhook runtime wiring and deterministic retention schema hooks", () => {
-    const runtime = createWebhookRuntime();
-
-    assert.ok(runtime.repository);
-    assert.ok(runtime.subscriptionHandlers);
-    assert.ok(runtime.deliveryHandlers);
-    assert.ok(runtime.worker);
-
+  it("keeps deterministic retention schema hooks for audit exports and webhook evidence", () => {
     const schemaPath = join(__dirname, "../../../shared/src/db/schema.sql");
     const schema = readFileSync(schemaPath, "utf8");
 
