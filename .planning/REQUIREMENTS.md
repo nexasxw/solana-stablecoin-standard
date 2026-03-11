@@ -44,7 +44,7 @@
 ### Services
 
 - [x] **SRV-01**: The repo includes a mint/burn service for issuance lifecycle requests
-- [ ] **SRV-02**: The repo includes an indexer that tracks on-chain activity into off-chain state
+- [x] **SRV-02**: The repo includes an indexer that tracks on-chain activity into off-chain state
 - [x] **SRV-03**: The repo includes a compliance service for blacklist management, screening hooks, and audit export
 - [x] **SRV-04**: The repo includes a webhook service for downstream event delivery
 
@@ -118,7 +118,7 @@
 | CLI-02 | Phase 6 | Complete |
 | CLI-03 | Phase 6 | Complete |
 | SRV-01 | Phase 7 | Complete |
-| SRV-02 | Phase 7 | Pending |
+| SRV-02 | Phase 7 | Complete |
 | SRV-03 | Phase 7 | Complete |
 | SRV-04 | Phase 7 | Complete |
 | TST-01 | Phase 8 | Pending |
