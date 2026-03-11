@@ -213,6 +213,21 @@ export class WebhookRepository {
 
   private readonly tenantDeadLetters = new Map<string, string[]>();
 
+  private readonly deliveryOrder = new Map<string, number>();
+
+  private nextDeliveryOrder = 0;
+
+  private compareDeliveryOrder(left: WebhookDeliveryRecord, right: WebhookDeliveryRecord): number {
+    const timeDelta = Date.parse(left.created_at) - Date.parse(right.created_at);
+    if (timeDelta !== 0) {
+      return timeDelta;
+    }
+
+    const leftOrder = this.deliveryOrder.get(left.id) ?? Number.MAX_SAFE_INTEGER;
+    const rightOrder = this.deliveryOrder.get(right.id) ?? Number.MAX_SAFE_INTEGER;
+    return leftOrder - rightOrder;
+  }
+
   createSubscription(
     input: CreateWebhookSubscriptionInput,
     now: () => Date = () => new Date()
@@ -352,6 +367,8 @@ export class WebhookRepository {
     };
 
     this.deliveries.set(record.id, record);
+    this.deliveryOrder.set(record.id, this.nextDeliveryOrder);
+    this.nextDeliveryOrder += 1;
 
     const tenantIndex = this.tenantDeliveries.get(record.tenant_id) ?? [];
     tenantIndex.push(record.id);
@@ -383,7 +400,10 @@ export class WebhookRepository {
       .filter((entry) => (query.state ? entry.state === query.state : true))
       .filter((entry) => (query.entity_key ? entry.entity_key === query.entity_key : true));
 
-    return sortByCreatedAt(rows).slice(0, limit).map((row) => clone(row));
+    return [...rows]
+      .sort((left, right) => this.compareDeliveryOrder(left, right))
+      .slice(0, limit)
+      .map((row) => clone(row));
   }
 
   listDeliveryAttempts(tenantId: string, deliveryId: string): WebhookDeliveryAttemptRecord[] {
@@ -435,8 +455,7 @@ export class WebhookRepository {
         }
 
         const isEarlier =
-          Date.parse(delivery.created_at) < Date.parse(candidate.created_at) ||
-          (delivery.created_at === candidate.created_at && delivery.id < candidate.id);
+          this.compareDeliveryOrder(delivery, candidate) < 0;
 
         const inFlight =
           delivery.state === "queued" ||
@@ -626,6 +645,7 @@ export class WebhookRepository {
 
       this.deliveries.delete(deliveryId);
       this.deliveryAttempts.delete(deliveryId);
+      this.deliveryOrder.delete(deliveryId);
       const tenantIndex = this.tenantDeliveries.get(delivery.tenant_id) ?? [];
       this.tenantDeliveries.set(
         delivery.tenant_id,
