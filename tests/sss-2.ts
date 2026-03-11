@@ -208,7 +208,7 @@ describe("SSS-2: Compliant Stablecoin", () => {
       treasuryOwner.publicKey
     );
 
-    const signature = await sss2.methods
+    let signature = await sss2.methods
       .mint(new anchor.BN(1_000_000))
       .accounts({
         minter: minter.publicKey,
