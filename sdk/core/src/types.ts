@@ -2,7 +2,7 @@
  * Shared types for the SSS SDK.
  */
 
-import { PublicKey, Keypair, Commitment, ConfirmationStatus } from "@solana/web3.js";
+import { PublicKey, Keypair, Commitment, TransactionConfirmationStatus } from "@solana/web3.js";
 import type { SolanaStablecoin } from "./stablecoin";
 
 export interface StablecoinConfig {
@@ -93,7 +93,7 @@ export type StablecoinVariant = "SSS_1" | "SSS_2";
 
 export interface TxConfirmationMetadata {
   commitment: Commitment;
-  confirmationStatus: ConfirmationStatus | null;
+  confirmationStatus: TransactionConfirmationStatus | null;
   slot: number | null;
   confirmations: number | null;
 }
