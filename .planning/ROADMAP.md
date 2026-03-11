@@ -128,7 +128,7 @@ Plans:
 Plans:
 - [x] 07-01: Shared Service Contracts And Persistence Foundation (completed 2026-03-11)
 - [x] 07-02: Finalized Indexer Ingestion, Projections, And Reconciliation (completed 2026-03-11)
-- [ ] 07-03: Compliance Screening, Mutation Jobs, And Audit Exports
+- [x] 07-03: Compliance Screening, Mutation Jobs, And Audit Exports (completed 2026-03-11)
 - [x] 07-04: Issuance API, Idempotency, And Worker Execution (completed 2026-03-11)
 - [ ] 07-05: Webhook Subscriptions, Delivery Guarantees, And Signature Rotation
 - [ ] 07-06: Cross-Service E2E Trace And Final Hardening
@@ -211,7 +211,7 @@ Phases execute in numeric order: 2 → 2.1 → 2.2 → 3 → 3.1 → 4
 | 4. Preset Configurations | 2/2 | Complete   | 2026-03-10 |
 | 5. TypeScript SDK | 3/3 | Complete | 2026-03-10 |
 | 6. Admin CLI | 4/4 | Complete   | 2026-03-11 |
-| 7. Backend Services | 3/6 | In progress | 2026-03-11 |
+| 7. Backend Services | 4/6 | In progress | 2026-03-11 |
 | 8. Testing And Fuzzing | 0/1 | Not started | - |
 | 9. Documentation | 0/1 | Not started | - |
 | 10. Devnet Proof | 0/1 | Not started | - |

@@ -4,17 +4,17 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 7
 current_phase_name: backend services
-current_plan: 07-04
+current_plan: 07-05
 status: executing
-stopped_at: Completed 07-04-SUMMARY.md
-last_updated: "2026-03-11T08:42:22Z"
+stopped_at: Completed 07-03-SUMMARY.md
+last_updated: "2026-03-11T08:58:25Z"
 last_activity: 2026-03-11
 progress:
   total_phases: 12
   completed_phases: 6
   total_plans: 29
-  completed_plans: 21
-  percent: 72
+  completed_plans: 22
+  percent: 76
 ---
 
 # Project State
@@ -31,13 +31,13 @@ See: .planning/PROJECT.md (updated 2026-03-09)
 **Current Phase:** 7
 **Current Phase Name:** backend services
 **Total Phases:** 12
-**Current Plan:** 07-04
+**Current Plan:** 07-05
 **Total Plans in Phase:** 6
 **Status:** Ready to execute next plan
 **Last Activity:** 2026-03-11
-Last activity description: Completed plan 07-04 for issuance API contracts, deterministic idempotency, and worker lifecycle execution
+Last activity description: Completed plan 07-03 for compliance screening, review-gated mutation orchestration, and audit export lifecycle
 
-**Progress:** [███████░░░] 72%
+**Progress:** [███████░░░] 76%
 
 ## Performance Metrics
 
@@ -116,6 +116,9 @@ Recent decisions affecting current work:
 - [Phase 07-backend-services]: Fixed cross-service async job lifecycle states to `queued|running|succeeded|failed|canceled` in contracts and schema.
 - [Phase 07-backend-services]: Established tenant-scoped idempotency baseline with deterministic uniqueness and first-response persistence.
 - [Phase 07-backend-services]: Enforced finalized-only indexer authority with deterministic dedupe/checkpoint invariants and tenant-scoped projection reads.
+- [Phase 07-backend-services]: Locked compliance screening outcomes to deterministic `allow|deny|review_required` reason-code contracts.
+- [Phase 07-backend-services]: Mutation jobs are now blocked on unresolved review outcomes until explicit operator override is persisted.
+- [Phase 07-backend-services]: Compliance audit exports now follow shared async lifecycle states with deterministic 30-day retention and purge semantics.
 
 ### Pending Todos
 
@@ -128,5 +131,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-11T08:26:54Z
-Stopped at: Completed 07-02-SUMMARY.md
-Resume file: .planning/phases/07-backend-services/07-02-SUMMARY.md
+Stopped at: Completed 07-03-SUMMARY.md
+Resume file: .planning/phases/07-backend-services/07-03-SUMMARY.md
