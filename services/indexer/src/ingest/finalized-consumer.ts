@@ -40,7 +40,7 @@ export class FinalizedConsumer {
         return event.slot;
       }
       return current;
-    }, checkpoint?.slot ?? null);
+    }, null);
 
     if (latest !== null) {
       const latestEvent = monotonicEvents
@@ -60,7 +60,7 @@ export class FinalizedConsumer {
     return {
       accepted: inserted.length,
       duplicates: normalized.length - inserted.length,
-      latest_checkpoint: latest,
+      latest_checkpoint: latest ?? checkpoint?.slot ?? null,
       normalized_events: inserted,
     };
   }
