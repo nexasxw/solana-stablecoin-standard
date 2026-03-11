@@ -58,6 +58,14 @@ export async function runCli(argv: string[] = process.argv): Promise<number> {
     await program.parseAsync(argv);
     return 0;
   } catch (error) {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      (error as { code: unknown }).code === "commander.helpDisplayed"
+    ) {
+      return 0;
+    }
     const cliError = resolveCliFailure(error);
     process.stderr.write(renderFailure(commandLabel(argv), cliError, isJsonMode(argv)));
     return cliError.exitCode;

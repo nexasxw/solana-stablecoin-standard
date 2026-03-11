@@ -53,22 +53,36 @@ yarn install
 anchor build
 ```
 
+### CLI Invocation Contract
+
+Use the repo wrapper for deterministic local execution:
+
+```bash
+./scripts/sss-token --help
+```
+
+Optional shell install (creates `~/.local/bin/sss-token` symlink by default):
+
+```bash
+./scripts/install-sss-token.sh
+```
+
 ### Deploy SSS-1
 
 ```bash
-sss-token init --preset sss-1
+./scripts/sss-token init --preset sss-1
 ```
 
 ### Deploy SSS-2
 
 ```bash
-sss-token init --preset sss-2
+./scripts/sss-token init --preset sss-2
 ```
 
 ### Custom Config
 
 ```bash
-sss-token init --custom config.toml
+./scripts/sss-token init --custom config.toml
 ```
 
 ---
@@ -103,30 +117,30 @@ const supply = await stable.getTotalSupply();
 
 ```bash
 # Init
-sss-token init --preset sss-1
-sss-token init --preset sss-2
-sss-token init --custom config.toml
+./scripts/sss-token init --preset sss-1
+./scripts/sss-token init --preset sss-2
+./scripts/sss-token init --custom config.toml
 
 # Operations
-sss-token mint <recipient> <amount>
-sss-token burn <amount>
-sss-token freeze <address>
-sss-token thaw <address>
-sss-token pause && sss-token unpause
-sss-token status && sss-token supply
+./scripts/sss-token mint <recipient> <amount>
+./scripts/sss-token burn <amount>
+./scripts/sss-token freeze <address>
+./scripts/sss-token thaw <address>
+./scripts/sss-token pause && ./scripts/sss-token unpause
+./scripts/sss-token status && ./scripts/sss-token supply
 
 # SSS-2 Compliance
-sss-token blacklist add <address> --reason "OFAC match"
-sss-token blacklist remove <address>
-sss-token blacklist check <address>
-sss-token seize <address> --to <treasury>
+./scripts/sss-token blacklist add <address> --reason "OFAC match"
+./scripts/sss-token blacklist remove <address>
+./scripts/sss-token blacklist check <address>
+./scripts/sss-token seize <address> --to <treasury>
 
 # Management
-sss-token minters get <address>
-sss-token minters add <address> --quota <amount>
-sss-token minters remove <address>
-sss-token holders     # deferred: backend indexer service (Phase 7)
-sss-token audit-log   # deferred: backend compliance service (Phase 7)
+./scripts/sss-token minters get <address>
+./scripts/sss-token minters add <address> --quota <amount>
+./scripts/sss-token minters remove <address>
+./scripts/sss-token holders     # deferred: backend indexer service (Phase 7)
+./scripts/sss-token audit-log   # deferred: backend compliance service (Phase 7)
 ```
 
 ---

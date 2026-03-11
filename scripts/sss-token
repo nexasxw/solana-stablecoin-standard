@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+CLI_ENTRY="$REPO_ROOT/sdk/core/dist/cli.js"
+CLI_SOURCE="$REPO_ROOT/sdk/core/src/cli.ts"
+
+if ! command -v node >/dev/null 2>&1; then
+  echo "error: node is required to run sss-token CLI." >&2
+  exit 127
+fi
+
+if ! command -v yarn >/dev/null 2>&1; then
+  echo "error: yarn is required to build and run sss-token CLI." >&2
+  exit 127
+fi
+
+if [ ! -f "$REPO_ROOT/sdk/core/package.json" ]; then
+  echo "error: expected sdk/core/package.json under repository root." >&2
+  exit 1
+fi
+
+if [ ! -f "$CLI_ENTRY" ] || [ "$CLI_ENTRY" -ot "$CLI_SOURCE" ]; then
+  echo "Building @stbr/sss-token CLI..." >&2
+  (cd "$REPO_ROOT" && yarn workspace @stbr/sss-token build >/dev/null)
+fi
+
+exec node "$CLI_ENTRY" "$@"

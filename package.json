@@ -11,6 +11,8 @@
     "build": "yarn workspaces run build",
     "test": "anchor test",
     "test:local": "anchor test --skip-local-validator",
+    "sss-token": "./scripts/sss-token",
+    "sss-token:install": "./scripts/install-sss-token.sh",
     "test:sdk": "yarn workspaces run test",
     "clean": "yarn workspaces run clean",
     "test:sss1": "anchor test --skip-build --skip-lint tests/sss-1.ts",
