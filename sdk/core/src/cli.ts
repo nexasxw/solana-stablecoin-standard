@@ -1,40 +1,12 @@
 #!/usr/bin/env node
 import { Command } from "commander";
 import { registerAdminCommands } from "./cli/commands/admin";
+import { registerComplianceCommands } from "./cli/commands/compliance";
 import { registerInitCommand } from "./cli/commands/init";
 import { registerLifecycleCommands } from "./cli/commands/lifecycle";
 import { registerMinterCommands } from "./cli/commands/minters";
-import { loadCommandContext } from "./cli/context";
 import { resolveCliFailure } from "./cli/errors";
 import { renderFailure } from "./cli/output";
-
-function registerComplianceGroup(program: Command): void {
-  const compliance = program
-    .command("compliance")
-    .description("Run SSS-2 blacklist and seize compliance commands");
-
-  compliance.command("blacklist-add").description("Add address to blacklist").action(() => {
-    loadCommandContext(compliance, { mint: true, variant: true });
-  });
-
-  compliance.command("blacklist-remove").description("Remove address from blacklist").action(() => {
-    loadCommandContext(compliance, { mint: true, variant: true });
-  });
-
-  compliance.command("seize").description("Seize tokens from a blacklisted account").action(() => {
-    loadCommandContext(compliance, { mint: true, variant: true });
-  });
-}
-
-function registerInfoGroup(program: Command): void {
-  const info = program.command("info").description("Inspect stablecoin metadata and supply status");
-  info.command("status").description("Show stablecoin state").action(() => {
-    loadCommandContext(info, { mint: true, variant: true });
-  });
-  info.command("supply").description("Show current total supply").action(() => {
-    loadCommandContext(info, { mint: true, variant: true });
-  });
-}
 
 export function createCliProgram(): Command {
   const program = new Command();
@@ -64,8 +36,7 @@ export function createCliProgram(): Command {
   registerLifecycleCommands(program);
   registerAdminCommands(program);
   registerMinterCommands(program);
-  registerComplianceGroup(program);
-  registerInfoGroup(program);
+  registerComplianceCommands(program);
 
   return program;
 }

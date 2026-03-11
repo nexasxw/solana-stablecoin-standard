@@ -1,5 +1,6 @@
 import { Command } from "commander";
 import { Connection } from "@solana/web3.js";
+import { UnsupportedOperationError } from "../errors";
 import { resolveRuntimeConfig } from "./config";
 import { CliUsageError } from "./errors";
 import { CliCommandContext, CliContextRequirements, CliGlobalOptions, CliRuntimeDefaults, CliVariant } from "./types";
@@ -32,6 +33,16 @@ export function enforceContextRequirements(
 
   if (requirements.variant && runtime.variant === null) {
     throw new CliUsageError("Missing required runtime context: variant. Provide --variant or SSS_TOKEN_VARIANT.");
+  }
+}
+
+export function enforceVariant(runtime: CliRuntimeDefaults, variant: CliVariant, operation: string): void {
+  if (runtime.variant !== variant) {
+    throw new UnsupportedOperationError(`${operation} is only available for ${variant}.`, {
+      operation,
+      requiredVariant: variant,
+      variant: runtime.variant,
+    });
   }
 }
 
