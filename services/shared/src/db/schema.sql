@@ -254,3 +254,99 @@ CREATE INDEX IF NOT EXISTS idx_audit_export_jobs_tenant_created_at
 
 CREATE INDEX IF NOT EXISTS idx_audit_export_jobs_tenant_state_created_at
   ON audit_export_jobs (tenant_id, state, created_at DESC);
+
+-- Webhook persistence tables (SRV-04)
+CREATE TABLE IF NOT EXISTS webhook_subscriptions (
+  id UUID PRIMARY KEY,
+  tenant_id TEXT NOT NULL,
+  endpoint_url TEXT NOT NULL,
+  event_filters TEXT[] NOT NULL DEFAULT '{}',
+  status TEXT NOT NULL CHECK (status IN ('active', 'paused', 'disabled')),
+  primary_secret TEXT NOT NULL,
+  secondary_secret TEXT,
+  secondary_expires_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_webhook_subscriptions_tenant_status_updated_at
+  ON webhook_subscriptions (tenant_id, status, updated_at DESC);
+
+CREATE TABLE IF NOT EXISTS webhook_deliveries (
+  id UUID PRIMARY KEY,
+  tenant_id TEXT NOT NULL,
+  subscription_id UUID NOT NULL REFERENCES webhook_subscriptions(id) ON DELETE CASCADE,
+  event_id TEXT NOT NULL,
+  event_type TEXT NOT NULL,
+  event_version TEXT NOT NULL,
+  request_id TEXT NOT NULL,
+  entity_key TEXT NOT NULL,
+  payload JSONB NOT NULL,
+  state TEXT NOT NULL CHECK (state IN ('queued', 'delivering', 'retry_scheduled', 'succeeded', 'dead_lettered')),
+  attempt_count INT NOT NULL DEFAULT 0 CHECK (attempt_count >= 0),
+  max_attempts INT NOT NULL DEFAULT 5 CHECK (max_attempts >= 1),
+  next_attempt_at TIMESTAMPTZ NOT NULL,
+  last_attempt_at TIMESTAMPTZ,
+  last_response_status INT,
+  last_error_code TEXT,
+  last_error_message TEXT,
+  last_signature_kid TEXT CHECK (last_signature_kid IN ('primary', 'secondary')),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  completed_at TIMESTAMPTZ,
+  CHECK ((state IN ('succeeded', 'dead_lettered') AND completed_at IS NOT NULL) OR (state IN ('queued', 'delivering', 'retry_scheduled') AND completed_at IS NULL))
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_webhook_deliveries_tenant_event_subscription
+  ON webhook_deliveries (tenant_id, subscription_id, event_id);
+
+CREATE INDEX IF NOT EXISTS idx_webhook_deliveries_tenant_entity_created_at
+  ON webhook_deliveries (tenant_id, entity_key, created_at ASC);
+
+CREATE INDEX IF NOT EXISTS idx_webhook_deliveries_tenant_state_next_attempt_at
+  ON webhook_deliveries (tenant_id, state, next_attempt_at ASC);
+
+CREATE TABLE IF NOT EXISTS webhook_delivery_attempts (
+  id UUID PRIMARY KEY,
+  tenant_id TEXT NOT NULL,
+  delivery_id UUID NOT NULL REFERENCES webhook_deliveries(id) ON DELETE CASCADE,
+  attempt_number INT NOT NULL CHECK (attempt_number >= 1),
+  status TEXT NOT NULL CHECK (status IN ('succeeded', 'failed')),
+  response_status INT,
+  error_code TEXT,
+  error_message TEXT,
+  signature_kid TEXT NOT NULL CHECK (signature_kid IN ('primary', 'secondary')),
+  occurred_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_webhook_delivery_attempts_delivery_attempt_number
+  ON webhook_delivery_attempts (delivery_id, attempt_number);
+
+CREATE INDEX IF NOT EXISTS idx_webhook_delivery_attempts_tenant_occurred_at
+  ON webhook_delivery_attempts (tenant_id, occurred_at DESC);
+
+CREATE TABLE IF NOT EXISTS webhook_dead_letters (
+  id UUID PRIMARY KEY,
+  tenant_id TEXT NOT NULL,
+  delivery_id UUID NOT NULL REFERENCES webhook_deliveries(id) ON DELETE CASCADE,
+  subscription_id UUID NOT NULL REFERENCES webhook_subscriptions(id) ON DELETE CASCADE,
+  event_id TEXT NOT NULL,
+  event_type TEXT NOT NULL,
+  entity_key TEXT NOT NULL,
+  request_id TEXT NOT NULL,
+  payload JSONB NOT NULL,
+  final_error_code TEXT NOT NULL,
+  final_error_message TEXT NOT NULL,
+  failed_at TIMESTAMPTZ NOT NULL,
+  expires_at TIMESTAMPTZ NOT NULL,
+  CHECK (expires_at = failed_at + INTERVAL '180 days')
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_webhook_dead_letters_delivery
+  ON webhook_dead_letters (delivery_id);
+
+CREATE INDEX IF NOT EXISTS idx_webhook_dead_letters_tenant_failed_at
+  ON webhook_dead_letters (tenant_id, failed_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_webhook_dead_letters_tenant_expires_at
+  ON webhook_dead_letters (tenant_id, expires_at ASC);
