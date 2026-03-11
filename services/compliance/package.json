@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "ts-node src/index.ts",
-    "test": "echo 'No tests yet' && exit 0",
+    "test": "mocha -r ts-node/register --timeout 10000 --exit 'src/__tests__/**/*.test.ts'",
     "lint": "eslint src --ext .ts",
     "format": "prettier --write src"
   },
