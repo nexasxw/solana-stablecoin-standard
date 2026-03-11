@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Layer 1 Core Program** - Build the shared stablecoin contract that all later layers depend on
 - [x] **Phase 3: Compliance Module** - Add the transfer-hook and blacklist enforcement needed for SSS-2 (completed 2026-03-10)
 - [x] **Phase 4: Preset Configurations** - Ship the SSS-1 and SSS-2 presets plus custom config validation (completed 2026-03-10)
-- [ ] **Phase 5: TypeScript SDK** - Expose developer-facing APIs for initialization and operations
+- [x] **Phase 5: TypeScript SDK** - Expose developer-facing APIs for initialization and operations (completed 2026-03-10)
 - [ ] **Phase 6: Admin CLI** - Build the operator CLI on top of the SDK
 - [ ] **Phase 7: Backend Services** - Build issuance, indexing, compliance, and webhook services
 - [ ] **Phase 8: Testing And Fuzzing** - Build the confidence layer for the shipped protocol and tooling
@@ -96,8 +96,8 @@ Plans:
 
 Plans:
 - [x] 05-01: Establish typed create/load contracts, shared tx result envelope, and SDK error taxonomy
-- [ ] 05-02: Implement lifecycle mutation parity with bigint/u64 preflight and typed error normalization
-- [ ] 05-03: Harden compliance helper contracts and regression coverage
+- [x] 05-02: Implement lifecycle mutation parity with bigint/u64 preflight and typed error normalization
+- [x] 05-03: Harden compliance helper contracts and regression coverage
 
 ### Phase 6: Admin CLI
 **Goal**: Deliver the `sss-token` CLI for operators using the SDK internally.
@@ -107,10 +107,12 @@ Plans:
   1. Operators can initialize and manage tokens from the CLI for shipped presets and custom configs.
   2. The CLI supports the expected stablecoin lifecycle and compliance command set.
   3. Runtime configuration works cleanly through config files or environment variables.
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 06-01: Generate executable plans via `$gsd-plan-phase 6`
+- [x] 06-01: CLI foundation, runtime config contract, and SDK init realism gate
+- [ ] 06-02: Init/lifecycle/admin command implementation with explicit minter command ownership
+- [ ] 06-03: Compliance + non-minter management hardening and end-of-phase E2E gate
 
 ### Phase 7: Backend Services
 **Goal**: Deliver the mint/burn, indexer, compliance, and webhook services that support off-chain workflows.
@@ -201,8 +203,8 @@ Phases execute in numeric order: 2 → 2.1 → 2.2 → 3 → 3.1 → 4
 | 2. Layer 1 Core Program | 4/4 | Complete | 2026-03-09 |
 | 3. Compliance Module | 3/3 | Complete   | 2026-03-10 |
 | 4. Preset Configurations | 2/2 | Complete   | 2026-03-10 |
-| 5. TypeScript SDK | 2/3 | In Progress|  |
-| 6. Admin CLI | 0/1 | Not started | - |
+| 5. TypeScript SDK | 3/3 | Complete | 2026-03-10 |
+| 6. Admin CLI | 1/3 | In Progress|  |
 | 7. Backend Services | 0/1 | Not started | - |
 | 8. Testing And Fuzzing | 0/1 | Not started | - |
 | 9. Documentation | 0/1 | Not started | - |

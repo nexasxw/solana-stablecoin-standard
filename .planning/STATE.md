@@ -4,17 +4,17 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 6
 current_phase_name: admin cli
-current_plan: Not started
-status: planning
-stopped_at: Phase 6 context gathered
-last_updated: "2026-03-10T14:00:28.569Z"
-last_activity: 2026-03-10
+current_plan: 2
+status: executing
+stopped_at: Completed 06-admin-cli-01-PLAN.md
+last_updated: "2026-03-11T02:02:50.709Z"
+last_activity: 2026-03-11
 progress:
   total_phases: 12
   completed_phases: 4
-  total_plans: 12
-  completed_plans: 12
-  percent: 100
+  total_plans: 15
+  completed_plans: 13
+  percent: 87
 ---
 
 # Project State
@@ -24,20 +24,20 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-09)
 
 **Core value:** Ship a modular stablecoin standard on Solana that gives issuers one clear path from core contract logic to presets, tooling, operations, and reviewer proof.
-**Current focus:** Phase 5 - TypeScript SDK
+**Current focus:** Phase 6 - Admin CLI
 
 ## Current Position
 
 **Current Phase:** 6
 **Current Phase Name:** admin cli
 **Total Phases:** 12
-**Current Plan:** Not started
+**Current Plan:** 2
 **Total Plans in Phase:** 3
-**Status:** Ready to plan
-**Last Activity:** 2026-03-10
-Last activity description: Completed plan 05-01 to establish typed SDK create/load contracts and regression coverage
+**Status:** In progress
+**Last Activity:** 2026-03-11
+Last activity description: Completed plan 06-01 for CLI foundation, runtime config contract, and SDK init realism gate
 
-**Progress:** [██████████] 100%
+**Progress:** [█████████░] 87%
 
 ## Performance Metrics
 
@@ -61,6 +61,7 @@ Last activity description: Completed plan 05-01 to establish typed SDK create/lo
 | Phase 05 P01 | 7 min | 3 tasks | 6 files |
 | Phase 05-typescript-sdk P02 | 4 min | 3 tasks | 5 files |
 | Phase 05-typescript-sdk P03 | 12min | 3 tasks | 5 files |
+| Phase 06-admin-cli P01 | 7min | 4 tasks | 13 files |
 
 ## Accumulated Context
 
@@ -91,6 +92,9 @@ Recent decisions affecting current work:
 - [Phase 05]: Use local preflight error variants (INVALID_ARGUMENT, INVALID_AMOUNT, MISSING_SIGNER) so callers can branch before RPC.
 - [Phase 05]: Kept SolanaStablecoin.compliance null for SSS-1 while enforcing explicit UnsupportedOperationError on disabled compliance module paths.
 - [Phase 05]: Introduced INVALID_REASON machine-readable SDK error code for compliance reason preflight failures.
+- [Phase 06-admin-cli]: Made SolanaStablecoin.create() execute initialize RPC by default and return confirmed tx metadata.
+- [Phase 06-admin-cli]: Standardized CLI runtime precedence as flags > env > file with canonical SSS_TOKEN_* env names.
+- [Phase 06-admin-cli]: Mapped CLI failures to deterministic exits and surfaced SDK error codes in JSON output envelopes.
 
 ### Pending Todos
 
@@ -102,6 +106,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-10T14:00:28.564Z
-Stopped at: Phase 6 context gathered
-Resume file: .planning/phases/06-admin-cli/06-CONTEXT.md
+Last session: 2026-03-11T02:02:50.707Z
+Stopped at: Completed 06-admin-cli-01-PLAN.md
+Resume file: None
