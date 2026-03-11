@@ -24,6 +24,38 @@ function restoreEnvKey(key: string, value: string | undefined): void {
 }
 
 describe("CLI integration contracts", () => {
+  it("keeps the documented invocation contract executable from repo root", async () => {
+    const repoRoot = path.resolve(__dirname, "../../..");
+    const wrapperPath = path.join(repoRoot, "scripts", "sss-token");
+    const wrapperStats = await fs.stat(wrapperPath);
+    const originalStdoutWrite = process.stdout.write.bind(process.stdout);
+    const originalStderrWrite = process.stderr.write.bind(process.stderr);
+    const stdout: string[] = [];
+    const stderr: string[] = [];
+
+    (process.stdout.write as unknown as (chunk: string) => boolean) = (chunk: string): boolean => {
+      stdout.push(chunk);
+      return true;
+    };
+    (process.stderr.write as unknown as (chunk: string) => boolean) = (chunk: string): boolean => {
+      stderr.push(chunk);
+      return true;
+    };
+
+    let exitCode = 1;
+    try {
+      exitCode = await runCli(["node", wrapperPath, "--help"]);
+    } finally {
+      (process.stdout.write as unknown as (chunk: string) => boolean) = originalStdoutWrite as unknown as (chunk: string) => boolean;
+      (process.stderr.write as unknown as (chunk: string) => boolean) = originalStderrWrite as unknown as (chunk: string) => boolean;
+    }
+
+    expect(wrapperStats.mode & 0o111).to.not.equal(0);
+    expect(exitCode).to.equal(0);
+    expect(`${stdout.join("")}${stderr.join("")}`).to.include("Usage: sss-token");
+    expect(stderr.join("")).to.not.include("command not found");
+  });
+
   it("keeps JSON envelope schema stable for success and failure paths", async () => {
     const mint = Keypair.generate().publicKey;
     const address = Keypair.generate().publicKey;
