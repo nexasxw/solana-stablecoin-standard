@@ -4,6 +4,7 @@ import { registerAdminCommands } from "./cli/commands/admin";
 import { registerComplianceCommands } from "./cli/commands/compliance";
 import { registerInitCommand } from "./cli/commands/init";
 import { registerLifecycleCommands } from "./cli/commands/lifecycle";
+import { registerManagementCommands } from "./cli/commands/management";
 import { registerMinterCommands } from "./cli/commands/minters";
 import { resolveCliFailure } from "./cli/errors";
 import { renderFailure } from "./cli/output";
@@ -37,6 +38,7 @@ export function createCliProgram(): Command {
   registerAdminCommands(program);
   registerMinterCommands(program);
   registerComplianceCommands(program);
+  registerManagementCommands(program);
 
   return program;
 }

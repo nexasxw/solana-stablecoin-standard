@@ -118,13 +118,15 @@ sss-token status && sss-token supply
 # SSS-2 Compliance
 sss-token blacklist add <address> --reason "OFAC match"
 sss-token blacklist remove <address>
+sss-token blacklist check <address>
 sss-token seize <address> --to <treasury>
 
 # Management
-sss-token minters list
+sss-token minters get <address>
 sss-token minters add <address> --quota <amount>
-sss-token holders
-sss-token audit-log
+sss-token minters remove <address>
+sss-token holders     # deferred: backend indexer service (Phase 7)
+sss-token audit-log   # deferred: backend compliance service (Phase 7)
 ```
 
 ---
