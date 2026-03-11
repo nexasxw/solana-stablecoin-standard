@@ -164,7 +164,7 @@ describe("SSS-2: Compliant Stablecoin", () => {
       .rpc();
     await confirmSignature(provider.connection, signature);
 
-    let stablecoin = await sss2.account.stablecoin.fetch(stablecoinPda);
+    const stablecoin = await sss2.account.stablecoin.fetch(stablecoinPda);
     expect(stablecoin.blacklister.toBase58()).to.eq(blacklister.publicKey.toBase58());
     expect(stablecoin.seizer.toBase58()).to.eq(seizer.publicKey.toBase58());
 
@@ -208,7 +208,7 @@ describe("SSS-2: Compliant Stablecoin", () => {
       treasuryOwner.publicKey
     );
 
-    let signature = await sss2.methods
+    const signature = await sss2.methods
       .mint(new anchor.BN(1_000_000))
       .accounts({
         minter: minter.publicKey,
@@ -299,7 +299,7 @@ describe("SSS-2: Compliant Stablecoin", () => {
       "InvalidBlacklistReason"
     );
 
-    let signature = await sss2.methods
+    const signature = await sss2.methods
       .addToBlacklist("OFAC match")
       .accounts({
         blacklister: blacklister.publicKey,
@@ -394,8 +394,18 @@ describe("SSS-2: Compliant Stablecoin", () => {
       noTreasuryMint.publicKey,
       anchor.workspace.SssTransferHook.programId
     );
-    let noTreasuryUserAta: PublicKey;
-    let noTreasuryTreasuryAta: PublicKey;
+    const noTreasuryUserAta: PublicKey = await createToken2022Ata(
+      provider.connection,
+      authority,
+      noTreasuryMint.publicKey,
+      user.publicKey
+    );
+    const noTreasuryTreasuryAta: PublicKey = await createToken2022Ata(
+      provider.connection,
+      authority,
+      noTreasuryMint.publicKey,
+      treasuryOwner.publicKey
+    );
 
     let signature = await sss2.methods
       .initialize(config)
@@ -413,19 +423,6 @@ describe("SSS-2: Compliant Stablecoin", () => {
       .signers(toSignerArray(authority, noTreasuryMint as Keypair))
       .rpc();
     await confirmSignature(provider.connection, signature);
-
-    noTreasuryUserAta = await createToken2022Ata(
-      provider.connection,
-      authority,
-      noTreasuryMint.publicKey,
-      user.publicKey
-    );
-    noTreasuryTreasuryAta = await createToken2022Ata(
-      provider.connection,
-      authority,
-      noTreasuryMint.publicKey,
-      treasuryOwner.publicKey
-    );
 
     signature = await sss2.methods
       .updateMinter(new anchor.BN(100))
@@ -462,6 +459,7 @@ describe("SSS-2: Compliant Stablecoin", () => {
           stablecoin: noTreasuryStablecoin,
           mint: noTreasuryMint.publicKey,
           fromTokenAccount: noTreasuryUserAta,
+          targetOwner: user.publicKey,
           treasuryTokenAccount: noTreasuryTreasuryAta,
           blacklistEntry: noTreasuryBlacklist,
           tokenProgram: TOKEN_2022_PROGRAM,
@@ -479,6 +477,7 @@ describe("SSS-2: Compliant Stablecoin", () => {
           stablecoin: stablecoinPda,
           mint: mint.publicKey,
           fromTokenAccount: userAta,
+          targetOwner: user.publicKey,
           treasuryTokenAccount: treasuryAta,
           blacklistEntry: blacklistPda,
           tokenProgram: TOKEN_2022_PROGRAM,
@@ -515,6 +514,7 @@ describe("SSS-2: Compliant Stablecoin", () => {
               stablecoin: stablecoinPda,
               mint: mint.publicKey,
               fromTokenAccount: cleanUserAta,
+              targetOwner: cleanUser.publicKey,
               treasuryTokenAccount: treasuryAta,
               blacklistEntry: cleanOwnerBlacklistPda,
               tokenProgram: TOKEN_2022_PROGRAM,
@@ -550,6 +550,7 @@ describe("SSS-2: Compliant Stablecoin", () => {
         stablecoin: stablecoinPda,
         mint: mint.publicKey,
         fromTokenAccount: userAta,
+        targetOwner: user.publicKey,
         treasuryTokenAccount: treasuryAta,
         blacklistEntry: blacklistPda,
         tokenProgram: TOKEN_2022_PROGRAM,
@@ -590,7 +591,7 @@ describe("SSS-2: Compliant Stablecoin", () => {
       .rpc();
     await confirmSignature(provider.connection, signature);
 
-    let accountInfo = await provider.connection.getAccountInfo(blacklistPda);
+    const accountInfo = await provider.connection.getAccountInfo(blacklistPda);
     expect(accountInfo).to.eq(null);
 
     signature = await sss2.methods
