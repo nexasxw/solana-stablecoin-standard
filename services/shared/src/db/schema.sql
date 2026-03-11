@@ -39,6 +39,57 @@ CREATE TABLE IF NOT EXISTS idempotency_keys (
 CREATE INDEX IF NOT EXISTS idx_idempotency_keys_tenant_created_at
   ON idempotency_keys (tenant_id, created_at DESC);
 
+CREATE TABLE IF NOT EXISTS issuance_jobs (
+  id UUID PRIMARY KEY,
+  tenant_id TEXT NOT NULL,
+  job_type TEXT NOT NULL CHECK (job_type IN ('mint', 'burn')),
+  state TEXT NOT NULL CHECK (state IN ('queued', 'running', 'succeeded', 'failed', 'canceled')),
+  request_id TEXT NOT NULL,
+  idempotency_key TEXT NOT NULL,
+  payload JSONB NOT NULL,
+  result JSONB,
+  error JSONB,
+  requester_id TEXT NOT NULL,
+  approver_id TEXT,
+  executor_service_id TEXT NOT NULL,
+  intent_signature JSONB NOT NULL,
+  transaction_signature TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  started_at TIMESTAMPTZ,
+  completed_at TIMESTAMPTZ,
+  CHECK ((state IN ('succeeded', 'failed', 'canceled') AND completed_at IS NOT NULL) OR (state IN ('queued', 'running') AND completed_at IS NULL))
+);
+
+CREATE INDEX IF NOT EXISTS idx_issuance_jobs_tenant_created_at
+  ON issuance_jobs (tenant_id, created_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_issuance_jobs_tenant_state_created_at
+  ON issuance_jobs (tenant_id, state, created_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_issuance_jobs_tenant_type_created_at
+  ON issuance_jobs (tenant_id, job_type, created_at DESC);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_issuance_jobs_tenant_idempotency_key
+  ON issuance_jobs (tenant_id, idempotency_key);
+
+CREATE TABLE IF NOT EXISTS issuance_internal_events (
+  id UUID PRIMARY KEY,
+  tenant_id TEXT NOT NULL,
+  job_id UUID NOT NULL REFERENCES issuance_jobs(id) ON DELETE CASCADE,
+  event_id TEXT NOT NULL,
+  event_type TEXT NOT NULL,
+  event_version TEXT NOT NULL,
+  request_id TEXT NOT NULL,
+  occurred_at TIMESTAMPTZ NOT NULL,
+  body JSONB NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE (tenant_id, event_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_issuance_internal_events_tenant_job_created_at
+  ON issuance_internal_events (tenant_id, job_id, created_at DESC);
+
 -- Indexer persistence tables (SRV-02)
 CREATE TABLE IF NOT EXISTS indexer_checkpoints (
   id UUID PRIMARY KEY,
