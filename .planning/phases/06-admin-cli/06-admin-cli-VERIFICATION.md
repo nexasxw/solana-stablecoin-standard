@@ -14,10 +14,11 @@ plans_checked:
   - 06-03-PLAN.md
   - 06-04-PLAN.md
   - 06-05-PLAN.md
+  - 06-06-PLAN.md
 ---
 
 ## Summary
-Plan `06-05` closed the remaining Phase 6 regressions in `tests/sss-2.ts`. The full verification chain now passes, restoring deterministic proof for `CLI-01`, `CLI-02`, and `CLI-03` without unresolved gaps.
+Plan `06-06` closed the remaining UAT command-exposure gaps by shipping a deterministic repo-level wrapper (`./scripts/sss-token`), installer (`./scripts/install-sss-token.sh`), and aligned README invocation contract. The full verification chain passes, and UAT tests 1-3 are now executable through the documented path.
 
 ## Requirement ID Cross-Reference
 Plan requirement coverage:
@@ -25,6 +26,7 @@ Plan requirement coverage:
 - `06-02-PLAN.md`: `CLI-01`, `CLI-02`
 - `06-03-PLAN.md`: `CLI-02`, `CLI-03`
 - `06-04-PLAN.md`: `CLI-01`, `CLI-02`, `CLI-03` (verification closure)
+- `06-06-PLAN.md`: `CLI-01`, `CLI-02`, `CLI-03` (command-path closure + documentation alignment)
 
 All phase requirement IDs are accounted for in `.planning/REQUIREMENTS.md` (`CLI-01`, `CLI-02`, `CLI-03`).
 
@@ -50,10 +52,19 @@ All phase requirement IDs are accounted for in `.planning/REQUIREMENTS.md` (`CLI
 - Reordered seizure precondition setup so ATA creation runs after mint initialization, removing `Invalid Mint` setup artifacts.
 - Re-ran full verification chain with all commands green.
 
+### Plan 06-06 (`CLI-01`, `CLI-02`, `CLI-03`) — `pass`
+- Added deterministic repo wrapper invocation contract: `./scripts/sss-token ...`.
+- Added idempotent operator installer script: `./scripts/install-sss-token.sh` (with `--dry-run`).
+- Updated README examples to the same runnable path used in verification/UAT.
+- Added SDK integration regression coverage for invocation contract and verified no shell-level `command not found` envelope regressions.
+- Fixed explicit `--help` path to exit `0` so command-availability checks can be used in shell verification.
+
 ## Verification Command Evidence
 Most recent local rerun on 2026-03-11:
+- `./scripts/sss-token --help` -> `pass` (help surface rendered from documented wrapper path)
+- `./scripts/install-sss-token.sh --dry-run` -> `pass` (deterministic link actions printed)
 - `yarn workspace @stbr/sss-token build` -> `pass`
-- `yarn test:sdk` -> `pass` (`64 passing`)
+- `yarn test:sdk` -> `pass` (`65 passing`)
 - `yarn test:sss1` -> `pass` (`8 passing`)
 - `yarn test:sss2` -> `pass` (`12 passing`)
 
@@ -61,6 +72,11 @@ Regression closure evidence:
 - `supports compliance role rotation while preserving authority override` -> pass
 - `mints to real Token-2022 accounts for later hook tests` -> pass
 - `requires treasury, freeze, and blacklist for seizure` -> pass
+
+UAT command-path closure evidence (tests 1-3 from `06-UAT.md`):
+- Wrapper command availability check passes: `./scripts/sss-token --help`.
+- Init examples now use documented wrapper path (`./scripts/sss-token init --preset ...`) instead of unresolved bare command.
+- Custom config validation path is now reachable through documented wrapper contract (`./scripts/sss-token init --custom <path>`).
 
 ## Gap List
 None. Phase 6 gap list is closed.
