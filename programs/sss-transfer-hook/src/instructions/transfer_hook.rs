@@ -58,6 +58,10 @@ pub struct TransferHook<'info> {
 }
 
 pub fn handler(ctx: Context<TransferHook>, _amount: u64) -> Result<()> {
+    if !is_initialized_stablecoin(&ctx.accounts.stablecoin) {
+        return Ok(());
+    }
+
     require!(
         !is_initialized_blacklist_entry(&ctx.accounts.sender_blacklist_entry),
         HookError::SenderBlacklisted
@@ -70,5 +74,9 @@ pub fn handler(ctx: Context<TransferHook>, _amount: u64) -> Result<()> {
 }
 
 fn is_initialized_blacklist_entry(account: &UncheckedAccount) -> bool {
+    account.owner == &SSS_2_PROGRAM_ID && !account.data_is_empty()
+}
+
+fn is_initialized_stablecoin(account: &UncheckedAccount) -> bool {
     account.owner == &SSS_2_PROGRAM_ID && !account.data_is_empty()
 }

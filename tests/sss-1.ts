@@ -4,7 +4,6 @@ import { ComputeBudgetProgram, Keypair } from "@solana/web3.js";
 import { expect } from "chai";
 
 import {
-  ASSOCIATED_TOKEN_PROGRAM,
   RENT_SYSVAR,
   SYSTEM_PROGRAM,
   TOKEN_2022_PROGRAM,

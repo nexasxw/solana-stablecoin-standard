@@ -21,6 +21,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
+    "@iarna/toml": "^2.2.5",
     "@coral-xyz/anchor": "^0.31.1",
     "@solana/spl-token": "^0.4.10",
     "@solana/web3.js": "^1.98.0",

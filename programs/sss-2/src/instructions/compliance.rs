@@ -94,11 +94,22 @@ pub struct Seize<'info> {
     #[account(mut, token::mint = mint)]
     pub from_token_account: InterfaceAccount<'info, TokenAccount>,
 
+    /// CHECK: owner of `from_token_account`; must match token account owner field.
+    #[account(
+        constraint = target_owner.key() == from_token_account.owner
+            @ StablecoinError::InvalidTokenAccountOwner
+    )]
+    pub target_owner: UncheckedAccount<'info>,
+
     /// Treasury token account to receive seized tokens
     #[account(mut, token::mint = mint)]
     pub treasury_token_account: InterfaceAccount<'info, TokenAccount>,
 
-    /// CHECK: blacklist PDA for the target owner. May be uninitialized.
+    /// CHECK: blacklist PDA for `target_owner`. May be uninitialized.
+    #[account(
+        seeds = [BLACKLIST_SEED, stablecoin.key().as_ref(), target_owner.key().as_ref()],
+        bump,
+    )]
     pub blacklist_entry: UncheckedAccount<'info>,
 
     pub token_program: Interface<'info, TokenInterface>,

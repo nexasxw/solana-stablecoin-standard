@@ -9,11 +9,11 @@ const MINTER_SEED = Buffer.from("minter");
 const BLACKLIST_SEED = Buffer.from("blacklist");
 
 export function findStablecoinPda(
-  authority: PublicKey,
+  mint: PublicKey,
   programId: PublicKey
 ): [PublicKey, number] {
   return PublicKey.findProgramAddressSync(
-    [STABLECOIN_SEED, authority.toBuffer()],
+    [STABLECOIN_SEED, mint.toBuffer()],
     programId
   );
 }

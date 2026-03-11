@@ -56,14 +56,14 @@ docs/                 Standard specs (SSS-1.md, SSS-2.md), ARCHITECTURE.md
 ### Three-Program Model
 
 - **sss-1**: Standalone Anchor program. Token-2022 mint with MintCloseAuthority, MetadataPointer, TokenMetadata, FreezeAuthority. Role-based access (authority, minter, burner, pauser). Per-minter quotas via `MinterConfig` PDAs. Global pause.
-- **sss-2**: Extends SSS-1 with PermanentDelegate and TransferHook extensions. Adds blacklister/seizer roles. Blacklist management via PDAs. Seize instruction uses permanent delegate for forced transfers.
+- **sss-2**: Extends SSS-1 with PermanentDelegate and TransferHook extensions. Adds blacklister/seizer roles. Blacklist management via PDAs. Seize instruction validates frozen+blacklisted targets and moves full balance to treasury via stablecoin PDA signer.
 - **sss-transfer-hook**: Separate program invoked by Token-2022 on every SSS-2 transfer. Checks sender and recipient blacklist PDAs — missing PDA means not blacklisted (no error).
 
 ### PDA Seeds
 
 | Account | Seeds |
 |---------|-------|
-| Stablecoin state | `["stablecoin", authority]` |
+| Stablecoin state | `["stablecoin", mint]` |
 | Minter config | `["minter", stablecoin, minter]` |
 | Blacklist entry | `["blacklist", stablecoin, address]` |
 | Extra account metas | `["extra-account-metas", mint]` |

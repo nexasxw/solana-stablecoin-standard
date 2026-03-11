@@ -8,11 +8,11 @@
     "services/*"
   ],
   "scripts": {
-    "build": "yarn workspaces foreach -A run build",
+    "build": "yarn workspaces run build",
     "test": "anchor test",
     "test:local": "anchor test --skip-local-validator",
-    "test:sdk": "yarn workspaces foreach -A run test",
-    "clean": "yarn workspaces foreach -A run clean",
+    "test:sdk": "yarn workspaces run test",
+    "clean": "yarn workspaces run clean",
     "test:sss1": "anchor test --skip-build --skip-lint tests/sss-1.ts",
     "test:sss2": "anchor test --skip-build --skip-lint tests/sss-2.ts",
     "test:integration": "anchor test --skip-build --skip-lint tests/integration.ts",
