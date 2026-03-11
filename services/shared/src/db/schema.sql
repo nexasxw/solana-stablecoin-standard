@@ -239,6 +239,7 @@ CREATE TABLE IF NOT EXISTS audit_export_jobs (
   executor_service_id TEXT NOT NULL,
   intent_signature JSONB NOT NULL,
   artifact JSONB,
+  artifact_expires_at TIMESTAMPTZ,
   result JSONB,
   error JSONB,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -246,7 +247,8 @@ CREATE TABLE IF NOT EXISTS audit_export_jobs (
   started_at TIMESTAMPTZ,
   completed_at TIMESTAMPTZ,
   UNIQUE (tenant_id, idempotency_key),
-  CHECK ((state IN ('succeeded', 'failed', 'canceled') AND completed_at IS NOT NULL) OR (state IN ('queued', 'running') AND completed_at IS NULL))
+  CHECK ((state IN ('succeeded', 'failed', 'canceled') AND completed_at IS NOT NULL) OR (state IN ('queued', 'running') AND completed_at IS NULL)),
+  CHECK (artifact_expires_at IS NULL OR artifact_expires_at = completed_at + INTERVAL '30 days')
 );
 
 CREATE INDEX IF NOT EXISTS idx_audit_export_jobs_tenant_created_at
