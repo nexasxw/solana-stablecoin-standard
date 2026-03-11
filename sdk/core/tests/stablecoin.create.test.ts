@@ -2,13 +2,79 @@ import { expect } from "chai";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { Connection, Keypair } from "@solana/web3.js";
+import { Connection, Keypair, PublicKey } from "@solana/web3.js";
 import { SolanaStablecoin } from "../src/stablecoin";
 import { Presets } from "../src/presets";
 import { CreateOptions } from "../src/types";
 import { SdkErrorCode, StablecoinSdkError } from "../src/errors";
+import { StablecoinVariant } from "../src/types";
 
 const connection = new Connection("http://127.0.0.1:8899", "processed");
+const mockedProgramId = Keypair.generate().publicKey;
+
+interface InitializeCall {
+  variant: StablecoinVariant;
+  mint: PublicKey;
+  stablecoin: PublicKey;
+  config: {
+    name: string;
+    symbol: string;
+    uri: string;
+    decimals: number;
+    enablePermanentDelegate: boolean;
+    enableTransferHook: boolean;
+  };
+}
+
+let initializeCalls: InitializeCall[] = [];
+let originalProgramClientFactory: unknown;
+let originalInitializeExecutor: unknown;
+
+function installCreateMocks(): void {
+  originalProgramClientFactory = (SolanaStablecoin as any).createProgramClientFactory;
+  originalInitializeExecutor = (SolanaStablecoin as any).initializeExecutor;
+
+  (SolanaStablecoin as any).createProgramClientFactory = (
+    _connection: Connection,
+    _authority: Keypair,
+    variant: StablecoinVariant
+  ) => ({
+    variant,
+    programId: mockedProgramId,
+    program: {
+      methods: {},
+    },
+  });
+
+  (SolanaStablecoin as any).initializeExecutor = async (input: {
+    client: { variant: StablecoinVariant };
+    mintKeypair: Keypair;
+    stablecoin: PublicKey;
+    config: InitializeCall["config"];
+  }) => {
+    initializeCalls.push({
+      variant: input.client.variant,
+      mint: input.mintKeypair.publicKey,
+      stablecoin: input.stablecoin,
+      config: input.config,
+    });
+
+    return {
+      signature: `init-${input.mintKeypair.publicKey.toBase58()}`,
+      confirmation: {
+        commitment: "processed",
+        confirmationStatus: "confirmed",
+        slot: 42,
+        confirmations: 1,
+      },
+    };
+  };
+}
+
+function restoreCreateMocks(): void {
+  (SolanaStablecoin as any).createProgramClientFactory = originalProgramClientFactory;
+  (SolanaStablecoin as any).initializeExecutor = originalInitializeExecutor;
+}
 
 function createBaseOptions(overrides: Partial<CreateOptions> = {}): CreateOptions {
   return {
@@ -59,6 +125,15 @@ async function writeTempConfig(content: string): Promise<string> {
 }
 
 describe("SolanaStablecoin.create preset/config integration", () => {
+  beforeEach(() => {
+    initializeCalls = [];
+    installCreateMocks();
+  });
+
+  afterEach(() => {
+    restoreCreateMocks();
+  });
+
   it("creates SSS-1 with compliance disabled by default", async () => {
     const stablecoin = await SolanaStablecoin.create(
       connection,
@@ -66,11 +141,18 @@ describe("SolanaStablecoin.create preset/config integration", () => {
     );
 
     expect(stablecoin.initialization).to.not.equal(null);
-    expect(stablecoin.initialization?.signature).to.match(/^simulated-init-/);
+    expect(stablecoin.initialization?.signature).to.match(/^init-/);
+    expect(stablecoin.initialization?.signature).to.not.match(/^simulated-init-/);
     expect(stablecoin.initialization?.confirmation.commitment).to.equal("processed");
-    expect(stablecoin.initialization?.confirmation.confirmationStatus).to.equal(null);
+    expect(stablecoin.initialization?.confirmation.confirmationStatus).to.equal("confirmed");
+    expect(stablecoin.initialization?.confirmation.slot).to.equal(42);
+    expect(stablecoin.initialization?.confirmation.confirmations).to.equal(1);
     expect(stablecoin.variant).to.equal("SSS_1");
     expect(stablecoin.compliance).to.equal(null);
+    expect(initializeCalls).to.have.length(1);
+    expect(initializeCalls[0].variant).to.equal("SSS_1");
+    expect(initializeCalls[0].config.enablePermanentDelegate).to.equal(false);
+    expect(initializeCalls[0].config.enableTransferHook).to.equal(false);
   });
 
   it("creates SSS-2 with compliance enabled by default", async () => {
@@ -81,6 +163,10 @@ describe("SolanaStablecoin.create preset/config integration", () => {
 
     expect(stablecoin.variant).to.equal("SSS_2");
     expect(stablecoin.compliance).to.not.equal(null);
+    expect(initializeCalls).to.have.length(1);
+    expect(initializeCalls[0].variant).to.equal("SSS_2");
+    expect(initializeCalls[0].config.enablePermanentDelegate).to.equal(true);
+    expect(initializeCalls[0].config.enableTransferHook).to.equal(true);
   });
 
   it("rejects SSS-1 when compliance extensions are explicitly enabled", async () => {

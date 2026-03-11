@@ -170,12 +170,11 @@ describe("SSS-2 compliance helpers", () => {
 
   it("keeps compliance inaccessible for SSS-1 and returns explicit unsupported errors otherwise", async () => {
     const connection = new Connection("http://127.0.0.1:8899", "processed");
-    const sss1Stablecoin = await SolanaStablecoin.create(connection, {
-      preset: Presets.SSS_1,
-      authority: Keypair.generate(),
-      name: "SSS One",
-      symbol: "SS1",
-    });
+    const sss1Stablecoin = await SolanaStablecoin.load(
+      connection,
+      Keypair.generate().publicKey,
+      { variant: Presets.SSS_1, authority: Keypair.generate() }
+    );
     expect(sss1Stablecoin.compliance).to.equal(null);
 
     const { module } = createComplianceHarness({ enabled: false });

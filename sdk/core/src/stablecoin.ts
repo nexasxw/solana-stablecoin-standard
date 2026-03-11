@@ -4,12 +4,19 @@
  * Supports both preset-based initialization (SSS_1, SSS_2) and custom configs.
  */
 
-import { Connection, Keypair, PublicKey, Commitment, SystemProgram } from "@solana/web3.js";
+import {
+  Connection,
+  Keypair,
+  PublicKey,
+  Commitment,
+  SystemProgram,
+  SYSVAR_RENT_PUBKEY,
+} from "@solana/web3.js";
 import { BN, Idl, Program } from "@coral-xyz/anchor";
-import { TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
+import { ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
 import { ComplianceModule } from "./compliance";
 import { Presets, getPresetConfig } from "./presets";
-import { findStablecoinPda, findMinterPda } from "./pda";
+import { findExtraAccountMetasPda, findStablecoinPda, findMinterPda } from "./pda";
 import {
   BurnOptions,
   CreateOptions,
@@ -43,18 +50,6 @@ function defaultCommitment(connection: Connection): Commitment {
   return connection.commitment ?? "processed";
 }
 
-function buildLocalTxResult(signature: string, connection: Connection): SdkTxResult {
-  return {
-    signature,
-    confirmation: {
-      commitment: defaultCommitment(connection),
-      confirmationStatus: null,
-      slot: null,
-      confirmations: null,
-    },
-  };
-}
-
 async function buildRpcTxResult(signature: string, connection: Connection): Promise<SdkTxResult> {
   const statuses = await connection.getSignatureStatuses([signature]);
   const status = statuses.value[0];
@@ -86,6 +81,23 @@ function toValidationError(error: unknown, fallback: string): ValidationError {
 }
 
 const U64_MAX = (1n << 64n) - 1n;
+const TRANSFER_HOOK_PROGRAM_ID = new PublicKey("SSSHook111111111111111111111111111111111111");
+
+interface InitializeExecutorInput {
+  client: ReturnType<typeof createProgramClient>;
+  connection: Connection;
+  authority: Keypair;
+  mintKeypair: Keypair;
+  stablecoin: PublicKey;
+  config: {
+    name: string;
+    symbol: string;
+    uri: string;
+    decimals: number;
+    enablePermanentDelegate: boolean;
+    enableTransferHook: boolean;
+  };
+}
 
 function ensurePublicKey(input: unknown, field: string): PublicKey {
   if (!(input instanceof PublicKey)) {
@@ -127,6 +139,9 @@ function ensureU64Amount(input: unknown, field: string): BN {
 }
 
 export class SolanaStablecoin {
+  private static createProgramClientFactory: typeof createProgramClient = createProgramClient;
+  private static initializeExecutor = SolanaStablecoin.defaultInitializeExecutor;
+
   readonly stablecoin: PublicKey;
   readonly mintAddress: PublicKey;
   readonly variant: StablecoinVariant;
@@ -164,6 +179,53 @@ export class SolanaStablecoin {
       }
 
       throw new RpcRequestError(`RPC request failed for ${operation}.`, error, { operation });
+    }
+  }
+
+  private static async defaultInitializeExecutor(
+    input: InitializeExecutorInput
+  ): Promise<SdkTxResult> {
+    const initializeConfig = {
+      name: input.config.name,
+      symbol: input.config.symbol,
+      uri: input.config.uri,
+      decimals: input.config.decimals,
+      enable_permanent_delegate: input.config.enablePermanentDelegate,
+      enable_transfer_hook: input.config.enableTransferHook,
+    };
+
+    const accounts: Record<string, PublicKey> = {
+      authority: input.authority.publicKey,
+      stablecoin: input.stablecoin,
+      mint: input.mintKeypair.publicKey,
+      tokenProgram: TOKEN_2022_PROGRAM_ID,
+      systemProgram: SystemProgram.programId,
+      rent: SYSVAR_RENT_PUBKEY,
+    };
+
+    if (input.client.variant === "SSS_2") {
+      const [extraAccountMetaList] = findExtraAccountMetasPda(
+        input.mintKeypair.publicKey,
+        TRANSFER_HOOK_PROGRAM_ID
+      );
+
+      accounts.extraAccountMetaList = extraAccountMetaList;
+      accounts.transferHookProgram = TRANSFER_HOOK_PROGRAM_ID;
+      accounts.associatedTokenProgram = ASSOCIATED_TOKEN_PROGRAM_ID;
+    }
+
+    try {
+      const signature = await input.client.program.methods
+        .initialize(initializeConfig)
+        .accounts(accounts)
+        .signers([input.authority, input.mintKeypair])
+        .rpc();
+
+      return await buildRpcTxResult(signature, input.connection);
+    } catch (error) {
+      throw new RpcRequestError("RPC request failed for initialize.", error, {
+        operation: "initialize",
+      });
     }
   }
 
@@ -239,14 +301,25 @@ export class SolanaStablecoin {
         enableTransferHook: config.enableTransferHook,
       });
 
-      const client = createProgramClient(connection, authority, variant);
+      const client = SolanaStablecoin.createProgramClientFactory(connection, authority, variant);
       const mintKeypair = Keypair.generate();
       const [stablecoinPda] = findStablecoinPda(mintKeypair.publicKey, client.programId);
 
-      const initialization = buildLocalTxResult(
-        `simulated-init-${mintKeypair.publicKey.toBase58()}`,
-        connection
-      );
+      const initialization = await SolanaStablecoin.initializeExecutor({
+        client,
+        connection,
+        authority,
+        mintKeypair,
+        stablecoin: stablecoinPda,
+        config: {
+          name: config.name,
+          symbol: config.symbol,
+          uri: config.uri,
+          decimals: config.decimals,
+          enablePermanentDelegate: config.enablePermanentDelegate,
+          enableTransferHook: config.enableTransferHook,
+        },
+      });
 
       return new SolanaStablecoin(
         connection,
@@ -279,7 +352,7 @@ export class SolanaStablecoin {
         typeof options === "boolean" ? { isSSS2: options } : options ?? {};
       const variant = resolveLoadVariant(loadOptions);
       const authority = loadOptions.authority ?? Keypair.generate();
-      const client = createProgramClient(connection, authority, variant);
+      const client = SolanaStablecoin.createProgramClientFactory(connection, authority, variant);
       const [stablecoinPda] = findStablecoinPda(mint, client.programId);
 
       return new SolanaStablecoin(
