@@ -206,3 +206,51 @@ CREATE INDEX IF NOT EXISTS idx_compliance_mutation_jobs_tenant_created_at
 
 CREATE INDEX IF NOT EXISTS idx_compliance_mutation_jobs_tenant_state_created_at
   ON compliance_mutation_jobs (tenant_id, state, created_at DESC);
+
+CREATE TABLE IF NOT EXISTS compliance_audit_log (
+  id UUID PRIMARY KEY,
+  tenant_id TEXT NOT NULL,
+  request_id TEXT NOT NULL,
+  event_type TEXT NOT NULL,
+  event_version TEXT NOT NULL,
+  occurred_at TIMESTAMPTZ NOT NULL,
+  actor_requester_id TEXT NOT NULL,
+  actor_approver_id TEXT,
+  actor_executor_service_id TEXT NOT NULL,
+  body JSONB NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_compliance_audit_log_tenant_occurred_at
+  ON compliance_audit_log (tenant_id, occurred_at DESC, id DESC);
+
+CREATE INDEX IF NOT EXISTS idx_compliance_audit_log_tenant_event_type
+  ON compliance_audit_log (tenant_id, event_type, occurred_at DESC);
+
+CREATE TABLE IF NOT EXISTS audit_export_jobs (
+  id UUID PRIMARY KEY,
+  tenant_id TEXT NOT NULL,
+  request_id TEXT NOT NULL,
+  idempotency_key TEXT NOT NULL,
+  state TEXT NOT NULL CHECK (state IN ('queued', 'running', 'succeeded', 'failed', 'canceled')),
+  query JSONB NOT NULL,
+  requester_id TEXT NOT NULL,
+  approver_id TEXT,
+  executor_service_id TEXT NOT NULL,
+  intent_signature JSONB NOT NULL,
+  artifact JSONB,
+  result JSONB,
+  error JSONB,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  started_at TIMESTAMPTZ,
+  completed_at TIMESTAMPTZ,
+  UNIQUE (tenant_id, idempotency_key),
+  CHECK ((state IN ('succeeded', 'failed', 'canceled') AND completed_at IS NOT NULL) OR (state IN ('queued', 'running') AND completed_at IS NULL))
+);
+
+CREATE INDEX IF NOT EXISTS idx_audit_export_jobs_tenant_created_at
+  ON audit_export_jobs (tenant_id, created_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_audit_export_jobs_tenant_state_created_at
+  ON audit_export_jobs (tenant_id, state, created_at DESC);
