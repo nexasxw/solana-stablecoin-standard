@@ -4,17 +4,17 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 7
 current_phase_name: backend services
-current_plan: 07-02
+current_plan: 07-03
 status: executing
-stopped_at: Completed 07-01-SUMMARY.md
-last_updated: "2026-03-11T08:13:13Z"
+stopped_at: Completed 07-02-SUMMARY.md
+last_updated: "2026-03-11T08:26:54Z"
 last_activity: 2026-03-11
 progress:
   total_phases: 12
   completed_phases: 6
   total_plans: 29
-  completed_plans: 19
-  percent: 66
+  completed_plans: 20
+  percent: 69
 ---
 
 # Project State
@@ -31,18 +31,18 @@ See: .planning/PROJECT.md (updated 2026-03-09)
 **Current Phase:** 7
 **Current Phase Name:** backend services
 **Total Phases:** 12
-**Current Plan:** 07-02
+**Current Plan:** 07-03
 **Total Plans in Phase:** 6
 **Status:** Ready to execute next plan
 **Last Activity:** 2026-03-11
-Last activity description: Completed plan 07-01 for shared service contracts and persistence foundation
+Last activity description: Completed plan 07-02 for finalized indexer ingestion, projections, and reconciliation controls
 
-**Progress:** [██████░░░░] 66%
+**Progress:** [███████░░░] 69%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 5
+- Total plans completed: 6
 - Average duration: 35 min
 - Total execution time: 2h 18min
 
@@ -52,7 +52,7 @@ Last activity description: Completed plan 07-01 for shared service contracts and
 |-------|-------|-------|----------|
 | 1 | 1 | N/A | N/A |
 | 2 | 4 | 2h 18min | 35 min |
-| 7 | 1 | 2 min | 2 min |
+| 7 | 2 | 10 min | 5 min |
 
 **Recent Trend:**
 - Last 5 plans: 2 min, 6 min, 4 min, 9 min, 11 min
@@ -115,6 +115,7 @@ Recent decisions affecting current work:
 - [Phase 07-backend-services]: Locked canonical shared service envelope fields and helper constructors in `@stbr/sss-shared`.
 - [Phase 07-backend-services]: Fixed cross-service async job lifecycle states to `queued|running|succeeded|failed|canceled` in contracts and schema.
 - [Phase 07-backend-services]: Established tenant-scoped idempotency baseline with deterministic uniqueness and first-response persistence.
+- [Phase 07-backend-services]: Enforced finalized-only indexer authority with deterministic dedupe/checkpoint invariants and tenant-scoped projection reads.
 
 ### Pending Todos
 
@@ -126,6 +127,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-11T08:13:13Z
-Stopped at: Completed 07-01-SUMMARY.md
-Resume file: .planning/phases/07-backend-services/07-01-SUMMARY.md
+Last session: 2026-03-11T08:26:54Z
+Stopped at: Completed 07-02-SUMMARY.md
+Resume file: .planning/phases/07-backend-services/07-02-SUMMARY.md
