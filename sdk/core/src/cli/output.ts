@@ -55,5 +55,10 @@ export function renderFailure(command: string, error: CliError, json: boolean): 
     return `${JSON.stringify(buildFailureEnvelope(command, error))}\n`;
   }
 
-  return `${command}: ${error.code} ${error.message}\n`;
+  const sdkCode =
+    typeof error.details?.sdkCode === "string"
+      ? `/${error.details.sdkCode}`
+      : "";
+
+  return `${command}: ${error.code}${sdkCode} ${error.message}\n`;
 }
