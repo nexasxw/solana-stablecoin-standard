@@ -2,23 +2,23 @@ import {
   createErrorEnvelope,
   createSuccessEnvelope,
   type ApiEnvelope,
-} from "@stbr/sss-shared/dist/contracts/envelope";
-import { StableServiceError, toStableError } from "@stbr/sss-shared/dist/contracts/errors";
+} from "../../../shared/dist/contracts/envelope";
+import { StableServiceError, toStableError } from "../../../shared/dist/contracts/errors";
 import {
   buildIssuanceIdentityChain,
   parseServiceIdentity,
   requireIssuerAuthorization,
-} from "@stbr/sss-shared/dist/auth/service-auth";
+} from "../../../shared/dist/auth/service-auth";
 import {
   executeWithDurableIdempotency,
   type DurableIdempotencyStore,
   type DurableIdempotencyRecord,
-} from "@stbr/sss-shared/dist/middleware/idempotency";
+} from "../../../shared/dist/middleware/idempotency";
 import {
   createRequestContext,
   requireTenantScope,
   type RequestContextHeaders,
-} from "@stbr/sss-shared/dist/middleware/request-context";
+} from "../../../shared/dist/middleware/request-context";
 
 import {
   type BurnJobPayload,

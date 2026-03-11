@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 
-import { StableServiceError } from "@stbr/sss-shared/dist/contracts/errors";
+import { StableServiceError } from "../../../shared/dist/contracts/errors";
 
 export type IssuanceJobType = "mint" | "burn";
 export type IssuanceJobState = "queued" | "running" | "succeeded" | "failed" | "canceled";
@@ -84,12 +84,14 @@ export interface CreateIssuanceJobInput {
 }
 
 const cloneJob = (job: IssuanceJobRecord): IssuanceJobRecord => {
+  const deepClone = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
+
   return {
     ...job,
-    payload: structuredClone(job.payload),
-    result: job.result ? structuredClone(job.result) : null,
-    error: job.error ? structuredClone(job.error) : null,
-    intent_signature: structuredClone(job.intent_signature),
+    payload: deepClone(job.payload),
+    result: job.result ? deepClone(job.result) : null,
+    error: job.error ? deepClone(job.error) : null,
+    intent_signature: deepClone(job.intent_signature),
   };
 };
 
@@ -117,6 +119,10 @@ export class IssuanceRepository {
 
   private readonly events = new Map<string, IssuanceInternalEvent[]>();
 
+  private deepClone<T>(value: T): T {
+    return JSON.parse(JSON.stringify(value)) as T;
+  }
+
   createJob(input: CreateIssuanceJobInput, now: () => Date = () => new Date()): IssuanceJobRecord {
     const createdAt = now().toISOString();
     const job: IssuanceJobRecord = {
@@ -126,13 +132,13 @@ export class IssuanceRepository {
       state: "queued",
       request_id: input.request_id,
       idempotency_key: input.idempotency_key,
-      payload: structuredClone(input.payload),
+      payload: this.deepClone(input.payload),
       result: null,
       error: null,
       requester_id: input.identity_chain.requester,
       approver_id: input.identity_chain.approver,
       executor_service_id: input.identity_chain.executor_service,
-      intent_signature: structuredClone(input.identity_chain.intent_signature),
+      intent_signature: this.deepClone(input.identity_chain.intent_signature),
       transaction_signature: null,
       created_at: createdAt,
       updated_at: createdAt,
@@ -231,20 +237,20 @@ export class IssuanceRepository {
       event_version: event.event_version,
       request_id: event.request_id,
       occurred_at: event.occurred_at || now().toISOString(),
-      body: structuredClone(event.body),
+      body: this.deepClone(event.body),
     };
 
     const tenantEvents = this.events.get(tenantId) ?? [];
     tenantEvents.push(stored);
     this.events.set(tenantId, tenantEvents);
 
-    return structuredClone(stored);
+    return this.deepClone(stored);
   }
 
   listInternalEvents(tenantId: string, jobId?: string): IssuanceInternalEvent[] {
     const tenantEvents = this.events.get(tenantId) ?? [];
     return tenantEvents
       .filter((event) => (jobId ? event.job_id === jobId : true))
-      .map((event) => structuredClone(event));
+      .map((event) => this.deepClone(event));
   }
 }
