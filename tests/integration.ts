@@ -15,9 +15,6 @@ import { IndexerRepository } from "../services/indexer/src/store/indexer-reposit
 import { createWebhookRuntime } from "../services/webhook/src/index";
 
 const tenantId = "tenant-e2e";
-const requestId = "req-e2e-trace-1";
-const stablecoinId = "mint-e2e-1";
-
 const issuerHeaders = (rid: string, idempotencyKey?: string): Record<string, string> => {
   const base: Record<string, string> = {
     "x-request-id": rid,
@@ -42,182 +39,203 @@ const issuerHeaders = (rid: string, idempotencyKey?: string): Record<string, str
 
 describe("Phase 7 backend integration", () => {
   it("proves deterministic end-to-end request_id continuity across issuance, indexer, and webhook delivery evidence", async () => {
-    const issuanceRepository = new IssuanceRepository();
-    const issuanceHandlers = new IssuanceRouteHandlers(
-      issuanceRepository,
-      new IssuanceIdempotencyStore()
-    );
-
-    const mintAccepted = issuanceHandlers.createMintJob({
-      headers: issuerHeaders(requestId, "idem-e2e-mint-1"),
-      body: {
-        tenant_id: tenantId,
-        payload: {
-          stablecoin_id: stablecoinId,
-          recipient: "holder-alice",
-          amount: "250",
-        },
+    const variants = [
+      {
+        name: "sss-1",
+        requestId: "req-e2e-trace-sss1-1",
+        idempotencyKey: "idem-e2e-mint-sss1-1",
+        stablecoinId: "mint-e2e-sss1-1",
       },
-    });
+      {
+        name: "sss-2",
+        requestId: "req-e2e-trace-sss2-1",
+        idempotencyKey: "idem-e2e-mint-sss2-1",
+        stablecoinId: "mint-e2e-sss2-1",
+      },
+    ] as const;
 
-    assert.equal(mintAccepted.success, true);
-    assert.equal(mintAccepted.code, "ISSUANCE_MINT_JOB_QUEUED");
-    assert.equal(mintAccepted.request_id, requestId);
-    assert.equal(mintAccepted.data?.state, "queued");
+    for (const variant of variants) {
+      const issuanceRepository = new IssuanceRepository();
+      const issuanceHandlers = new IssuanceRouteHandlers(
+        issuanceRepository,
+        new IssuanceIdempotencyStore()
+      );
 
-    const issuanceWorker = new IssuanceWorker(issuanceRepository, {
-      mint: async () => ({ transaction_signature: "tx-e2e-1", slot: 501 }),
-      burn: async () => ({ transaction_signature: "tx-burn-unused", slot: 0 }),
-    });
-
-    const workerRun = await issuanceWorker.runNext(tenantId);
-    assert.equal(workerRun.processed, true);
-    assert.equal(workerRun.job?.state, "succeeded");
-    assert.equal(workerRun.job?.request_id, requestId);
-
-    const wrongTenantRead = issuanceHandlers.getJob(
-      { headers: issuerHeaders("req-wrong-tenant") },
-      { tenant_id: "tenant-other", job_id: workerRun.job?.id as string }
-    );
-
-    assert.equal(wrongTenantRead.success, false);
-    assert.equal(wrongTenantRead.code, "FORBIDDEN");
-
-    const issuanceSucceededEvent = issuanceRepository
-      .listInternalEvents(tenantId, workerRun.job?.id)
-      .find((event) => event.event_type === "issuance.mint.succeeded");
-
-    assert.ok(issuanceSucceededEvent);
-    assert.equal(issuanceSucceededEvent?.request_id, requestId);
-
-    const indexerRepository = new IndexerRepository();
-    const consumer = new FinalizedConsumer(indexerRepository);
-    const ingest = consumer.ingestBatch({
-      tenant_id: tenantId,
-      stream_id: "stream-main",
-      events: [
-        {
+      const mintAccepted = issuanceHandlers.createMintJob({
+        headers: issuerHeaders(variant.requestId, variant.idempotencyKey),
+        body: {
           tenant_id: tenantId,
-          program_id: "sss-1",
-          stablecoin_id: stablecoinId,
-          tx_signature: workerRun.job?.transaction_signature as string,
-          slot: 501,
-          log_index: 0,
-          request_id: issuanceSucceededEvent?.request_id as string,
-          occurred_at: issuanceSucceededEvent?.occurred_at as string,
-          event_type: "mint.executed",
-          finalized: true,
-          body: {
-            to: "holder-alice",
+          payload: {
+            stablecoin_id: variant.stablecoinId,
+            recipient: "holder-alice",
             amount: "250",
           },
         },
-      ],
-    });
+      });
 
-    assert.equal(ingest.accepted, 1);
-    assert.equal(ingest.duplicates, 0);
-    assert.equal(ingest.normalized_events[0].request_id, requestId);
+      assert.equal(mintAccepted.success, true);
+      assert.equal(mintAccepted.code, "ISSUANCE_MINT_JOB_QUEUED");
+      assert.equal(mintAccepted.request_id, variant.requestId);
+      assert.equal(mintAccepted.data?.state, "queued");
 
-    let projection = createEmptyStablecoinProjection(tenantId, stablecoinId);
-    const holderMap = new Map<string, ReturnType<typeof createEmptyHolderBalance>>();
-    for (const event of indexerRepository.listEvents(tenantId)) {
-      projection = applyStablecoinProjectionEvent(projection, event);
-      const deltas = reduceHolderBalancesFromEvent(event);
-      for (const delta of deltas) {
-        const current =
-          holderMap.get(delta.holder) ??
-          createEmptyHolderBalance(tenantId, stablecoinId, delta.holder);
-        holderMap.set(delta.holder, {
-          ...current,
-          balance: current.balance + delta.delta,
-          updated_at: event.occurred_at,
-        });
+      const issuanceWorker = new IssuanceWorker(issuanceRepository, {
+        mint: async () => ({ transaction_signature: `tx-e2e-${variant.name}`, slot: 501 }),
+        burn: async () => ({ transaction_signature: "tx-burn-unused", slot: 0 }),
+      });
+
+      const workerRun = await issuanceWorker.runNext(tenantId);
+      assert.equal(workerRun.processed, true);
+      assert.equal(workerRun.job?.state, "succeeded");
+      assert.equal(workerRun.job?.request_id, variant.requestId);
+
+      const wrongTenantRead = issuanceHandlers.getJob(
+        { headers: issuerHeaders(`req-wrong-tenant-${variant.name}`) },
+        { tenant_id: "tenant-other", job_id: workerRun.job?.id as string }
+      );
+
+      assert.equal(wrongTenantRead.success, false);
+      assert.equal(wrongTenantRead.code, "FORBIDDEN");
+      const wrongTenantErrorDetails = (
+        wrongTenantRead.error as { details?: Record<string, unknown> } | null
+      )?.details;
+      assert.equal(wrongTenantErrorDetails?.stable_code, "FORBIDDEN");
+
+      const issuanceSucceededEvent = issuanceRepository
+        .listInternalEvents(tenantId, workerRun.job?.id)
+        .find((event) => event.event_type === "issuance.mint.succeeded");
+
+      assert.ok(issuanceSucceededEvent);
+      assert.equal(issuanceSucceededEvent?.request_id, variant.requestId);
+
+      const indexerRepository = new IndexerRepository();
+      const consumer = new FinalizedConsumer(indexerRepository);
+      const ingest = consumer.ingestBatch({
+        tenant_id: tenantId,
+        stream_id: "stream-main",
+        events: [
+          {
+            tenant_id: tenantId,
+            program_id: variant.name,
+            stablecoin_id: variant.stablecoinId,
+            tx_signature: workerRun.job?.transaction_signature as string,
+            slot: 501,
+            log_index: 0,
+            request_id: issuanceSucceededEvent?.request_id as string,
+            occurred_at: issuanceSucceededEvent?.occurred_at as string,
+            event_type: "mint.executed",
+            finalized: true,
+            body: {
+              to: "holder-alice",
+              amount: "250",
+            },
+          },
+        ],
+      });
+
+      assert.equal(ingest.accepted, 1);
+      assert.equal(ingest.duplicates, 0);
+      assert.equal(ingest.normalized_events[0].request_id, variant.requestId);
+
+      let projection = createEmptyStablecoinProjection(tenantId, variant.stablecoinId);
+      const holderMap = new Map<string, ReturnType<typeof createEmptyHolderBalance>>();
+      for (const event of indexerRepository.listEvents(tenantId)) {
+        projection = applyStablecoinProjectionEvent(projection, event);
+        const deltas = reduceHolderBalancesFromEvent(event);
+        for (const delta of deltas) {
+          const current =
+            holderMap.get(delta.holder) ??
+            createEmptyHolderBalance(tenantId, variant.stablecoinId, delta.holder);
+          holderMap.set(delta.holder, {
+            ...current,
+            balance: current.balance + delta.delta,
+            updated_at: event.occurred_at,
+          });
+        }
       }
-    }
 
-    indexerRepository.upsertStablecoinProjection(tenantId, projection);
-    for (const holder of holderMap.values()) {
-      indexerRepository.upsertHolderBalance(tenantId, holder);
-    }
+      indexerRepository.upsertStablecoinProjection(tenantId, projection);
+      for (const holder of holderMap.values()) {
+        indexerRepository.upsertHolderBalance(tenantId, holder);
+      }
 
-    const projectionHandlers = new ProjectionRouteHandlers(indexerRepository);
-    const projectionRead = projectionHandlers.getStablecoinProjection(
-      { tenant_id: tenantId, request_id: requestId },
-      { tenant_id: tenantId, stablecoin_id: stablecoinId }
-    );
+      const projectionHandlers = new ProjectionRouteHandlers(indexerRepository);
+      const projectionRead = projectionHandlers.getStablecoinProjection(
+        { tenant_id: tenantId, request_id: variant.requestId },
+        { tenant_id: tenantId, stablecoin_id: variant.stablecoinId }
+      );
 
-    assert.equal(projectionRead.request_id, requestId);
-    assert.equal(projectionRead.data?.total_supply, 250n);
-    assert.equal(projectionRead.data?.last_event_id, ingest.normalized_events[0].event_id);
+      assert.equal(projectionRead.request_id, variant.requestId);
+      assert.equal(projectionRead.data?.total_supply, 250n);
+      assert.equal(projectionRead.data?.last_event_id, ingest.normalized_events[0].event_id);
 
-    let sentRequestId = "";
-    let sentEventId = "";
-    const webhookRuntime = createWebhookRuntime({
-      sender: {
-        send: async (request) => {
-          sentRequestId = request.headers["x-request-id"];
-          sentEventId = request.headers["x-event-id"];
-          return { status: 202 };
+      let sentRequestId = "";
+      let sentEventId = "";
+      const webhookRuntime = createWebhookRuntime({
+        sender: {
+          send: async (request) => {
+            sentRequestId = request.headers["x-request-id"];
+            sentEventId = request.headers["x-event-id"];
+            return { status: 202 };
+          },
         },
-      },
-    });
+      });
 
-    const subscription = webhookRuntime.subscriptionHandlers.create({
-      headers: issuerHeaders(requestId),
-      body: {
-        tenant_id: tenantId,
-        endpoint_url: "https://example.com/webhooks/e2e",
-        event_filters: ["mint.executed"],
-        secret: "primary-secret-e2e",
-      },
-    });
+      const subscription = webhookRuntime.subscriptionHandlers.create({
+        headers: issuerHeaders(variant.requestId),
+        body: {
+          tenant_id: tenantId,
+          endpoint_url: `https://example.com/webhooks/e2e/${variant.name}`,
+          event_filters: ["mint.executed"],
+          secret: "primary-secret-e2e",
+        },
+      });
 
-    assert.equal(subscription.success, true);
-    assert.equal(subscription.code, "WEBHOOK_SUBSCRIPTION_OK");
-    assert.equal(subscription.request_id, requestId);
+      assert.equal(subscription.success, true);
+      assert.equal(subscription.code, "WEBHOOK_SUBSCRIPTION_OK");
+      assert.equal(subscription.request_id, variant.requestId);
 
-    const enqueue = webhookRuntime.deliveryHandlers.enqueueForTestOnly(
-      { headers: issuerHeaders(requestId) },
-      {
-        tenant_id: tenantId,
-        subscription_id: subscription.data?.subscription_id as string,
-        event_id: ingest.normalized_events[0].event_id,
-        event_type: ingest.normalized_events[0].event_type,
-        event_version: ingest.normalized_events[0].event_version,
-        request_id: ingest.normalized_events[0].request_id,
-        entity_key: `stablecoin:${stablecoinId}`,
-        payload: ingest.normalized_events[0].body.payload,
-      }
-    );
+      const enqueue = webhookRuntime.deliveryHandlers.enqueueForTestOnly(
+        { headers: issuerHeaders(variant.requestId) },
+        {
+          tenant_id: tenantId,
+          subscription_id: subscription.data?.subscription_id as string,
+          event_id: ingest.normalized_events[0].event_id,
+          event_type: ingest.normalized_events[0].event_type,
+          event_version: ingest.normalized_events[0].event_version,
+          request_id: ingest.normalized_events[0].request_id,
+          entity_key: `stablecoin:${variant.stablecoinId}`,
+          payload: ingest.normalized_events[0].body.payload,
+        }
+      );
 
-    assert.equal(enqueue.success, true);
-    assert.equal(enqueue.code, "WEBHOOK_DELIVERY_OK");
-    assert.equal(enqueue.request_id, requestId);
-    assert.equal(enqueue.data?.state, "queued");
+      assert.equal(enqueue.success, true);
+      assert.equal(enqueue.code, "WEBHOOK_DELIVERY_OK");
+      assert.equal(enqueue.request_id, variant.requestId);
+      assert.equal(enqueue.data?.state, "queued");
 
-    const deliveryRun = await webhookRuntime.worker.runNext(tenantId);
-    assert.equal(deliveryRun.processed, true);
-    assert.equal(deliveryRun.delivery?.state, "succeeded");
-    assert.equal(deliveryRun.delivery?.request_id, requestId);
+      const deliveryRun = await webhookRuntime.worker.runNext(tenantId);
+      assert.equal(deliveryRun.processed, true);
+      assert.equal(deliveryRun.delivery?.state, "succeeded");
+      assert.equal(deliveryRun.delivery?.request_id, variant.requestId);
 
-    const deliveryEvidence = webhookRuntime.deliveryHandlers.getDelivery(
-      { headers: issuerHeaders(requestId) },
-      {
-        tenant_id: tenantId,
-        delivery_id: deliveryRun.delivery?.id as string,
-      }
-    );
+      const deliveryEvidence = webhookRuntime.deliveryHandlers.getDelivery(
+        { headers: issuerHeaders(variant.requestId) },
+        {
+          tenant_id: tenantId,
+          delivery_id: deliveryRun.delivery?.id as string,
+        }
+      );
 
-    assert.equal(deliveryEvidence.success, true);
-    assert.equal(deliveryEvidence.code, "WEBHOOK_DELIVERY_OK");
-    assert.equal(deliveryEvidence.request_id, requestId);
-    assert.equal(deliveryEvidence.data.delivery.request_id, requestId);
-    assert.equal(deliveryEvidence.data.attempts.length, 1);
-    assert.equal(deliveryEvidence.data.attempts[0].status, "succeeded");
-    assert.equal(deliveryEvidence.data.dead_letter, null);
+      assert.equal(deliveryEvidence.success, true);
+      assert.equal(deliveryEvidence.code, "WEBHOOK_DELIVERY_OK");
+      assert.equal(deliveryEvidence.request_id, variant.requestId);
+      assert.equal(deliveryEvidence.data.delivery.request_id, variant.requestId);
+      assert.equal(deliveryEvidence.data.attempts.length, 1);
+      assert.equal(deliveryEvidence.data.attempts[0].status, "succeeded");
+      assert.equal(deliveryEvidence.data.dead_letter, null);
 
-    assert.equal(sentRequestId, requestId);
-    assert.equal(sentEventId, ingest.normalized_events[0].event_id);
+      assert.equal(sentRequestId, variant.requestId);
+      assert.equal(sentEventId, ingest.normalized_events[0].event_id);
+    }
   });
 });
