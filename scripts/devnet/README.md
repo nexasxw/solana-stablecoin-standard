@@ -8,6 +8,60 @@ These scripts provide deterministic, operator-style proof runs for Phase 08 `TST
 - `scripts/devnet/phase-08-sss2-proof.sh`
 - `scripts/devnet/phase-08-stress.sh`
 
+## Phase 10 Contract Baseline (DEP-01/02/03)
+
+Phase 10 execution must treat command outputs and artifact paths as a strict
+contract. This section is the baseline for `10-01` and all later plan steps.
+
+### Required command set
+
+Deployment identity capture (canonical source for devnet publication):
+
+```bash
+anchor build
+anchor deploy --provider.cluster devnet --program-name sss_1
+anchor deploy --provider.cluster devnet --program-name sss_2
+anchor deploy --provider.cluster devnet --program-name sss_transfer_hook
+solana program show <SSS_1_PROGRAM_ID> --url devnet
+solana program show <SSS_2_PROGRAM_ID> --url devnet
+solana program show <SSS_TRANSFER_HOOK_PROGRAM_ID> --url devnet
+```
+
+Representative proof lanes:
+
+```bash
+RUN_ID=<phase10-run-a> ./scripts/devnet/phase-10-sss1-proof.sh
+RUN_ID=<phase10-run-a> ./scripts/devnet/phase-10-sss2-proof.sh
+RUN_ID=<phase10-run-b> ./scripts/devnet/phase-10-sss1-proof.sh
+RUN_ID=<phase10-run-b> ./scripts/devnet/phase-10-sss2-proof.sh
+```
+
+Optional stress evidence lane:
+
+```bash
+RUN_ID=<phase10-stress-run> ./scripts/devnet/phase-10-stress.sh
+```
+
+### `RUN_ID` and non-overwrite policy
+
+- `RUN_ID` is mandatory for every Phase 10 deploy/proof/stress run.
+- `RUN_ID` values must be unique across canonical submission evidence.
+- A run fails immediately if its target artifact directory already exists.
+- Operators must never reuse an existing Phase 10 run directory for updates.
+
+### Canonical Phase 10 artifact roots
+
+- Deploy evidence: `artifacts/devnet/phase-10/deploy/$RUN_ID`
+- SSS-1 proof lane: `artifacts/devnet/phase-10/sss1-proof/$RUN_ID`
+- SSS-2 proof lane: `artifacts/devnet/phase-10/sss2-proof/$RUN_ID`
+- Optional stress lane: `artifacts/devnet/phase-10/stress/$RUN_ID`
+
+Canonical proof publication requires both human-readable and machine-readable
+outputs. Each accepted run package must include:
+
+- `summary.md` (reviewer-facing pass/fail narrative)
+- `manifest.json` (machine-readable contract with canonical IDs and links)
+
 ## Deterministic Artifact Contract
 
 Each script writes to a deterministic run path:
