@@ -1,5 +1,13 @@
 # SSS-2: Compliant Stablecoin Standard
 
+## Prerequisites
+
+- Solana CLI + Anchor CLI installed
+- Node.js + Yarn dependencies installed from repository root
+- `sss-2` and `sss-transfer-hook` program surfaces available in local build/test environment
+- Role keypairs available for `authority`, `minter`, `burner`, `pauser`, `blacklister`, and `seizer`
+- CLI path uses `./scripts/sss-token` from repository root
+
 ## Overview
 
 SSS-1 + permanent delegate + transfer hook + blacklist enforcement. For regulated stablecoins — USDC/USDT-class tokens where regulators expect on-chain blacklist enforcement and token seizure capabilities.
@@ -30,6 +38,17 @@ All SSS-1 roles plus:
 |------|-----------|
 | `blacklister` | Can add/remove blacklist entries |
 | `seizer` | Can seize tokens from frozen/blacklisted accounts |
+
+## Preset Expectations
+
+SSS-2 is selected with `Presets.SSS_2` and requires compliance extensions together:
+
+- `enable_permanent_delegate = true`
+- `enable_transfer_hook = true`
+- `default_account_frozen = false` by default
+
+Preset resolution is deterministic:
+`explicit runtime options > config file > preset defaults`
 
 ## Instructions
 
@@ -112,6 +131,18 @@ SDK config validation is strict:
 - Unknown preset values are rejected at runtime (`Unsupported preset: ...`)
 - If either compliance flag resolves to `false` while using `SSS_2`, create fails with: `SSS_2 preset requires both enablePermanentDelegate and enableTransferHook.`
 
+## Operator Workflow
+
+- Operators use `./scripts/sss-token` for base lifecycle operations plus compliance flows:
+  - `blacklist add/remove/check`
+  - `seize`
+- Compliance operations should use dedicated `blacklister` and `seizer` signers, not the general authority signer.
+
+## Developer Workflow
+
+- Developers can initialize with `Presets.SSS_2` in `@stbr/sss-token` and then call compliance helpers (`addToBlacklist`, `removeFromBlacklist`, `seize`).
+- CLI and SDK must both be treated as contract surfaces over the same on-chain enforcement rules.
+
 ## Feature Gating
 
 SSS-2 compliance instructions (`add_to_blacklist`, `remove_from_blacklist`, `seize`) will fail with a clear error if the compliance module was not enabled during initialization:
@@ -120,6 +151,21 @@ SSS-2 compliance instructions (`add_to_blacklist`, `remove_from_blacklist`, `sei
 Error: ComplianceNotEnabled — initialize with enable_transfer_hook = true
 Error: PermanentDelegateNotEnabled — initialize with enable_permanent_delegate = true
 ```
+
+## Failure Path Examples
+
+1. Invalid role signer:
+   - Attempt: run blacklist update with a signer that is not the `blacklister` role.
+   - Expected: instruction fails authorization checks and CLI returns non-zero with `error` details.
+2. Invalid preset configuration:
+   - Attempt: initialize `SSS_2` with `enable_transfer_hook=false` or `enable_permanent_delegate=false`.
+   - Expected: SDK create flow fails early with preset configuration error.
+3. Invalid seize preconditions:
+   - Attempt: `seize` on account not both frozen and blacklisted.
+   - Expected: seize fails with explicit precondition/compliance error; no token movement occurs.
+4. Compliance module disabled:
+   - Attempt: call blacklist/seize instructions on a deployment initialized without compliance extensions.
+   - Expected: `ComplianceNotEnabled` or `PermanentDelegateNotEnabled` error path.
 
 ## Program IDs
 
