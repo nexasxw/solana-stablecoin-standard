@@ -4,17 +4,17 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 8
 current_phase_name: testing and fuzzing
-current_plan: Not started
-status: planning
-stopped_at: Completed 07-06-PLAN.md
-last_updated: "2026-03-11T13:34:47.148Z"
+current_plan: 3
+status: executing
+stopped_at: Completed 08-02-PLAN.md
+last_updated: "2026-03-12T04:26:06.519Z"
 last_activity: 2026-03-11
 progress:
   total_phases: 12
   completed_phases: 6
-  total_plans: 24
-  completed_plans: 24
-  percent: 100
+  total_plans: 29
+  completed_plans: 25
+  percent: 86
 ---
 
 # Project State
@@ -24,20 +24,20 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-09)
 
 **Core value:** Ship a modular stablecoin standard on Solana that gives issuers one clear path from core contract logic to presets, tooling, operations, and reviewer proof.
-**Current focus:** Phase 7 - Backend Services
+**Current focus:** Phase 8 - Testing And Fuzzing
 
 ## Current Position
 
 **Current Phase:** 8
 **Current Phase Name:** testing and fuzzing
 **Total Phases:** 12
-**Current Plan:** Not started
-**Total Plans in Phase:** 6
-**Status:** Ready to plan
-**Last Activity:** 2026-03-11
-Last activity description: Completed plan 07-05 for webhook subscriptions, ordered retries/DLQ delivery contracts, and signature rotation verification
+**Current Plan:** 3
+**Total Plans in Phase:** 5
+**Status:** Executing
+**Last Activity:** 2026-03-12
+Last activity description: Completed plan 08-02 for SSS-1/SSS-2 integration edge-path expansion and Rust unit invariants
 
-**Progress:** [██████████] 100%
+**Progress:** [█████████░] 86%
 
 ## Performance Metrics
 
@@ -69,6 +69,7 @@ Last activity description: Completed plan 07-05 for webhook subscriptions, order
 | Phase 06-admin-cli P06 | 6min | 3 tasks | 7 files |
 | Phase 07-backend-services P01 | 2min | 3 tasks | 7 files |
 | Phase 07-backend-services P06 | 2min | 2 tasks | 5 files |
+| Phase 08-testing-and-fuzzing P02 | 5min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -124,6 +125,8 @@ Recent decisions affecting current work:
 - [Phase 07-backend-services]: Webhook signature authenticity now uses timestamped HMAC with bounded dual-key grace verification during secret rotation.
 - [Phase 07-backend-services]: Use a single deterministic integration path as Phase 7 signoff evidence instead of multiple partial traces.
 - [Phase 07-backend-services]: Keep compliance test suite workspace-local by validating shared schema retention hooks rather than importing webhook sources directly.
+- [Phase 08]: Use focused deterministic edge-case assertions in existing SSS-1/SSS-2 integration suites instead of new fixtures.
+- [Phase 08]: Lock SSS state layout and PDA seed invariants with lib-level Rust unit tests to guard high-risk assumptions.
 
 ### Pending Todos
 
@@ -135,6 +138,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-11T13:30:20.233Z
-Stopped at: Completed 07-06-PLAN.md
+Last session: 2026-03-12T04:26:06.517Z
+Stopped at: Completed 08-02-PLAN.md
 Resume file: None

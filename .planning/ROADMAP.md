@@ -141,10 +141,14 @@ Plans:
   1. Unit and integration coverage exercises the core SSS-1 and SSS-2 flows.
   2. High-risk instruction paths have Trident fuzz coverage.
   3. Devnet or stress verification exists for the shipped presets.
-**Plans**: TBD
+**Plans**: 5 plans
 
 Plans:
-- [ ] 08-01: Generate executable plans via `$gsd-plan-phase 8`
+- [ ] 08-01: Test harness baseline and verification gates
+- [x] 08-02: SSS-1 and SSS-2 unit plus integration expansion (completed 2026-03-12)
+- [ ] 08-03: Cross-layer scenario coverage and evidence consolidation
+- [ ] 08-04: Trident fuzzing coverage for high-risk paths
+- [ ] 08-05: Devnet/stress verification and final test-phase signoff
 
 ### Phase 9: Documentation
 **Goal**: Turn the shipped implementation into reviewer-facing documentation and examples.
@@ -212,7 +216,7 @@ Phases execute in numeric order: 2 → 2.1 → 2.2 → 3 → 3.1 → 4
 | 5. TypeScript SDK | 3/3 | Complete | 2026-03-10 |
 | 6. Admin CLI | 4/4 | Complete   | 2026-03-11 |
 | 7. Backend Services | 5/6 | In progress | 2026-03-11 |
-| 8. Testing And Fuzzing | 0/1 | Not started | - |
+| 8. Testing And Fuzzing | 1/5 | In progress | 2026-03-12 |
 | 9. Documentation | 0/1 | Not started | - |
 | 10. Devnet Proof | 0/1 | Not started | - |
 | 11. Docker Packaging | 0/1 | Not started | - |
