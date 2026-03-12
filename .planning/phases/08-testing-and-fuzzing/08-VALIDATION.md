@@ -47,7 +47,7 @@ created: 2026-03-12
 | 08-02-02 | 02 | 1 | TST-01 | unit/rust | `cargo test --manifest-path programs/sss-1/Cargo.toml && cargo test --manifest-path programs/sss-2/Cargo.toml` | ❌ | ⬜ pending |
 | 08-03-01 | 03 | 2 | TST-01 | cross-layer | `yarn test:integration && yarn test:sdk` | ✅ | ⬜ pending |
 | 08-04-01 | 04 | 2 | TST-02 | fuzz-smoke | `cargo check --manifest-path trident-tests/Cargo.toml -p fuzz_0 && cargo test --manifest-path trident-tests/Cargo.toml` | ✅ | ⬜ pending |
-| 08-05-01 | 05 | 3 | TST-03 | devnet/proof | `./scripts/sss-token --help && ./scripts/sss-token init --help && ./scripts/sss-token mint --help && ./scripts/sss-token blacklist --help && ./scripts/sss-token seize --help` | ✅ | ⬜ pending |
+| 08-05-01 | 05 | 3 | TST-03 | devnet/proof | `./scripts/sss-token --help && ./scripts/sss-token init --help && ./scripts/sss-token mint --help && ./scripts/sss-token blacklist --help && ./scripts/sss-token seize --help` | ✅ | ✅ green |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠ flaky*
 
@@ -66,6 +66,22 @@ created: 2026-03-12
 - Canonical lane definitions are versioned in `docs/testing/phase-08-command-truth.md`.
 - Any future Phase 8 plan that modifies lane commands must update both this validation file and the command-truth document in the same commit.
 - Placeholder commands (`echo ... && exit 0`) are prohibited in Phase 8 verification lanes.
+
+## TST-03 Artifact Contract
+
+- Devnet proof/stress artifact definitions are canonical in `docs/testing/phase-08-devnet-evidence.md`.
+- Required proof scripts:
+  - `scripts/devnet/phase-08-sss1-proof.sh`
+  - `scripts/devnet/phase-08-sss2-proof.sh`
+  - `scripts/devnet/phase-08-stress.sh`
+- Required fields for signoff:
+  - deterministic `RUN_ID` path partitioning
+  - command logs (`commands/*.cmd` + `commands/*.json`)
+  - transaction signatures (`signatures.csv`)
+  - pre/post state snapshots (`status` + `supply`)
+  - explicit pass/fail summary (`summary.md`)
+- Rerun evidence policy: minimum 2 successful reruns per lane with distinct `RUN_ID`s and retained artifacts.
+- Retention policy: keep evidence artifacts for at least 30 days; never overwrite existing `RUN_ID` directories.
 
 ---
 
