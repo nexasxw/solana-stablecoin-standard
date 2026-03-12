@@ -62,9 +62,9 @@
 
 ### Deployment
 
-- [ ] **DEP-01**: Required programs are deployed to Solana Devnet with recorded program IDs
-- [ ] **DEP-02**: Representative SSS-1 and SSS-2 transactions run successfully on Devnet
-- [ ] **DEP-03**: Deployment proof is captured for reviewer verification
+- [x] **DEP-01**: Required programs are deployed to Solana Devnet with recorded program IDs
+- [x] **DEP-02**: Representative SSS-1 and SSS-2 transactions run successfully on Devnet
+- [x] **DEP-03**: Deployment proof is captured for reviewer verification
 
 ### Operations
 
@@ -127,9 +127,9 @@
 | DOC-01 | Phase 9 | Complete |
 | DOC-02 | Phase 9 | Complete |
 | DOC-03 | Phase 9 | Complete |
-| DEP-01 | Phase 10 | Pending |
-| DEP-02 | Phase 10 | Pending |
-| DEP-03 | Phase 10 | Pending |
+| DEP-01 | Phase 10 | Complete |
+| DEP-02 | Phase 10 | Complete |
+| DEP-03 | Phase 10 | Complete |
 | OPS-01 | Phase 11 | Pending |
 | OPS-02 | Phase 11 | Pending |
 | OPS-03 | Phase 11 | Pending |

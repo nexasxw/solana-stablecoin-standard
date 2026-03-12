@@ -4,17 +4,17 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 10
 current_phase_name: devnet proof
-current_plan: Not started
-status: planning
-stopped_at: Completed 09-06-PLAN.md
-last_updated: "2026-03-12T19:39:21.017Z"
+current_plan: 02
+status: executing
+stopped_at: Completed 10-01-PLAN.md
+last_updated: "2026-03-12T20:17:11.157Z"
 last_activity: 2026-03-12
 progress:
   total_phases: 12
   completed_phases: 8
-  total_plans: 36
-  completed_plans: 36
-  percent: 100
+  total_plans: 41
+  completed_plans: 37
+  percent: 90
 ---
 
 # Project State
@@ -24,20 +24,20 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-09)
 
 **Core value:** Ship a modular stablecoin standard on Solana that gives issuers one clear path from core contract logic to presets, tooling, operations, and reviewer proof.
-**Current focus:** Phase 8 - Testing And Fuzzing
+**Current focus:** Phase 10 - Devnet Proof
 
 ## Current Position
 
 **Current Phase:** 10
 **Current Phase Name:** devnet proof
 **Total Phases:** 12
-**Current Plan:** Not started
+**Current Plan:** 02
 **Total Plans in Phase:** 5
-**Status:** Ready to plan
+**Status:** In progress
 **Last Activity:** 2026-03-12
-Last activity description: Completed plan 09-02 for architecture and standard documentation alignment
+Last activity description: Completed plan 10-01 for deployment/evidence contract baseline and validation mapping
 
-**Progress:** [██████████] 100%
+**Progress:** [█████████░] 90%
 
 ## Performance Metrics
 
@@ -80,6 +80,7 @@ Last activity description: Completed plan 09-02 for architecture and standard do
 | Phase 09-documentation P04 | 2min | 3 tasks | 5 files |
 | Phase 09-documentation P05 | 2 min | 3 tasks | 2 files |
 | Phase 09-documentation P06 | 3 min | 3 tasks | 4 files |
+| Phase 10-devnet-proof P01 | 4min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -157,6 +158,9 @@ Recent decisions affecting current work:
 - [Phase 09-documentation]: Mark docker compose verification as environment-limited while retaining docs/link integrity and CLI surface checks.
 - [Phase 09-documentation]: Treat README and docs/SDK examples as strict interface contracts against sdk/core signatures and CLI help output.
 - [Phase 09-documentation]: Resolve DOC-02 by updating both documentation surfaces and verification evidence in the same execution plan.
+- [Phase 10-devnet-proof]: Phase 10 publication must use artifacts/devnet/phase-10 paths and reject phase-08 path reuse.
+- [Phase 10-devnet-proof]: Evidence acceptance requires two successful full runs with distinct RUN_ID values and 24-hour freshness.
+- [Phase 10-devnet-proof]: Validation authority is task-level automated gates plus explicit Wave 0 prerequisites.
 
 ### Pending Todos
 
@@ -168,6 +172,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-12T19:35:27.860Z
-Stopped at: Completed 09-06-PLAN.md
+Last session: 2026-03-12T20:17:11.155Z
+Stopped at: Completed 10-devnet-proof-01-PLAN.md
 Resume file: None
