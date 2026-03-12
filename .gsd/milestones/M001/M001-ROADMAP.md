@@ -19,7 +19,7 @@
   > After this: Establish the Phase 5 SDK contract foundation before instruction-specific implementation.
 - [x] **S06: Admin Cli** `risk:medium` `depends:[S05]`
   > After this: Deliver the CLI foundation and runtime configuration layer that all Phase 6 commands depend on.
-- [ ] **S07: Backend Services** `risk:medium` `depends:[S06]`
+- [x] **S07: Backend Services** `risk:medium` `depends:[S06]`
   > After this: Establish the shared backend contracts and persistence baseline used by every Phase 7 service.
 - [ ] **S08: Testing And Fuzzing** `risk:medium` `depends:[S07]`
   > After this: unit tests prove Testing And Fuzzing works

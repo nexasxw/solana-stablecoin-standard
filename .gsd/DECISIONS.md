@@ -58,3 +58,5 @@
 - "Signature authenticity is timestamped HMAC with bounded dual-key grace verification during secret rotation."
 - "Use a single deterministic integration path as Phase 7 signoff evidence instead of multiple partial traces."
 - "Keep compliance test suite workspace-local by validating shared schema retention hooks rather than importing webhook sources directly."
+- "Phase 7 completion uses one authoritative integration trace (`tests/integration.ts`) plus service-level regressions as the release signoff evidence for SRV-01..04 boundary continuity."
+- "Backend observability is a hard contract: failures must be externally visible via structured envelopes, persisted lifecycle states, and queryable diagnostics surfaces."

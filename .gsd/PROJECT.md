@@ -18,9 +18,8 @@ Ship a modular stablecoin standard on Solana that gives issuers one clear path f
 
 ### Active
 
-- [ ] Deliver the shared Layer 1 on-chain contract for stablecoin lifecycle operations
-- [ ] Deliver the compliance module, presets, SDK, CLI, backend services, and verification stack
-- [ ] Package the implementation with docs, Docker, devnet proof, and submission artifacts before the bounty deadline
+- [ ] Deliver the testing/fuzzing, documentation, devnet proof, Docker packaging, and submission slices before bounty deadline
+- [ ] Keep cross-service backend contracts and observability stable while extending verification depth
 
 ### Out of Scope
 
