@@ -291,4 +291,20 @@ describe("SolanaStablecoin.create preset/config integration", () => {
       /must provide both/
     );
   });
+
+  it("resolves deterministic SSS-2 load variant from paired extension hints", async () => {
+    const loaded = await SolanaStablecoin.load(
+      connection,
+      Keypair.generate().publicKey,
+      {
+        extensions: {
+          permanentDelegate: true,
+          transferHook: true,
+        },
+      }
+    );
+
+    expect(loaded.variant).to.equal("SSS_2");
+    expect(loaded.compliance).to.not.equal(null);
+  });
 });

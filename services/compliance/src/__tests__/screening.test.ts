@@ -106,4 +106,30 @@ describe("screening boundary contracts", () => {
     const errorDetails = (forbidden.error as { details?: Record<string, unknown> } | null)?.details;
     assert.equal(errorDetails?.stable_code, "FORBIDDEN");
   });
+
+  it("returns deterministic decision payload for repeated identical screening input", () => {
+    const repository = new ComplianceRepository();
+    const screening = new ScreeningRouteHandlers(repository);
+    const request = {
+      headers: headers("req-screen-repeat"),
+      body: {
+        tenant_id: tenantId,
+        stablecoin_id: "mint-repeat",
+        operation: "blacklist_add" as const,
+        subject: "holder-repeat",
+        onchain_blacklisted: false,
+      },
+    };
+
+    const first = screening.evaluate(request);
+    const second = screening.evaluate(request);
+
+    assert.equal(first.success, true);
+    assert.equal(second.success, true);
+    assert.equal(first.code, "COMPLIANCE_SCREENING_OK");
+    assert.equal(second.code, "COMPLIANCE_SCREENING_OK");
+    assert.equal(first.request_id, second.request_id);
+    assert.equal(first.data?.decision, second.data?.decision);
+    assert.equal(first.data?.reason_code, second.data?.reason_code);
+  });
 });

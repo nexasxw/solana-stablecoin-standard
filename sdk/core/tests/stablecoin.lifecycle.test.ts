@@ -198,6 +198,18 @@ describe("SolanaStablecoin lifecycle mutations", () => {
     }
   });
 
+  it("rejects SSS-1 treasury updates with deterministic unsupported error", async () => {
+    const { stablecoin } = await createHarness({ variant: "SSS_1" });
+
+    try {
+      await stablecoin.setTreasury(Keypair.generate().publicKey, Keypair.generate());
+      expect.fail("Expected setTreasury to reject SSS_1 variant");
+    } catch (error) {
+      expect(error).to.be.instanceOf(StablecoinSdkError);
+      expect((error as StablecoinSdkError).code).to.equal(SdkErrorCode.UNSUPPORTED_OPERATION);
+    }
+  });
+
   it("normalizes rpc errors into stable sdk rpc error code", async () => {
     const { stablecoin } = await createHarness({ failMethod: "freezeAccount" });
 

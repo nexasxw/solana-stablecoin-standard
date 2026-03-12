@@ -130,6 +130,7 @@ describe("issuance API contracts", () => {
     assert.equal(first.success, true);
     assert.equal(replay.success, true);
     assert.equal(replay.code, "ISSUANCE_MINT_JOB_REPLAYED");
+    assert.equal(replay.request_id, "req-api-4");
     assert.ok(first.data);
     assert.ok(replay.data);
     assert.equal(replay.data.replayed, true);
@@ -173,6 +174,8 @@ describe("issuance API contracts", () => {
 
     assert.equal(conflict.success, false);
     assert.equal(conflict.code, "IDEMPOTENCY_CONFLICT");
+    const conflictDetails = (conflict.error as { details?: Record<string, unknown> } | null)?.details;
+    assert.equal(conflictDetails?.stable_code, "IDEMPOTENCY_CONFLICT");
   });
 
   it("enforces issuer-only authorization", () => {
@@ -197,5 +200,7 @@ describe("issuance API contracts", () => {
 
     assert.equal(unauthorized.success, false);
     assert.equal(unauthorized.code, "FORBIDDEN");
+    const unauthorizedDetails = (unauthorized.error as { details?: Record<string, unknown> } | null)?.details;
+    assert.equal(unauthorizedDetails?.stable_code, "FORBIDDEN");
   });
 });

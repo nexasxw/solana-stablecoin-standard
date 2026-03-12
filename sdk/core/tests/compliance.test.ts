@@ -168,6 +168,28 @@ describe("SSS-2 compliance helpers", () => {
     }
   });
 
+  it("maps seize rpc failures with deterministic operation metadata", async () => {
+    const { module } = createComplianceHarness({
+      enabled: true,
+      failOperation: "seize",
+    });
+
+    try {
+      await module.seize(
+        Keypair.generate().publicKey,
+        Keypair.generate().publicKey,
+        Keypair.generate().publicKey,
+        Keypair.generate()
+      );
+      expect.fail("Expected seize to surface RPC error");
+    } catch (error) {
+      expect(error).to.be.instanceOf(StablecoinSdkError);
+      const sdkError = error as StablecoinSdkError;
+      expect(sdkError.code).to.equal(SdkErrorCode.RPC_ERROR);
+      expect(sdkError.details?.operation).to.equal("seize");
+    }
+  });
+
   it("keeps compliance inaccessible for SSS-1 and returns explicit unsupported errors otherwise", async () => {
     const connection = new Connection("http://127.0.0.1:8899", "processed");
     const sss1Stablecoin = await SolanaStablecoin.load(
