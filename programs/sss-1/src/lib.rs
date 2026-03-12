@@ -77,3 +77,27 @@ pub mod sss_1 {
         instructions::admin::transfer_authority(ctx, new_authority)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::constants::{MINTER_SEED, STABLECOIN_SEED};
+    use super::state::{MinterConfig, Stablecoin};
+
+    #[test]
+    fn stablecoin_layout_len_stays_canonical() {
+        let expected = 8 + 32 + 32 + 32 + 32 + 1 + 1 + 1 + 1 + 64;
+        assert_eq!(Stablecoin::LEN, expected);
+    }
+
+    #[test]
+    fn minter_config_layout_len_stays_canonical() {
+        let expected = 8 + 32 + 32 + 8 + 8 + 1;
+        assert_eq!(MinterConfig::LEN, expected);
+    }
+
+    #[test]
+    fn pda_seed_prefixes_match_documented_values() {
+        assert_eq!(Stablecoin::SEED_PREFIX, STABLECOIN_SEED);
+        assert_eq!(MinterConfig::SEED_PREFIX, MINTER_SEED);
+    }
+}

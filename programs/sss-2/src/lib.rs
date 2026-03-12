@@ -111,3 +111,31 @@ pub mod sss_2 {
         instructions::compliance::seize(ctx)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::constants::{BLACKLIST_SEED, MAX_BLACKLIST_REASON_LEN, MINTER_SEED, STABLECOIN_SEED};
+    use super::state::{BlacklistEntry, MinterConfig, Stablecoin};
+
+    #[test]
+    fn stablecoin_layout_len_stays_canonical() {
+        let expected = 8 + 32 + 32 + 32 + 32 + 32 + 32 + 1 + 1 + 1 + 32 + 1 + 32;
+        assert_eq!(Stablecoin::LEN, expected);
+    }
+
+    #[test]
+    fn minter_and_blacklist_layout_lens_stay_canonical() {
+        let minter_expected = 8 + 32 + 32 + 8 + 8 + 1;
+        let blacklist_expected = 8 + 32 + 32 + 32 + 8 + (4 + MAX_BLACKLIST_REASON_LEN) + 1;
+        assert_eq!(MinterConfig::LEN, minter_expected);
+        assert_eq!(BlacklistEntry::LEN, blacklist_expected);
+    }
+
+    #[test]
+    fn pda_seed_prefixes_and_reason_cap_match_contract_invariants() {
+        assert_eq!(Stablecoin::SEED_PREFIX, STABLECOIN_SEED);
+        assert_eq!(MinterConfig::SEED_PREFIX, MINTER_SEED);
+        assert_eq!(BlacklistEntry::SEED_PREFIX, BLACKLIST_SEED);
+        assert_eq!(MAX_BLACKLIST_REASON_LEN, 128);
+    }
+}
