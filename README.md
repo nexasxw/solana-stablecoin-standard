@@ -167,15 +167,17 @@ docker compose --profile sss2 up  # SSS-2 compliance services included
 
 ## Documentation
 
+Canonical Phase 9 documentation inventory for reviewer navigation:
+
 | Doc | Contents |
 |-----|----------|
 | [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Layer model, data flows, security model |
-| [SDK.md](docs/SDK.md) | Presets, custom configs, TypeScript examples |
-| [OPERATIONS.md](docs/OPERATIONS.md) | Operator runbook |
 | [SSS-1.md](docs/SSS-1.md) | Minimal stablecoin standard spec |
 | [SSS-2.md](docs/SSS-2.md) | Compliant stablecoin standard spec |
-| [COMPLIANCE.md](docs/COMPLIANCE.md) | Regulatory considerations, audit trail |
-| [API.md](docs/API.md) | Backend REST API reference |
+| [SDK.md](docs/SDK.md) | SDK presets, config surfaces, and usage patterns |
+| [COMPLIANCE.md](docs/COMPLIANCE.md) | Compliance roles, blacklist, and seizure contract |
+| [API.md](docs/API.md) | Backend API and service surface reference |
+| [OPERATIONS.md](docs/OPERATIONS.md) | Local stack runbook and reviewer verification flow |
 
 ---
 
