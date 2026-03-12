@@ -10,6 +10,6 @@ path = "src/bin/fuzz_0.rs"
 doc = false
 
 [dependencies]
-trident-fuzz = "0.8"
+trident-fuzz = "0.12"
 anchor-lang = "0.31.1"
 sss-1 = { path = "../../programs/sss-1" }
