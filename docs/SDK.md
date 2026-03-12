@@ -102,6 +102,7 @@ declare const stablecoin: SolanaStablecoin;
 declare const minter: Keypair;
 declare const burner: Keypair;
 declare const pauser: Keypair;
+declare const authority: Keypair;
 declare const recipientTokenAccount: PublicKey;
 declare const burnerTokenAccount: PublicKey;
 declare const targetTokenAccount: PublicKey;
@@ -128,8 +129,8 @@ await stablecoin.thaw({
   tokenAccount: targetTokenAccount,
 });
 
-await stablecoin.pause({ pauser });
-await stablecoin.unpause({ pauser });
+await stablecoin.pause({ authority });
+await stablecoin.unpause({ authority });
 ```
 
 Read surfaces:
@@ -137,6 +138,34 @@ Read surfaces:
 - `await stablecoin.getState()`
 - `await stablecoin.getTotalSupply()`
 - `await stablecoin.getMinterState(minterPublicKey)`
+
+## SSS-2 Compliance Operations
+
+```ts
+import { Keypair, PublicKey } from "@solana/web3.js";
+import { SolanaStablecoin } from "@stbr/sss-token";
+
+declare const stablecoin: SolanaStablecoin;
+declare const blacklister: Keypair;
+declare const seizer: Keypair;
+declare const address: PublicKey;
+declare const fromTokenAccount: PublicKey;
+declare const targetOwner: PublicKey;
+declare const treasuryTokenAccount: PublicKey;
+
+await stablecoin.compliance!.blacklistAdd(address, "OFAC match", blacklister);
+await stablecoin.compliance!.blacklistRemove(address, blacklister);
+await stablecoin.compliance!.seize(
+  fromTokenAccount,
+  targetOwner,
+  treasuryTokenAccount,
+  seizer
+);
+```
+
+Failure-path parity note:
+- Preflight type mismatches on public keys/required args raise `INVALID_ARGUMENT`.
+- Missing signer inputs (for example `authority`, `blacklister`, or `seizer`) raise `MISSING_SIGNER`.
 
 ## CLI Cross-Check Surface
 
