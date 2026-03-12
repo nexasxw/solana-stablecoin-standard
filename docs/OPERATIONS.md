@@ -101,6 +101,15 @@ docker compose --profile sss2 down -v
 - `docs/testing/phase-08-regression-matrix.md`
 - `.planning/phases/09-documentation/09-VALIDATION.md`
 
+## Validation Lane Authority
+
+Phase 08 command lanes are authoritative in `docs/testing/phase-08-command-truth.md`:
+- `Quick`
+- `Full`
+- `Devnet proof`
+
+This runbook intentionally references those lane definitions instead of redefining their full command strings, so operational guidance stays aligned with the command-truth source.
+
 ## Reviewer Command-To-Artifact Mapping
 
 Use a unique `RUN_ID` for every devnet proof/stress run. Reusing an existing run directory is an automatic fail.

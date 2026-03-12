@@ -29,4 +29,6 @@ This document is the authoritative command contract for Phase 08 (`testing-and-f
 - If any lane command changes, update:
   - `.planning/phases/08-testing-and-fuzzing/08-VALIDATION.md`
   - `docs/testing/phase-08-command-truth.md`
+- If operator-facing runbooks reference lane behavior, ensure they point to this document as lane authority:
+  - `docs/OPERATIONS.md` (Phase 09 reviewer flow)
 - Updates must include a passing run for the affected lane in the plan summary evidence.
