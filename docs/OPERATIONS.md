@@ -101,6 +101,18 @@ docker compose --profile sss2 down -v
 - `docs/testing/phase-08-regression-matrix.md`
 - `.planning/phases/09-documentation/09-VALIDATION.md`
 
+## Reviewer Command-To-Artifact Mapping
+
+Use a unique `RUN_ID` for every devnet proof/stress run. Reusing an existing run directory is an automatic fail.
+
+| Lane | Command | Artifact Paths | Signature Evidence | Pass Checkpoint | Fail Checkpoint |
+| --- | --- | --- | --- | --- | --- |
+| Local command-surface gate | `./scripts/sss-token --help && ./scripts/sss-token init --help && ./scripts/sss-token mint --help && ./scripts/sss-token blacklist --help && ./scripts/sss-token seize --help` | none (stdout-only gate) | none | All commands exit `0` and print usage | Any command exits non-zero or missing command |
+| Compose contract gate | `docker compose config >/dev/null` | none (config validation gate) | none | Exit code `0` | Non-zero exit |
+| SSS-1 proof | `RUN_ID=<id> ... ./scripts/devnet/phase-08-sss1-proof.sh` | `artifacts/devnet/phase-08/sss1-proof/$RUN_ID/...` | `signatures.csv` entries in `operation,signature` format | `summary.md` reports pass and required state snapshots/signatures exist | Missing required artifacts, invalid signature rows, or non-zero exit |
+| SSS-2 proof | `RUN_ID=<id> ... ./scripts/devnet/phase-08-sss2-proof.sh` | `artifacts/devnet/phase-08/sss2-proof/$RUN_ID/...` | `signatures.csv` entries in `operation,signature` format | `summary.md` reports pass and includes `state/blacklist-check.json` | Missing blacklist evidence, missing required artifacts, or non-zero exit |
+| Stress | `RUN_ID=<id> ITERATIONS=2 RETRY_LIMIT=1 ... ./scripts/devnet/phase-08-stress.sh` | `artifacts/devnet/phase-08/stress/$RUN_ID/...` | Lane proof signatures remain in nested proof outputs | `summary.md` is pass and all lanes pass in `results.csv` | Any lane exhausts retries or overall summary is fail |
+
 ## Deferred Content
 
 Service-specific incident and escalation playbooks are documented in later phase plans.

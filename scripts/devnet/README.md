@@ -106,3 +106,11 @@ TREASURY_TOKEN_ACCOUNT=<treasury-token-account> \
 - A lane is `fail` when all attempts fail.
 - Overall stress result is `pass` only if all lanes pass for all iterations.
 - Overall stress result is `fail` if any lane fails after retries.
+
+## Command-To-Artifact Review Checkpoints
+
+| Command | Artifact Root | Required Files | Signature Check | Pass | Fail |
+| --- | --- | --- | --- | --- | --- |
+| `RUN_ID=<id> ... ./scripts/devnet/phase-08-sss1-proof.sh` | `artifacts/devnet/phase-08/sss1-proof/$RUN_ID` | `commands/*.cmd`, `commands/*.json`, `state/pre-*.json`, `state/post-*.json`, `summary.md` | `signatures.csv` exists and has `operation,signature` rows for mutating operations | Non-zero artifacts complete and `summary.md` marks pass | Missing artifacts, malformed signatures, or non-zero exit |
+| `RUN_ID=<id> ... ./scripts/devnet/phase-08-sss2-proof.sh` | `artifacts/devnet/phase-08/sss2-proof/$RUN_ID` | SSS-1 list plus `state/blacklist-check.json` | `signatures.csv` includes compliance mutation signatures | Artifacts complete and `summary.md` marks pass | Missing blacklist/signature artifacts or non-zero exit |
+| `RUN_ID=<id> ITERATIONS=2 RETRY_LIMIT=1 ... ./scripts/devnet/phase-08-stress.sh` | `artifacts/devnet/phase-08/stress/$RUN_ID` | `results.csv`, `logs/*.log`, `summary.md` | Signatures come from proof-lane artifacts produced during stress | All lanes pass per iteration and summary is pass | Any lane fails after retries or summary is fail |

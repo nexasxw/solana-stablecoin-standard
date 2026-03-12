@@ -86,6 +86,14 @@ Stress execution:
 
 - `RUN_ID=<id> ITERATIONS=2 RETRY_LIMIT=1 ... ./scripts/devnet/phase-08-stress.sh`
 
+## Reviewer Command-To-Artifact Table
+
+| Command Lane | Command | Required Artifacts | Required Signature Evidence | Pass Criteria | Fail Criteria |
+| --- | --- | --- | --- | --- | --- |
+| SSS-1 proof lane | `RUN_ID=<id> ... ./scripts/devnet/phase-08-sss1-proof.sh` | `commands/*.cmd`, `commands/*.json`, `state/pre-*.json`, `state/post-*.json`, `run-metadata.env`, `summary.md` under `artifacts/devnet/phase-08/sss1-proof/$RUN_ID` | `signatures.csv` present; every mutating operation has a non-empty signature value | Script exits `0`, all listed artifacts exist, `summary.md` reports pass | Non-zero exit, missing artifact, missing/empty signature, or overwritten run path |
+| SSS-2 proof lane | `RUN_ID=<id> ... ./scripts/devnet/phase-08-sss2-proof.sh` | `commands/*.cmd`, `commands/*.json`, `state/pre-*.json`, `state/post-*.json`, `state/blacklist-check.json`, `run-metadata.env`, `summary.md` under `artifacts/devnet/phase-08/sss2-proof/$RUN_ID` | `signatures.csv` present; seize/freeze-related operations recorded | Script exits `0`, required artifacts exist, `summary.md` reports pass | Non-zero exit, missing blacklist snapshot, missing signature evidence, or overwritten run path |
+| Stress lane | `RUN_ID=<id> ITERATIONS=2 RETRY_LIMIT=1 ... ./scripts/devnet/phase-08-stress.sh` | `results.csv`, `logs/*.log`, `summary.md` under `artifacts/devnet/phase-08/stress/$RUN_ID` | Signatures are validated in underlying SSS-1/SSS-2 proof outputs | Script exits `0`, `results.csv` shows lane pass per iteration, `summary.md` reports pass | Any lane fails after retries, missing stress artifacts, or non-zero exit |
+
 ## TST-03 Traceability
 
 | Requirement | Evidence Source | Required Fields |
