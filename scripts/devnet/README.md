@@ -51,6 +51,8 @@ RUN_ID=<phase10-stress-run> ./scripts/devnet/phase-10-stress.sh
 
 ### Canonical Phase 10 artifact roots
 
+- Phase 10 reviewers must reject any publication that reuses
+  `artifacts/devnet/phase-08/...` paths.
 - Deploy evidence: `artifacts/devnet/phase-10/deploy/$RUN_ID`
 - SSS-1 proof lane: `artifacts/devnet/phase-10/sss1-proof/$RUN_ID`
 - SSS-2 proof lane: `artifacts/devnet/phase-10/sss2-proof/$RUN_ID`
