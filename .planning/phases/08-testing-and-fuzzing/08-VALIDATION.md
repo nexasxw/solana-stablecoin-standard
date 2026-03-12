@@ -20,8 +20,9 @@ created: 2026-03-12
 | **Framework** | Anchor integration + Mocha/ts-node + Rust cargo tests (Trident workspace) |
 | **Config file** | `Anchor.toml`, workspace `package.json`, `trident-tests/Cargo.toml` |
 | **Smoke run command** | `yarn test:sss1 && yarn test:sss2 && cargo check --manifest-path trident-tests/Cargo.toml -p fuzz_0` |
-| **Quick run command** | `yarn test:sss1 && yarn test:sss2 && yarn test:integration && yarn test:sdk` |
+| **Quick run command** | `yarn test:sss1 && yarn test:sss2 && yarn test:integration && yarn test:sdk && yarn test:services` |
 | **Full suite command** | `yarn lint && yarn build && yarn test:sss1 && yarn test:sss2 && yarn test:integration && yarn test:sdk && yarn workspace @stbr/sss-mint-burn test && yarn workspace @stbr/sss-compliance test && yarn workspace @stbr/sss-indexer run mocha -r ts-node/register --timeout 10000 --exit 'src/__tests__/**/*.test.ts' && yarn workspace @stbr/sss-webhook run mocha -r ts-node/register --timeout 10000 --exit 'src/__tests__/**/*.test.ts' && cargo test --manifest-path trident-tests/Cargo.toml` |
+| **Devnet proof lane command** | `./scripts/sss-token --help && ./scripts/sss-token init --help && ./scripts/sss-token mint --help && ./scripts/sss-token blacklist --help && ./scripts/sss-token seize --help` |
 | **Estimated runtime** | ~900 seconds |
 
 ---
@@ -29,7 +30,7 @@ created: 2026-03-12
 ## Sampling Rate
 
 - **After every task commit:** Run smoke subset `yarn test:sss1 && yarn test:sss2 && cargo check --manifest-path trident-tests/Cargo.toml -p fuzz_0`
-- **After every 2-3 task commits or before handoff:** Run quick subset `yarn test:sss1 && yarn test:sss2 && yarn test:integration && yarn test:sdk`
+- **After every 2-3 task commits or before handoff:** Run quick subset `yarn test:sss1 && yarn test:sss2 && yarn test:integration && yarn test:sdk && yarn test:services`
 - **After every plan wave:** Run `yarn lint && yarn build && yarn test:sss1 && yarn test:sss2 && yarn test:integration && yarn test:sdk && yarn workspace @stbr/sss-mint-burn test && yarn workspace @stbr/sss-compliance test && yarn workspace @stbr/sss-indexer run mocha -r ts-node/register --timeout 10000 --exit 'src/__tests__/**/*.test.ts' && yarn workspace @stbr/sss-webhook run mocha -r ts-node/register --timeout 10000 --exit 'src/__tests__/**/*.test.ts' && cargo test --manifest-path trident-tests/Cargo.toml`
 - **Before `$gsd-verify-work`:** Full suite must be green
 - **Max feedback latency:** 300 seconds (smoke subset)
@@ -57,6 +58,14 @@ created: 2026-03-12
 - `08-01` is the explicit Wave 0 prerequisite that locks executable command truth and validation contract before coverage/fuzz expansion.
 - Wave 1+ plans (`08-02`..`08-05`) consume this baseline via `depends_on`.
 - Wave 0 does not claim implementation completion of unit/fuzz/devnet artifacts; those are delivered in later waves with requirement mapping preserved.
+
+---
+
+## Command Truth Contract
+
+- Canonical lane definitions are versioned in `docs/testing/phase-08-command-truth.md`.
+- Any future Phase 8 plan that modifies lane commands must update both this validation file and the command-truth document in the same commit.
+- Placeholder commands (`echo ... && exit 0`) are prohibited in Phase 8 verification lanes.
 
 ---
 
