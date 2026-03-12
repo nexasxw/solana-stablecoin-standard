@@ -300,6 +300,163 @@ describe("SSS-1: Minimal Stablecoin", () => {
     );
   });
 
+  it("rejects role mismatch and invalid account-state transitions", async () => {
+    await expectAnchorError(
+      program.methods
+        .updateRoles(user.publicKey, null)
+        .accounts({
+          authority: user.publicKey,
+          stablecoin: stablecoinPda,
+        })
+        .signers(toSignerArray(user))
+        .rpc(),
+      "Unauthorized"
+    );
+
+    let signature = await program.methods
+      .freezeAccount()
+      .accounts({
+        pauser: authority.publicKey,
+        stablecoin: stablecoinPda,
+        mint: mint.publicKey,
+        targetAccount: userAta,
+        tokenProgram: TOKEN_2022_PROGRAM,
+      })
+      .signers(toSignerArray(authority))
+      .rpc();
+    await confirmSignature(provider.connection, signature);
+
+    await expectAnchorError(
+      program.methods
+        .freezeAccount()
+        .accounts({
+          pauser: authority.publicKey,
+          stablecoin: stablecoinPda,
+          mint: mint.publicKey,
+          targetAccount: userAta,
+          tokenProgram: TOKEN_2022_PROGRAM,
+        })
+        .signers(toSignerArray(authority))
+        .rpc(),
+      "AccountAlreadyFrozen"
+    );
+
+    await expectAnchorError(
+      program.methods
+        .mint(new anchor.BN(1))
+        .accounts({
+          minter: minter.publicKey,
+          stablecoin: stablecoinPda,
+          minterConfig: minterPda,
+          mint: mint.publicKey,
+          recipientTokenAccount: userAta,
+          tokenProgram: TOKEN_2022_PROGRAM,
+        })
+        .signers(toSignerArray(minter))
+        .rpc(),
+      "AccountFrozen"
+    );
+
+    signature = await program.methods
+      .thawAccount()
+      .accounts({
+        pauser: authority.publicKey,
+        stablecoin: stablecoinPda,
+        mint: mint.publicKey,
+        targetAccount: userAta,
+        tokenProgram: TOKEN_2022_PROGRAM,
+      })
+      .signers(toSignerArray(authority))
+      .rpc();
+    await confirmSignature(provider.connection, signature);
+
+    await expectAnchorError(
+      program.methods
+        .thawAccount()
+        .accounts({
+          pauser: authority.publicKey,
+          stablecoin: stablecoinPda,
+          mint: mint.publicKey,
+          targetAccount: userAta,
+          tokenProgram: TOKEN_2022_PROGRAM,
+        })
+        .signers(toSignerArray(authority))
+        .rpc(),
+      "AccountNotFrozen"
+    );
+  });
+
+  it("enforces burn pause gates and quota boundary behavior deterministically", async () => {
+    let signature = await program.methods
+      .pause()
+      .accounts({
+        authority: authority.publicKey,
+        stablecoin: stablecoinPda,
+      })
+      .signers(toSignerArray(authority))
+      .rpc();
+    await confirmSignature(provider.connection, signature);
+
+    await expectAnchorError(
+      program.methods
+        .burn(new anchor.BN(1))
+        .accounts({
+          burner: user.publicKey,
+          stablecoin: stablecoinPda,
+          mint: mint.publicKey,
+          burnerTokenAccount: userAta,
+          tokenProgram: TOKEN_2022_PROGRAM,
+        })
+        .signers(toSignerArray(user))
+        .rpc(),
+      "Paused"
+    );
+
+    signature = await program.methods
+      .unpause()
+      .accounts({
+        authority: authority.publicKey,
+        stablecoin: stablecoinPda,
+      })
+      .signers(toSignerArray(authority))
+      .rpc();
+    await confirmSignature(provider.connection, signature);
+
+    const minterConfigBefore = await program.account.minterConfig.fetch(minterPda);
+    const remaining = minterConfigBefore.quota.toNumber() - minterConfigBefore.minted.toNumber();
+    expect(remaining).to.be.greaterThan(0);
+
+    signature = await program.methods
+      .mint(new anchor.BN(remaining))
+      .accounts({
+        minter: minter.publicKey,
+        stablecoin: stablecoinPda,
+        minterConfig: minterPda,
+        mint: mint.publicKey,
+        recipientTokenAccount: userAta,
+        tokenProgram: TOKEN_2022_PROGRAM,
+      })
+      .signers(toSignerArray(minter))
+      .rpc();
+    await confirmSignature(provider.connection, signature);
+
+    await expectAnchorError(
+      program.methods
+        .mint(new anchor.BN(1))
+        .accounts({
+          minter: minter.publicKey,
+          stablecoin: stablecoinPda,
+          minterConfig: minterPda,
+          mint: mint.publicKey,
+          recipientTokenAccount: userAta,
+          tokenProgram: TOKEN_2022_PROGRAM,
+        })
+        .signers(toSignerArray(minter))
+        .rpc(),
+      "QuotaExceeded"
+    );
+  });
+
   it("handles authority-transfer edge cases without changing the stablecoin PDA", async () => {
     await expectAnchorError(
       program.methods
