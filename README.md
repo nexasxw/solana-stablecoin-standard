@@ -12,7 +12,7 @@ Open-source SDK and standards for stablecoins on Solana. Modular, production-rea
 | Standard | Name | Token-2022 Extensions | Use Case |
 |----------|------|-----------------------|----------|
 | **SSS-1** | Minimal Stablecoin | MintCloseAuthority, MetadataPointer, TokenMetadata | Internal tokens, DAO treasuries, ecosystem settlement |
-| **SSS-2** | Compliant Stablecoin | SSS-1 + PermanentDelegate, TransferHook | USDC/USDT-class regulated stablecoins |
+| **SSS-2** | Compliant Stablecoin | SSS-1 + PermanentDelegate + TransferHook | USDC/USDT-class regulated stablecoins |
 
 Think OpenZeppelin: the SDK is the library, SSS-1/SSS-2 are the standards.
 
@@ -21,11 +21,11 @@ Think OpenZeppelin: the SDK is the library, SSS-1/SSS-2 are the standards.
 ## Architecture
 
 ```
-Layer 3 — Standard Presets   SSS-1 · SSS-2
-                                   │
-Layer 2 — Modules            Compliance · Privacy
-                                   │
-Layer 1 — Base SDK           Token creation · Roles · CLI · TypeScript SDK
+Layer 3 — Operator + Developer Surfaces   CLI (`./scripts/sss-token`) · SDK (`@stbr/sss-token`)
+                                                        │
+Layer 2 — Program Presets                  SSS-1 (minimal) · SSS-2 (compliant)
+                                                        │
+Layer 1 — On-chain Programs                `sss-1` · `sss-2` · `sss-transfer-hook`
 ```
 
 ### Programs
