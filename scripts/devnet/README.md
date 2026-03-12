@@ -6,6 +6,7 @@ These scripts provide deterministic, operator-style proof runs for Phase 08 `TST
 
 - `scripts/devnet/phase-08-sss1-proof.sh`
 - `scripts/devnet/phase-08-sss2-proof.sh`
+- `scripts/devnet/phase-08-stress.sh`
 
 ## Deterministic Artifact Contract
 
@@ -23,6 +24,12 @@ Each proof run emits:
 - `signatures.csv` transaction signatures by operation
 - `run-metadata.env` canonical run metadata
 - `summary.md` pass/fail summary
+
+Stress runs emit:
+
+- `artifacts/devnet/phase-08/stress/$RUN_ID/results.csv`
+- `artifacts/devnet/phase-08/stress/$RUN_ID/logs/*.log`
+- `artifacts/devnet/phase-08/stress/$RUN_ID/summary.md`
 
 ## Required Environment
 
@@ -52,6 +59,9 @@ Optional role signer overrides:
 
 If role overrides are omitted, scripts default role signers to `AUTHORITY_SIGNER`.
 
+Stress runner consumes the same variables as both proof scripts.
+Ensure all SSS-1 and SSS-2 required variables are set before running stress.
+
 ## Usage
 
 SSS-1:
@@ -73,3 +83,26 @@ TARGET_OWNER=<target-owner-pubkey> \
 TREASURY_TOKEN_ACCOUNT=<treasury-token-account> \
 ./scripts/devnet/phase-08-sss2-proof.sh
 ```
+
+Stress:
+
+```bash
+RUN_ID=stress-rerun-001 \
+ITERATIONS=2 \
+RETRY_LIMIT=1 \
+AUTHORITY_SIGNER=~/.config/solana/devnet-authority.json \
+RECIPIENT_TOKEN_ACCOUNT=<recipient-token-account> \
+TARGET_TOKEN_ACCOUNT=<target-token-account> \
+TARGET_OWNER=<target-owner-pubkey> \
+TREASURY_TOKEN_ACCOUNT=<treasury-token-account> \
+./scripts/devnet/phase-08-stress.sh
+```
+
+## Pass/Fail Policy
+
+- `phase-08-stress.sh` runs both lanes (`sss1`, `sss2`) in each iteration.
+- Per lane and iteration, max attempts = `RETRY_LIMIT + 1`.
+- A lane is `pass` when any attempt succeeds.
+- A lane is `fail` when all attempts fail.
+- Overall stress result is `pass` only if all lanes pass for all iterations.
+- Overall stress result is `fail` if any lane fails after retries.
