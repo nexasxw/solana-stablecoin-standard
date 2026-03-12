@@ -141,7 +141,7 @@ Plans:
   1. Unit and integration coverage exercises the core SSS-1 and SSS-2 flows.
   2. High-risk instruction paths have Trident fuzz coverage.
   3. Devnet or stress verification exists for the shipped presets.
-**Plans**: 5 plans
+**Plans**: 6 plans
 
 Plans:
 - [ ] 08-01: Test harness baseline and verification gates
@@ -149,6 +149,7 @@ Plans:
 - [ ] 08-03: Cross-layer scenario coverage and evidence consolidation
 - [ ] 08-04: Trident fuzzing coverage for high-risk paths
 - [ ] 08-05: Devnet/stress verification and final test-phase signoff
+- [ ] 08-06: Artifact path drift closure for strict verification conformance
 
 ### Phase 9: Documentation
 **Goal**: Turn the shipped implementation into reviewer-facing documentation and examples.

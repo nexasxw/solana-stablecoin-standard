@@ -6,14 +6,14 @@ current_phase: 8
 current_phase_name: testing and fuzzing
 current_plan: 5
 status: verifying
-stopped_at: Completed 08-05-PLAN.md
-last_updated: "2026-03-12T05:16:53.383Z"
+stopped_at: Completed 08-06-PLAN.md
+last_updated: "2026-03-12T13:31:44.481Z"
 last_activity: 2026-03-12
 progress:
   total_phases: 12
   completed_phases: 7
-  total_plans: 29
-  completed_plans: 29
+  total_plans: 30
+  completed_plans: 30
   percent: 100
 ---
 
@@ -73,6 +73,7 @@ Last activity description: Completed plan 08-02 for SSS-1/SSS-2 integration edge
 | Phase 08-testing-and-fuzzing P01 | 27 min | 2 tasks | 5 files |
 | Phase 08-testing-and-fuzzing P04 | 9min | 3 tasks | 6 files |
 | Phase 08-testing-and-fuzzing P05 | 2min | 3 tasks | 6 files |
+| Phase 08-testing-and-fuzzing P06 | 3min | 3 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -136,6 +137,8 @@ Recent decisions affecting current work:
 - [Phase 08-testing-and-fuzzing]: Enforced invariant-first fuzzing with shared unauthorized-mutation, supply-consistency, and panic-free assertions before scenario expansion.
 - [Phase 08]: Proof scripts require explicit RUN_ID and reject existing directories to keep artifact paths deterministic and non-destructive.
 - [Phase 08]: Stress verification uses bounded retries per lane and fails overall when any lane exhausts retries.
+- [Phase 08-testing-and-fuzzing]: Resolved 08-03 artifact drift by updating plan artifact paths to implemented regression files instead of adding compatibility wrappers.
+- [Phase 08-testing-and-fuzzing]: Phase 08 verification status transitions now require dated command/result evidence blocks before score and status updates.
 
 ### Pending Todos
 
@@ -147,6 +150,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-12T05:16:53.381Z
-Stopped at: Completed 08-05-PLAN.md
+Last session: 2026-03-12T13:31:44.479Z
+Stopped at: Completed 08-06-PLAN.md
 Resume file: None
