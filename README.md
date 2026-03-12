@@ -168,6 +168,7 @@ docker compose --profile sss2 up  # SSS-2 compliance services included
 ## Documentation
 
 Canonical Phase 9 documentation inventory for reviewer navigation:
+This Phase 9 documentation-only index describes shipped behavior and defers future-phase capabilities to their planned phase artifacts.
 
 | Doc | Contents |
 |-----|----------|

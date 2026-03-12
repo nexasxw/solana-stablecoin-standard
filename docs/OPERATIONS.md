@@ -11,6 +11,7 @@
 ## Scope
 
 This runbook defines the baseline local operator flow and verification references for current shipped behavior.
+Phase 9 is documentation-only and this file intentionally documents shipped behavior while deferring future-phase operational capabilities.
 
 ## Core Command Surfaces
 
