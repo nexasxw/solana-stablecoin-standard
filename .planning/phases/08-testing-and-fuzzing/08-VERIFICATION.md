@@ -14,7 +14,7 @@ requirements_checked:
 # Phase 08 Verification Report
 
 ## Goal Verdict
-Phase 08 delivers the confidence layer across unit, integration, fuzz, and devnet-oriented verification, and all planned `must_haves.artifacts` now align with implemented files.
+Phase 08 delivers the confidence layer across unit, integration, fuzz, and devnet-oriented verification, all planned `must_haves.artifacts` align with implemented files, and the 08-06 drift-closure remains resolved with no open gap.
 
 ## Requirement ID Reconciliation (PLAN frontmatter vs REQUIREMENTS)
 
@@ -80,6 +80,7 @@ Evidence:
 ## Executed Verification Commands
 
 Pass:
+- `test -f` over all declared 08-01..08-06 `must_haves.artifacts` files (29/29 present)
 - `yarn test:sss1` (10 passing)
 - `yarn test:sss2` (13 passing)
 - `yarn test:integration` (1 passing)
@@ -90,9 +91,14 @@ Pass:
 - `cargo check --manifest-path trident-tests/Cargo.toml -p fuzz_0`
 - `cargo test --manifest-path trident-tests/Cargo.toml`
 - `./scripts/sss-token --help`
+- `./scripts/sss-token init --help`
+- `./scripts/sss-token mint --help`
+- `./scripts/sss-token blacklist --help`
+- `./scripts/sss-token seize --help`
 - `bash -n scripts/devnet/phase-08-sss1-proof.sh && bash -n scripts/devnet/phase-08-sss2-proof.sh && bash -n scripts/devnet/phase-08-stress.sh`
 
 Notes:
+- An initial batch run hit transient local-environment conflicts (`rpc port: 8899 already in use`) before reruns; rerunning the Anchor lanes completed successfully with passing suites.
 - Anchor emitted transient websocket warnings before `ts-mocha` execution in some lanes; suites still completed successfully.
 - Rust builds emitted non-fatal Anchor/Solana cfg warnings.
 
@@ -103,6 +109,7 @@ Date: 2026-03-12
 - `test -f sdk/core/tests/stablecoin.create.test.ts` -> pass
 - `test -f sdk/core/tests/stablecoin.lifecycle.test.ts` -> pass
 - `test -f services/mint-burn/src/__tests__/issuance.api.test.ts` -> pass
+- `rg -n "stablecoin\.create\.test\.ts|stablecoin\.lifecycle\.test\.ts|issuance\.api\.test\.ts" .planning/phases/08-testing-and-fuzzing/08-03-PLAN.md .planning/phases/08-testing-and-fuzzing/08-VERIFICATION.md` -> pass
 - `rg -n "TST-01" .planning/phases/08-testing-and-fuzzing/08-03-PLAN.md .planning/phases/08-testing-and-fuzzing/08-VERIFICATION.md` -> pass
 - `! rg -n "stablecoin\.test\.ts|src/__tests__/api\.test\.ts" .planning/phases/08-testing-and-fuzzing/08-03-PLAN.md .planning/phases/08-testing-and-fuzzing/08-VERIFICATION.md` -> pass
 
