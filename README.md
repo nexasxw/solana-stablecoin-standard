@@ -163,6 +163,10 @@ docker compose up            # start all services
 docker compose --profile sss2 up  # SSS-2 compliance services included
 ```
 
+Operations runbook:
+- `docs/OPERATIONS.md` for prerequisites, deterministic startup/teardown, health checks, and `sss2` profile flow.
+- `docs/testing/phase-08-command-truth.md` for authoritative quick/full/devnet command lanes.
+
 ---
 
 ## Documentation
