@@ -1356,6 +1356,7 @@ version = "0.1.0"
 dependencies = [
  "anchor-lang",
  "sss-1",
+ "sss-2",
  "trident-fuzz",
 ]
 
@@ -5666,6 +5667,17 @@ dependencies = [
  "anchor-spl",
  "spl-token-2022 4.0.1",
  "spl-token-metadata-interface 0.4.0",
+]
+
+[[package]]
+name = "sss-2"
+version = "0.1.0"
+dependencies = [
+ "anchor-lang",
+ "anchor-spl",
+ "spl-token-2022 4.0.1",
+ "spl-token-metadata-interface 0.4.0",
+ "spl-transfer-hook-interface 0.7.0",
 ]
 
 [[package]]

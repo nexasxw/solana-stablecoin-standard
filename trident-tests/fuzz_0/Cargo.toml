@@ -9,7 +9,18 @@ name = "fuzz_0"
 path = "src/bin/fuzz_0.rs"
 doc = false
 
+[[bin]]
+name = "fuzz_sss1"
+path = "src/bin/fuzz_sss1.rs"
+doc = false
+
+[[bin]]
+name = "fuzz_sss2"
+path = "src/bin/fuzz_sss2.rs"
+doc = false
+
 [dependencies]
 trident-fuzz = "0.12"
 anchor-lang = "0.31.1"
 sss-1 = { path = "../../programs/sss-1" }
+sss-2 = { path = "../../programs/sss-2" }
