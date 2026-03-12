@@ -51,7 +51,7 @@
 ### Verification
 
 - [x] **TST-01**: The project includes unit and integration coverage for SSS-1 and SSS-2 flows
-- [ ] **TST-02**: The project includes Trident fuzz coverage for high-risk instruction paths
+- [x] **TST-02**: The project includes Trident fuzz coverage for high-risk instruction paths
 - [x] **TST-03**: The project includes devnet stress or proof flows for shipped presets
 
 ### Documentation
@@ -122,7 +122,7 @@
 | SRV-03 | Phase 7 | Complete |
 | SRV-04 | Phase 7 | Complete |
 | TST-01 | Phase 8 | Complete |
-| TST-02 | Phase 8 | Pending |
+| TST-02 | Phase 8 | Complete |
 | TST-03 | Phase 8 | Complete |
 | DOC-01 | Phase 9 | Pending |
 | DOC-02 | Phase 9 | Pending |

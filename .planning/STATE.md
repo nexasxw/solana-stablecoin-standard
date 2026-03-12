@@ -4,17 +4,17 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 8
 current_phase_name: testing and fuzzing
-current_plan: 3
+current_plan: 5
 status: executing
-stopped_at: Completed 08-01-PLAN.md
-last_updated: "2026-03-12T04:50:40.471Z"
+stopped_at: Completed 08-04-PLAN.md
+last_updated: "2026-03-12T05:06:40.486Z"
 last_activity: 2026-03-12
 progress:
   total_phases: 12
   completed_phases: 6
   total_plans: 29
-  completed_plans: 26
-  percent: 90
+  completed_plans: 27
+  percent: 93
 ---
 
 # Project State
@@ -31,13 +31,13 @@ See: .planning/PROJECT.md (updated 2026-03-09)
 **Current Phase:** 8
 **Current Phase Name:** testing and fuzzing
 **Total Phases:** 12
-**Current Plan:** 3
+**Current Plan:** 5
 **Total Plans in Phase:** 5
 **Status:** Ready to execute
 **Last Activity:** 2026-03-12
 Last activity description: Completed plan 08-02 for SSS-1/SSS-2 integration edge-path expansion and Rust unit invariants
 
-**Progress:** [█████████░] 90%
+**Progress:** [█████████░] 93%
 
 ## Performance Metrics
 
@@ -71,6 +71,7 @@ Last activity description: Completed plan 08-02 for SSS-1/SSS-2 integration edge
 | Phase 07-backend-services P06 | 2min | 2 tasks | 5 files |
 | Phase 08-testing-and-fuzzing P02 | 5min | 3 tasks | 4 files |
 | Phase 08-testing-and-fuzzing P01 | 27 min | 2 tasks | 5 files |
+| Phase 08-testing-and-fuzzing P04 | 9min | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -130,6 +131,8 @@ Recent decisions affecting current work:
 - [Phase 08]: Lock SSS state layout and PDA seed invariants with lib-level Rust unit tests to guard high-risk assumptions.
 - [Phase 08-testing-and-fuzzing]: Locked service verification to direct mocha workspace commands under src/__tests__/**/*.test.ts.
 - [Phase 08-testing-and-fuzzing]: Made 08-VALIDATION.md the single authoritative quick/full/devnet command source for all phase 08 plans.
+- [Phase 08-testing-and-fuzzing]: Split fuzzing into baseline, SSS-1, and SSS-2 binaries for focused high-risk signal and deterministic CI smoke runs.
+- [Phase 08-testing-and-fuzzing]: Enforced invariant-first fuzzing with shared unauthorized-mutation, supply-consistency, and panic-free assertions before scenario expansion.
 
 ### Pending Todos
 
@@ -141,6 +144,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-12T04:50:40.468Z
-Stopped at: Completed 08-01-PLAN.md
+Last session: 2026-03-12T05:06:39.738Z
+Stopped at: Completed 08-04-PLAN.md
 Resume file: None
