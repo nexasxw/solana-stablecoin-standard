@@ -19,7 +19,7 @@ created: 2026-03-13
 |----------|-------|
 | **Framework** | Docker Compose runtime verification + curl health checks |
 | **Config file** | `docker-compose.yml` |
-| **Quick run command** | `docker compose config >/dev/null && docker compose build && docker compose up -d && docker compose ps` |
+| **Quick run command** | `docker compose config >/dev/null && rg -n "mint-burn:|indexer:|webhook:|compliance:|profiles:\\s*\\[\"sss2\"\\]|healthcheck:|3001|3002|3003|3004" docker-compose.yml && rg -n "\"start\"\\s*:" services/mint-burn/package.json services/indexer/package.json services/compliance/package.json services/webhook/package.json` |
 | **Full suite command** | `docker compose down -v || true && docker compose --profile sss2 down -v || true && docker compose config >/dev/null && docker compose build --no-cache && docker compose up -d && docker compose ps && curl -fsS http://localhost:3001/health && curl -fsS http://localhost:3002/health && curl -fsS http://localhost:3003/health && docker compose --profile sss2 up -d && docker compose --profile sss2 ps && curl -fsS http://localhost:3004/health` |
 | **Estimated runtime** | ~240 seconds |
 
@@ -27,10 +27,10 @@ created: 2026-03-13
 
 ## Sampling Rate
 
-- **After every task commit:** Run `docker compose config >/dev/null && docker compose build && docker compose up -d && docker compose ps`
+- **After every task commit:** Run `docker compose config >/dev/null && rg -n "mint-burn:|indexer:|webhook:|compliance:|profiles:\\s*\\[\"sss2\"\\]|healthcheck:|3001|3002|3003|3004" docker-compose.yml && rg -n "\"start\"\\s*:" services/mint-burn/package.json services/indexer/package.json services/compliance/package.json services/webhook/package.json`
 - **After every plan wave:** Run `docker compose down -v || true && docker compose --profile sss2 down -v || true && docker compose config >/dev/null && docker compose build --no-cache && docker compose up -d && docker compose ps && curl -fsS http://localhost:3001/health && curl -fsS http://localhost:3002/health && curl -fsS http://localhost:3003/health && docker compose --profile sss2 up -d && docker compose --profile sss2 ps && curl -fsS http://localhost:3004/health`
 - **Before `$gsd-verify-work`:** Full suite must be green
-- **Max feedback latency:** 300 seconds
+- **Max feedback latency target (quick sampling):** <=30 seconds
 
 ---
 
@@ -38,10 +38,9 @@ created: 2026-03-13
 
 | Task ID | Plan | Wave | Requirement | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|-----------|-------------------|-------------|--------|
-| 11-01-01 | 01 | 1 | OPS-01 | integration | `docker compose config >/dev/null && docker compose build` | ✅ | ⬜ pending |
-| 11-01-02 | 01 | 1 | OPS-01, OPS-02 | integration | `docker compose up -d && docker compose ps && curl -fsS http://localhost:3001/health && curl -fsS http://localhost:3002/health && curl -fsS http://localhost:3003/health` | ✅ | ⬜ pending |
-| 11-01-03 | 01 | 1 | OPS-02 | integration | `docker compose --profile sss2 up -d && docker compose --profile sss2 ps && curl -fsS http://localhost:3004/health` | ✅ | ⬜ pending |
-| 11-01-04 | 01 | 1 | OPS-03 | docs-check | `rg -n "docker compose|--profile sss2|down -v|health" README.md docs/OPERATIONS.md docs/API.md docs/TRACEABILITY.md` | ✅ | ⬜ pending |
+| 11-02-01 | 02 | 2 | OPS-01 | smoke-config | `docker compose config >/dev/null && rg -n "mint-burn:|indexer:|webhook:|healthcheck:|3001|3002|3003" docker-compose.yml && rg -n "app\\.get\\('/health'|listen\\(" services/mint-burn/src/index.ts services/indexer/src/index.ts services/webhook/src/index.ts` | ✅ | ⬜ pending |
+| 11-02-02 | 02 | 2 | OPS-02 | smoke-config | `docker compose config >/dev/null && rg -n "compliance:|profiles:\\s*\\[\"sss2\"\\]|healthcheck:|3004" docker-compose.yml && rg -n "app\\.get\\('/health'|listen\\(" services/compliance/src/index.ts` | ✅ | ⬜ pending |
+| 11-02-03 | 02 | 2 | OPS-01, OPS-02 | smoke-config | `docker compose config >/dev/null && rg -n "\"start\"\\s*:" services/mint-burn/package.json services/indexer/package.json services/compliance/package.json services/webhook/package.json && rg -n "mint-burn:|indexer:|webhook:|compliance:|command:|profiles:\\s*\\[\"sss2\"\\]" docker-compose.yml` | ✅ | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -71,7 +70,7 @@ created: 2026-03-13
 - [ ] Sampling continuity: no 3 consecutive tasks without automated verify
 - [ ] Wave 0 covers all MISSING references
 - [ ] No watch-mode flags
-- [ ] Feedback latency < 300s
+- [ ] Quick sampling feedback latency <=30s
 - [ ] `nyquist_compliant: true` set in frontmatter
 
 **Approval:** pending
