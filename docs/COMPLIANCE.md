@@ -118,6 +118,38 @@ Expected `--json` data shape:
 
 `seize` maps to `ComplianceModule.seize(fromTokenAccount, targetOwner, treasuryTokenAccount, seizer)`.
 
+### Seizure Workflow (`--json`)
+
+```bash
+./scripts/sss-token \
+  --mint <MINT> \
+  --variant SSS_2 \
+  --seizer-signer <SEIZER_KEYPAIR_PATH> \
+  --yes \
+  --json \
+  seize <FROM_TOKEN_ACCOUNT> <TARGET_OWNER> --to <TREASURY_TOKEN_ACCOUNT>
+```
+
+Success envelope shape:
+
+```json
+{
+  "ok": true,
+  "command": "seize",
+  "data": {
+    "operation": "seize",
+    "signature": "<tx-signature>",
+    "confirmation": {
+      "commitment": "processed|confirmed|finalized",
+      "confirmationStatus": "processed|confirmed|finalized|null",
+      "slot": 123,
+      "confirmations": 1
+    }
+  },
+  "error": null
+}
+```
+
 ## Deterministic Failure Contracts
 
 ### 1. Wrong variant / unauthorized surface
@@ -148,6 +180,7 @@ Calling compliance commands with `--variant SSS_1` or a deployment that resolves
 Examples:
 - Missing or empty `--reason` for `blacklist add`
 - Invalid base58 values for `address`, `fromTokenAccount`, `targetOwner`, or `--to`
+- `seize` without required `--to <treasuryTokenAccount>`
 
 Expected failure class:
 - `CLI_USAGE` for parse/usage failures
@@ -179,4 +212,3 @@ The exact on-chain rejection reason is environment-dependent, but the envelope/c
 ```
 
 These commands are the drift checks for this document’s command surface.
-
