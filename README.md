@@ -102,11 +102,11 @@ const stable = await SolanaStablecoin.create(connection, {
 });
 
 // Mint
-await stable.mint({ recipient, amount: 1_000_000, minter });
+await stable.mint({ recipientTokenAccount, amount: 1_000_000n, minter });
 
 // SSS-2 compliance
 await stable.compliance.blacklistAdd(address, "OFAC match");
-await stable.compliance.seize(frozenAccount, treasury);
+await stable.compliance.seize(fromTokenAccount, targetOwner, treasuryTokenAccount, seizer);
 
 const supply = await stable.getTotalSupply();
 ```
@@ -122,8 +122,8 @@ const supply = await stable.getTotalSupply();
 ./scripts/sss-token init --custom config.toml
 
 # Operations
-./scripts/sss-token mint <recipient> <amount>
-./scripts/sss-token burn <amount>
+./scripts/sss-token mint <recipientTokenAccount> <amount>
+./scripts/sss-token burn <burnerTokenAccount> <amount>
 ./scripts/sss-token freeze <address>
 ./scripts/sss-token thaw <address>
 ./scripts/sss-token pause && ./scripts/sss-token unpause
@@ -133,7 +133,7 @@ const supply = await stable.getTotalSupply();
 ./scripts/sss-token blacklist add <address> --reason "OFAC match"
 ./scripts/sss-token blacklist remove <address>
 ./scripts/sss-token blacklist check <address>
-./scripts/sss-token seize <address> --to <treasury>
+./scripts/sss-token seize <fromTokenAccount> <targetOwner> --to <treasuryTokenAccount>
 
 # Management
 ./scripts/sss-token minters get <address>
