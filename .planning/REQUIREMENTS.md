@@ -56,9 +56,9 @@
 
 ### Documentation
 
-- [ ] **DOC-01**: Reviewer-facing documentation explains architecture, presets, SDK usage, operations, compliance, and API surfaces
-- [ ] **DOC-02**: Examples in the docs match the actual SDK and program interfaces
-- [ ] **DOC-03**: Operational documentation explains how to run the local stack and reviewer flows
+- [x] **DOC-01**: Reviewer-facing documentation explains architecture, presets, SDK usage, operations, compliance, and API surfaces
+- [x] **DOC-02**: Examples in the docs match the actual SDK and program interfaces
+- [x] **DOC-03**: Operational documentation explains how to run the local stack and reviewer flows
 
 ### Deployment
 
@@ -124,9 +124,9 @@
 | TST-01 | Phase 8 | Complete |
 | TST-02 | Phase 8 | Complete |
 | TST-03 | Phase 8 | Complete |
-| DOC-01 | Phase 9 | Pending |
-| DOC-02 | Phase 9 | Pending |
-| DOC-03 | Phase 9 | Pending |
+| DOC-01 | Phase 9 | Complete |
+| DOC-02 | Phase 9 | Complete |
+| DOC-03 | Phase 9 | Complete |
 | DEP-01 | Phase 10 | Pending |
 | DEP-02 | Phase 10 | Pending |
 | DEP-03 | Phase 10 | Pending |

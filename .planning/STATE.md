@@ -4,17 +4,17 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 9
 current_phase_name: documentation
-current_plan: Not started
-status: planning
-stopped_at: Phase 9 context gathered
-last_updated: "2026-03-12T13:44:38.532Z"
+current_plan: 2
+status: in_progress
+stopped_at: Completed 09-documentation-02-PLAN.md
+last_updated: "2026-03-12T14:03:42.948Z"
 last_activity: 2026-03-12
 progress:
   total_phases: 12
   completed_phases: 7
-  total_plans: 30
-  completed_plans: 30
-  percent: 100
+  total_plans: 35
+  completed_plans: 31
+  percent: 89
 ---
 
 # Project State
@@ -31,13 +31,13 @@ See: .planning/PROJECT.md (updated 2026-03-09)
 **Current Phase:** 9
 **Current Phase Name:** documentation
 **Total Phases:** 12
-**Current Plan:** Not started
+**Current Plan:** 2
 **Total Plans in Phase:** 5
-**Status:** Ready to plan
+**Status:** In progress
 **Last Activity:** 2026-03-12
-Last activity description: Completed plan 08-02 for SSS-1/SSS-2 integration edge-path expansion and Rust unit invariants
+Last activity description: Completed plan 09-02 for architecture and standard documentation alignment
 
-**Progress:** [██████████] 100%
+**Progress:** [█████████░] 89%
 
 ## Performance Metrics
 
@@ -74,6 +74,7 @@ Last activity description: Completed plan 08-02 for SSS-1/SSS-2 integration edge
 | Phase 08-testing-and-fuzzing P04 | 9min | 3 tasks | 6 files |
 | Phase 08-testing-and-fuzzing P05 | 2min | 3 tasks | 6 files |
 | Phase 08-testing-and-fuzzing P06 | 3min | 3 tasks | 2 files |
+| Phase 09-documentation P02 | 3 min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -139,6 +140,8 @@ Recent decisions affecting current work:
 - [Phase 08]: Stress verification uses bounded retries per lane and fails overall when any lane exhausts retries.
 - [Phase 08-testing-and-fuzzing]: Resolved 08-03 artifact drift by updating plan artifact paths to implemented regression files instead of adding compatibility wrappers.
 - [Phase 08-testing-and-fuzzing]: Phase 08 verification status transitions now require dated command/result evidence blocks before score and status updates.
+- [Phase 09-documentation]: Standardize docs on a single three-layer model: on-chain programs, presets, then CLI/SDK surfaces.
+- [Phase 09-documentation]: Require explicit failure-path examples for role, preset, and compliance-gating behaviors in SSS-1/SSS-2 docs.
 
 ### Pending Todos
 
@@ -150,6 +153,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-12T13:44:38.529Z
-Stopped at: Phase 9 context gathered
-Resume file: .planning/phases/09-documentation/09-CONTEXT.md
+Last session: 2026-03-12T14:03:42.946Z
+Stopped at: Completed 09-documentation-02-PLAN.md
+Resume file: None
