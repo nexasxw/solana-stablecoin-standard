@@ -1,12 +1,15 @@
-# Devnet Proof Scripts (Phase 08)
+# Devnet Proof Scripts
 
-These scripts provide deterministic, operator-style proof runs for Phase 08 `TST-03`.
+These scripts provide deterministic, operator-style proof runs for Phase 08 `TST-03`
+and Phase 10 `DEP-02`.
 
 ## Scripts
 
 - `scripts/devnet/phase-08-sss1-proof.sh`
 - `scripts/devnet/phase-08-sss2-proof.sh`
 - `scripts/devnet/phase-08-stress.sh`
+- `scripts/devnet/phase-10-sss1-proof.sh`
+- `scripts/devnet/phase-10-sss2-proof.sh`
 
 ## Phase 10 Contract Baseline (DEP-01/02/03)
 
@@ -63,6 +66,90 @@ outputs. Each accepted run package must include:
 
 - `summary.md` (reviewer-facing pass/fail narrative)
 - `manifest.json` (machine-readable contract with canonical IDs and links)
+
+## Phase 10 Lane Interfaces
+
+Phase 10 lanes require explicit environment variables and produce fixed output
+schemas consumed by publication manifests.
+
+### SSS-1 invocation (`phase-10-sss1-proof.sh`)
+
+```bash
+RUN_ID=phase10-a-001 \
+AUTHORITY_SIGNER=~/.config/solana/devnet-authority.json \
+RECIPIENT_TOKEN_ACCOUNT=<recipient-token-account> \
+./scripts/devnet/phase-10-sss1-proof.sh
+```
+
+Required inputs:
+
+- `RUN_ID`
+- `AUTHORITY_SIGNER`
+- `RECIPIENT_TOKEN_ACCOUNT`
+
+Optional controls:
+
+- `RPC_URL` (default `https://api.devnet.solana.com`)
+- `ARTIFACT_ROOT` (default `artifacts/devnet/phase-10`)
+- `MINTER_SIGNER`, `PAUSER_SIGNER`
+- `TOKEN_NAME`, `TOKEN_SYMBOL`, `TOKEN_URI`, `TOKEN_DECIMALS`
+- `MINT_QUOTA`, `MINT_AMOUNT`, `NEGATIVE_MINT_AMOUNT`
+
+Deterministic output contract (`artifacts/devnet/phase-10/sss1-proof/$RUN_ID`):
+
+- `commands/*.cmd`, `commands/*.json`
+- `state/pre-status.json`, `state/pre-supply.json`
+- `state/negative-path-mint-while-paused.json` (expected failure capture)
+- `state/post-status.json`, `state/post-supply.json`
+- `signatures.csv`
+- `run-metadata.env`
+- `summary.md`
+
+### SSS-2 invocation (`phase-10-sss2-proof.sh`)
+
+```bash
+RUN_ID=phase10-a-001 \
+AUTHORITY_SIGNER=~/.config/solana/devnet-authority.json \
+TARGET_TOKEN_ACCOUNT=<target-token-account> \
+TARGET_OWNER=<target-owner-pubkey> \
+TREASURY_TOKEN_ACCOUNT=<treasury-token-account> \
+./scripts/devnet/phase-10-sss2-proof.sh
+```
+
+Required inputs:
+
+- `RUN_ID`
+- `AUTHORITY_SIGNER`
+- `TARGET_TOKEN_ACCOUNT`
+- `TARGET_OWNER`
+- `TREASURY_TOKEN_ACCOUNT`
+
+Optional controls:
+
+- `RPC_URL` (default `https://api.devnet.solana.com`)
+- `ARTIFACT_ROOT` (default `artifacts/devnet/phase-10`)
+- `MINTER_SIGNER`, `PAUSER_SIGNER`, `BLACKLISTER_SIGNER`, `SEIZER_SIGNER`
+- `TOKEN_NAME`, `TOKEN_SYMBOL`, `TOKEN_URI`, `TOKEN_DECIMALS`
+- `MINT_QUOTA`, `MINT_AMOUNT`, `BLACKLIST_REASON`
+
+Deterministic output contract (`artifacts/devnet/phase-10/sss2-proof/$RUN_ID`):
+
+- `commands/*.cmd`, `commands/*.json`
+- `state/pre-status.json`, `state/pre-supply.json`
+- `state/negative-path-seize-without-blacklist.json` (expected failure capture)
+- `state/blacklist-check.json`
+- `state/post-status.json`, `state/post-supply.json`
+- `signatures.csv`
+- `run-metadata.env`
+- `summary.md`
+
+### Negative-path and directory safety guarantees
+
+- Each lane includes one deterministic negative-path operation as expected failure
+  evidence.
+- Each lane exits non-zero if `artifacts/devnet/phase-10/*/$RUN_ID` already exists.
+- `summary.md`, `run-metadata.env`, and `signatures.csv` are mandatory publication
+  artifacts for both lanes.
 
 ## Deterministic Artifact Contract
 
