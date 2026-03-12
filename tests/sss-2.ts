@@ -299,6 +299,36 @@ describe("SSS-2: Compliant Stablecoin", () => {
       "InvalidBlacklistReason"
     );
 
+    await expectAnchorError(
+      sss2.methods
+        .addToBlacklist("x".repeat(129))
+        .accounts({
+          blacklister: blacklister.publicKey,
+          stablecoin: stablecoinPda,
+          address: user.publicKey,
+          blacklistEntry: blacklistPda,
+          systemProgram: SYSTEM_PROGRAM,
+        })
+        .signers(toSignerArray(blacklister))
+        .rpc(),
+      "InvalidBlacklistReason"
+    );
+
+    await expectAnchorError(
+      sss2.methods
+        .addToBlacklist("operator mismatch")
+        .accounts({
+          blacklister: minter.publicKey,
+          stablecoin: stablecoinPda,
+          address: user.publicKey,
+          blacklistEntry: blacklistPda,
+          systemProgram: SYSTEM_PROGRAM,
+        })
+        .signers(toSignerArray(minter))
+        .rpc(),
+      "Unauthorized"
+    );
+
     const signature = await sss2.methods
       .addToBlacklist("OFAC match")
       .accounts({
@@ -374,6 +404,22 @@ describe("SSS-2: Compliant Stablecoin", () => {
         config.decimals
       ),
       "RecipientBlacklisted"
+    );
+  });
+
+  it("prioritizes sender blacklist denial when both sides are blacklisted", async () => {
+    await expectAnchorError(
+      transferWithHook(
+        provider.connection,
+        authority,
+        userAta,
+        mint.publicKey,
+        recipientAta,
+        user,
+        1n,
+        config.decimals
+      ),
+      "SenderBlacklisted"
     );
   });
 
@@ -488,6 +534,42 @@ describe("SSS-2: Compliant Stablecoin", () => {
         .signers(toSignerArray(seizer))
         .rpc(),
       "SeizeTargetNotFrozen"
+    );
+
+    await expectAnchorError(
+      sss2.methods
+        .seize()
+        .accounts({
+          seizer: seizer.publicKey,
+          stablecoin: stablecoinPda,
+          mint: mint.publicKey,
+          fromTokenAccount: userAta,
+          targetOwner: user.publicKey,
+          treasuryTokenAccount: cleanUserAta,
+          blacklistEntry: blacklistPda,
+          tokenProgram: TOKEN_2022_PROGRAM,
+        })
+        .signers(toSignerArray(seizer))
+        .rpc(),
+      "InvalidTreasuryAccount"
+    );
+
+    await expectAnchorError(
+      sss2.methods
+        .seize()
+        .accounts({
+          seizer: seizer.publicKey,
+          stablecoin: stablecoinPda,
+          mint: mint.publicKey,
+          fromTokenAccount: userAta,
+          targetOwner: cleanUser.publicKey,
+          treasuryTokenAccount: treasuryAta,
+          blacklistEntry: blacklistPda,
+          tokenProgram: TOKEN_2022_PROGRAM,
+        })
+        .signers(toSignerArray(seizer))
+        .rpc(),
+      "InvalidTokenAccountOwner"
     );
 
     const cleanOwnerBlacklistPda = findBlacklistPda(
