@@ -21,7 +21,7 @@
   > After this: Deliver the CLI foundation and runtime configuration layer that all Phase 6 commands depend on.
 - [x] **S07: Backend Services** `risk:medium` `depends:[S06]`
   > After this: Establish the shared backend contracts and persistence baseline used by every Phase 7 service.
-- [ ] **S08: Testing And Fuzzing** `risk:medium` `depends:[S07]`
+- [x] **S08: Testing And Fuzzing** `risk:medium` `depends:[S07]`
   > After this: unit tests prove Testing And Fuzzing works
 - [ ] **S09: Documentation** `risk:medium` `depends:[S08]`
   > After this: unit tests prove Documentation works
