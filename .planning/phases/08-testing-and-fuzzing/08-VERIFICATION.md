@@ -106,6 +106,13 @@ Date: 2026-03-12
 - `rg -n "TST-01" .planning/phases/08-testing-and-fuzzing/08-03-PLAN.md .planning/phases/08-testing-and-fuzzing/08-VERIFICATION.md` -> pass
 - `! rg -n "stablecoin\.test\.ts|src/__tests__/api\.test\.ts" .planning/phases/08-testing-and-fuzzing/08-03-PLAN.md .planning/phases/08-testing-and-fuzzing/08-VERIFICATION.md` -> pass
 
+## Requirement Continuity
+
+`TST-01` remains explicitly mapped to the corrected 08-03 artifacts in both planning and verification outputs, using:
+- `sdk/core/tests/stablecoin.create.test.ts`
+- `sdk/core/tests/stablecoin.lifecycle.test.ts`
+- `services/mint-burn/src/__tests__/issuance.api.test.ts`
+
 ## Score Rationale
 - Baseline verification layer implemented and executable across TST-01/TST-02/TST-03 contracts.
 - 08-03 artifact-path drift is closed and strict artifact conformance is restored.
