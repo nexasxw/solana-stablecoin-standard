@@ -53,6 +53,8 @@ Each task was committed atomically:
 2. **Task 2: Expand SSS-2 integration edge-path coverage** - `a9754ab` (test)
 3. **Task 3: Add Rust unit tests for high-value local logic** - `2cb9039` (test)
 
+**Plan metadata:** `7a2e8da` (docs)
+
 ## Files Created/Modified
 - `.planning/phases/08-testing-and-fuzzing/08-02-SUMMARY.md` - Phase execution summary and decision/deviation log.
 - `tests/sss-1.ts` - Added deterministic role, pause, quota, and token-account-state negative-path assertions.
@@ -111,3 +113,4 @@ None - no external service configuration required.
 - FOUND commit: `37f1676`
 - FOUND commit: `a9754ab`
 - FOUND commit: `2cb9039`
+- FOUND commit: `7a2e8da`
